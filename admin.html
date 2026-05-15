@@ -698,6 +698,25 @@ function svC(rid,cid){
   DB.ss(s);cM();rSt();renderSB();
 }
 function dC(rid,cid){if(!confirm('이 구분을 삭제합니까?'))return;const s=gset(),r=s.rounds.find(r=>r.id===rid);if(r)r.categories=r.categories.filter(c=>c.id!==cid);DB.ss(s);rSt();}
+function rG(){
+  document.getElementById('gc').innerHTML=`<div style="max-width:760px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <img src="logo.png" style="height:30px;object-fit:contain" onerror="this.style.display='none'">
+      <div><div style="font-size:18px;font-weight:800;color:var(--g)">장학생 접수 관리 시스템</div><div style="font-size:12px;color:var(--tx3)">의왕시인재육성재단 · 관리자 매뉴얼</div></div>
+      <span style="margin-left:auto;background:var(--glt);color:var(--g);font-size:12px;font-weight:800;padding:5px 13px;border-radius:var(--r20)">v1.3.0</span>
+    </div>
+    <div class="card"><div class="cttl"><div class="cttl-l">버전 이력</div></div>
+    ${[{ver:'v1.3.0',date:'2026.05',latest:true,items:['라이트 사이드바 (화이트 테마)','접수/선발현황 사이드바 확장 서브메뉴','행 밀도 버튼, 열 드래그 조절','서류 출력·삭제 버튼','선발현황 년도별 구분','설정 회차별 백업/삭제','이전이력 전체 컬럼 표시']},{ver:'v1.2.0',date:'2026.05',latest:false,items:['서류 검토 (적격/부적격/사유)','기본정보 인라인 수정','선발현황 대시보드','이전이력 자동 이관','도움말 탭']},{ver:'v1.0.0',date:'2026.05',latest:false,items:['최초 시스템 구축']},].map(v=>`<div style="display:flex;gap:14px;margin-bottom:16px"><div style="flex-shrink:0;text-align:right;width:64px"><div style="font-weight:800;font-size:13px;color:${v.latest?'var(--g)':'var(--tx3)'}">${v.ver}</div><div style="font-size:11px;color:var(--tx3)">${v.date}</div>${v.latest?'<span style="background:var(--glt);color:var(--g);font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px">최신</span>':''}</div><div style="flex:1;border-left:2px solid ${v.latest?'var(--g)':'var(--bd)'};padding-left:14px"><ul style="padding-left:14px;font-size:13px;color:var(--tx2);line-height:2">${v.items.map(i=>`<li>${i}</li>`).join('')}</ul></div></div>`).join('')}
+    </div>
+    <div class="card"><div class="cttl"><div class="cttl-l">기술 안내</div></div>
+    <div style="font-size:13px;color:var(--tx2);line-height:2">
+      <strong>저장 방식</strong>: 브라우저 로컬 저장 (localStorage) — 같은 기기·같은 브라우저에서만 유지<br>
+      <strong>Supabase 연동 후</strong>: 모든 기기 공유, PDF 클라우드 저장, 파일 보기 활성화<br>
+      <strong>로그인 변경</strong>: admin.html 내 <code style="background:#f0f4f0;padding:1px 6px;border-radius:4px">ACCS</code> 배열 수정<br>
+      <strong>열 너비</strong>: 헤더 경계선 드래그로 조절, 자동 저장
+    </div></div>
+    </div>`;
+}
 function cM(){document.getElementById('mbg').classList.remove('on');}
 document.getElementById('mbg').addEventListener('click',e=>{if(e.target===document.getElementById('mbg'))cM();});
   document.getElementById('gc').innerHTML=`<div style="max-width:760px">
@@ -746,7 +765,7 @@ function printPanel(){
     </div>`;}).join('')}
   ${(app.notes||[]).length?`<div class="sec">특이사항</div>${app.notes.map(n=>`<div style="background:#fffde7;padding:8px 10px;border-radius:6px;margin-bottom:5px;font-size:13px">${n.text} <span style="font-size:11px;color:#999">— ${n.date}</span></div>`).join('')}`:''}
   <div class="footer">의왕시인재육성재단 · 사업자등록번호: 138-82-06305(16051) · 031-345-2590</div>
-  <script>window.onload=function(){window.print();}<\/script>
+  '<scr'+'ipt>window.onload=function(){window.print();}</'+'script>'
   </body></html>`);
   w.document.close();
 }
