@@ -199,6 +199,9 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
         <div class="ni" id="nhs" onclick="tg('s')"><div class="ni-l"><span class="ni-icon">🏆</span> 선발 현황</div><span class="ni-arr" id="as">▾</span></div>
         <div class="ns" id="ss"></div>
       </div>
+      <div class="nav-g">
+        <div class="ni" id="ndb" onclick="sw('seldb','db')"><div class="ni-l"><span class="ni-icon">📊</span> 대시보드</div></div>
+      </div>
       <div class="sb-sep"></div>
       <div class="sb-sec">데이터</div>
       <div class="nav-g"><div class="ni" id="nl" onclick="sw('legacy','l')"><div class="ni-l"><span class="ni-icon">📁</span> 이전 이력</div></div></div>
@@ -211,6 +214,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
     <div class="mc">
       <div id="pd"><div class="pane" id="dc"></div></div>
       <div id="ps" style="display:none"><div class="pane" id="sc"></div></div>
+      <div id="pseldb" style="display:none"><div class="pane" id="dbc"></div></div>
       <div id="pl" style="display:none"><div class="pane" id="lc"></div></div>
       <div id="pst" style="display:none"><div class="pane" id="stc"></div></div>
       <div id="pg" style="display:none"><div class="pane" id="gc"></div></div>
@@ -281,7 +285,7 @@ function doLogin(){
   document.getElementById('anm').textContent=acc.name+' 님';
   ld2();inj();renderSB();
   const s=gset();CRD=s.rounds[0]?.id||null;CSD=s.rounds[0]?.id||null;
-  rD();rSel();rL();rSt();rG();
+  rD();rSel();rSelDb();rL();rSt();rG();
 }
 function logout(){document.getElementById('lw').style.display='flex';document.getElementById('app').style.display='none';}
 function inj(){
@@ -364,9 +368,9 @@ function gD(id){CRD=id;sp('d');mk('d',id);rD();}
 function chSR(id){CSD=id;rSel();}
 function chYR(y){CYR=y;rSel();}
 function gS(id){CSD=id;sp('s');mk('s',id);rSel();}
-function sp(n){['d','s','l','st','g'].forEach(p=>{document.getElementById('p'+p).style.display=p===n?'':'none';});}
+function sp(n){['d','s','seldb','l','st','g'].forEach(p=>{document.getElementById('p'+p).style.display=p===n?'':'none';});}
 function mk(g,id){document.querySelectorAll('.nsi').forEach(el=>el.classList.remove('on'));document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));const sub=document.getElementById('s'+g);if(sub){sub.classList.add('open');const arr=document.getElementById('a'+g);if(arr)arr.classList.add('open');const rounds=gset().rounds;sub.querySelectorAll('.nsi').forEach((el,i)=>{if(rounds[i]?.id===id)el.classList.add('on');});}}
-function sw(pane,navId){sp(pane==='dash'?'d':pane==='selection'?'s':pane==='legacy'?'l':pane==='settings'?'st':'g');document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));const el=document.getElementById('n'+navId);if(el)el.classList.add('on');document.querySelectorAll('.nsi').forEach(el=>el.classList.remove('on'));}
+function sw(pane,navId){sp(pane==='dash'?'d':pane==='selection'?'s':pane==='seldb'?'seldb':pane==='legacy'?'l':pane==='settings'?'st':'g');document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));const el=document.getElementById('n'+navId);if(el)el.classList.add('on');document.querySelectorAll('.nsi').forEach(el=>el.classList.remove('on'));}
 function gcd(rId,cId){return gset().rounds.find(r=>r.id===rId)?.categories.find(c=>c.id===cId)?.docs||[];}
 function gm(app){return gcd(app.roundId,app.categoryId).filter(d=>d.req&&!app.docs[d.id]);}
 function gdw(app){
@@ -588,10 +592,7 @@ function rSel(){
   var dupM={};
   allSel.forEach(a=>{if(!a.birth)return;var k=a.name+'_'+a.birth;if(!dupM[k])dupM[k]=[];dupM[k].push(a);});
   var dups=Object.values(dupM).filter(g=>g.length>=2);
-  var years=[...new Set([...AR.map(r=>{var m=r.label&&r.label.match(/\d{4}/);return m?m[0]:null;}),
-    ...leg.map(a=>{var m=a.roundLabel&&a.roundLabel.match(/\d{4}/);return m?m[0]:null;})].filter(Boolean))].sort((a,b)=>b-a);
 
-  // 회차별
   var round=AR.find(r=>r.id===CSD);
   var ra=apps.filter(a=>a.roundId===CSD);
   var totalSel=ra.filter(a=>a.selected==='선발').length;
@@ -601,47 +602,32 @@ function rSel(){
     var pct=ca.length?Math.round(sel/ca.length*100):0;
     var tgt=cat.target||0;
     var diff=tgt?tgt-sel:null;
-    var diffTxt=diff!==null?(diff>0?`<span style="color:#c62828;font-size:11px"> 부족 ${diff}</span>`:diff===0?`<span style="color:var(--g);font-size:11px"> ✓</span>`:`<span style="color:#1565c0;font-size:11px"> +${Math.abs(diff)}</span>`):'';
+    var diffTxt=diff!==null?(diff>0?`<span style="color:#c62828;font-size:11px"> 부족 ${diff}</span>`:diff===0?`<span style="color:var(--g);font-size:11px"> ✓충족</span>`:`<span style="color:#1565c0;font-size:11px"> 초과 ${Math.abs(diff)}</span>`):'';
     return `<tr><td>${cat.name}</td><td style="text-align:center">${tgt||'−'}</td><td style="text-align:center;font-weight:800">${ca.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${sel}${diffTxt}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>`;
   }).join('');
   var roundBtns=AR.map(r=>`<button class="db${CSD===r.id?' on':''}" data-rid="${r.id}" onclick="chSR(this.dataset.rid)">${r.label}</button>`).join('');
-  var roundHtml=`<div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <h3 style="font-size:14px;font-weight:800">${round?.label||''} 구분별 현황</h3>
-      <button class="ibtn" data-rid="${CSD}" onclick="expSel(this.dataset.rid)">⬇ 선발 명단 CSV</button>
+  var dupHtml=`<div class="card"><div class="cttl"><div class="cttl-l" style="color:#c62828">⚠ 중복 수혜 (이름+생년월일)</div></div>${dups.length?dups.map(g=>`<div class="hi"><div style="font-weight:800;font-size:15px">${g[0].name} <span class="dup-b">중복 ${g.length}회</span></div><div style="font-size:12px;color:var(--tx3)">${g[0].birth} · ${g[0].addr||'-'}</div>${g.map(a=>`<span class="hb y" style="margin-right:4px">${a.categoryName} (${a.roundLabel||'현재'})</span>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}</div>`;
+  var srchHtml='<div class="card"><div class="cttl"><div class="cttl-l">수혜 이력 조회 (현재+이전)</div></div><div class="hs"><input type="text" id="hq" placeholder="이름 검색"><button onclick="sH()">조회</button></div><div id="hr"></div></div>';
+  document.getElementById('sc').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <h2 style="font-size:16px;font-weight:800">${round?.label||''} 선발 현황</h2>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">${roundBtns}</div>
+      <button class="ibtn" style="margin-left:auto" data-rid="${CSD}" onclick="expSel(this.dataset.rid)">⬇ 선발 명단 CSV</button>
     </div>
     <div class="sg"><div class="sc2"><div class="n" style="color:var(--g)">${ra.length}</div><div class="l">전체 접수</div></div>
     <div class="sc2"><div class="n" style="color:#1565c0">${totalSel}</div><div class="l">선발 확정</div></div>
     <div class="sc2"><div class="n" style="color:#c62828">${dups.length}</div><div class="l">중복 수혜자</div></div></div>
+    <div class="card"><div class="cttl"><div class="cttl-l">구분별 현황</div></div>
     <table class="st"><thead><tr><th>구분</th><th style="text-align:center">목표</th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th>선발률</th></tr></thead>
-    <tbody>${catRows}</tbody></table></div>`;
+    <tbody>${catRows}</tbody></table></div>
+    ${dupHtml}${srchHtml}`;
+}
+function rSelDb(){
+  var s=gset(),apps=DB.ga(),leg=gl2(),AR=s.rounds;
+  var years=[...new Set([...AR.map(r=>{var m=r.label&&r.label.match(/\d{4}/);return m?m[0]:null;}),
+    ...leg.map(a=>{var m=a.roundLabel&&a.roundLabel.match(/\d{4}/);return m?m[0]:null;})].filter(Boolean))].sort((a,b)=>b-a);
 
-  // 년도별
-  if(!CYR&&years.length)CYR=years[0];
-  var yearBtns=years.map(y=>`<button class="db${CYR===y?' on':''}" data-yr="${y}" onclick="chYR(this.dataset.yr)">${y}년</button>`).join('');
-  var yrApps=apps.filter(a=>{var r=AR.find(r=>r.id===a.roundId);return r&&r.label&&r.label.includes(CYR);});
-  var yrSel=yrApps.filter(a=>a.selected==='선발').length;
-  var yrLeg=leg.filter(a=>a.roundLabel&&a.roundLabel.includes(CYR)&&a.selected==='선발');
-  var yrRows=AR.filter(r=>r.label&&r.label.includes(CYR)).map(r=>{
-    var ra2=yrApps.filter(a=>a.roundId===r.id);
-    var sel2=ra2.filter(a=>a.selected==='선발').length;
-    var pct=ra2.length?Math.round(sel2/ra2.length*100):0;
-    var subRows=(r.categories||[]).map(cat=>{
-      var ca=ra2.filter(a=>a.categoryId===cat.id);
-      var s2=ca.filter(a=>a.selected==='선발').length;
-      var p2=ca.length?Math.round(s2/ca.length*100):0;
-      return `<tr style="background:#f8faf8"><td style="padding-left:20px;color:var(--tx2);font-size:12px">└ ${cat.name}</td><td style="text-align:center">${ca.length}</td><td style="text-align:center;color:var(--g)">${s2}</td><td><span>${p2}%</span></td></tr>`;
-    }).join('');
-    return `<tr><td style="font-weight:700">${r.label}</td><td style="text-align:center;font-weight:800">${ra2.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${sel2}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>${subRows}`;
-  }).join('');
-  var yearHtml=`<div class="card">
-    <div class="sg"><div class="sc2"><div class="n" style="color:var(--g)">${yrApps.length}</div><div class="l">${CYR||''}년 접수</div></div>
-    <div class="sc2"><div class="n" style="color:#1565c0">${yrSel}</div><div class="l">선발 확정</div></div>
-    <div class="sc2"><div class="n" style="color:var(--o)">${yrSel+yrLeg.length}</div><div class="l">누적 수혜</div></div></div>
-    <table class="st"><thead><tr><th>회차</th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th>선발률</th></tr></thead>
-    <tbody>${yrRows||'<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:20px">해당 없음</td></tr>'}</tbody></table></div>`;
-
-  // 대시보드
+  // 구분별 누적
   var catMap={};
   AR.forEach(r=>(r.categories||[]).forEach(cat=>{
     var key=cat.name;
@@ -652,44 +638,45 @@ function rSel(){
     if(cat.target)catMap[key].target=Math.max(catMap[key].target,cat.target);
   }));
   leg.filter(a=>a.selected==='선발').forEach(a=>{var k=a.categoryName;if(catMap[k])catMap[k].legSel++;});
-  var totApp=apps.length,totSel=apps.filter(a=>a.selected==='선발').length;
-  var dashCatRows=Object.values(catMap).map(c=>{
+
+  var catRows=Object.values(catMap).map(c=>{
     var pct=c.app?Math.round(c.sel/c.app*100):0;
     var diff=c.target?c.target-c.sel:null;
-    var diffTxt=diff!==null?(diff>0?`<span style="color:#c62828"> 부족 ${diff}</span>`:diff===0?`<span style="color:var(--g)"> ✓충족</span>`:`<span style="color:#1565c0"> 초과 ${Math.abs(diff)}</span>`):'';
+    var diffTxt=diff!==null?(diff>0?`<span style="color:#c62828;font-weight:700"> 부족 ${diff}</span>`:diff===0?`<span style="color:var(--g);font-weight:700"> ✓충족</span>`:`<span style="color:#1565c0;font-weight:700"> 초과 ${Math.abs(diff)}</span>`):'';
     return `<tr><td style="font-weight:700">${c.name}</td><td style="text-align:center">${c.target||'−'}</td><td style="text-align:center;font-weight:800">${c.app}</td><td style="text-align:center;font-weight:800;color:var(--g)">${c.sel}${diffTxt}</td><td style="text-align:center;color:var(--tx3)">${c.legSel}</td><td style="text-align:center;font-weight:800">${c.sel+c.legSel}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>`;
   }).join('');
-  var dashYrRows=years.map(y=>{
+
+  // 년도별
+  var yrRows=years.map(y=>{
     var ya=apps.filter(a=>{var r=AR.find(r=>r.id===a.roundId);return r&&r.label&&r.label.includes(y);});
     var ys=ya.filter(a=>a.selected==='선발').length;
     var yl=leg.filter(a=>a.roundLabel&&a.roundLabel.includes(y)&&a.selected==='선발').length;
     var pct=ya.length?Math.round(ys/ya.length*100):0;
-    return `<tr><td style="font-weight:700">${y}년</td><td style="text-align:center;font-weight:800">${ya.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${ys}</td><td style="text-align:center;color:var(--tx3)">${yl}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>`;
+    var subRows=AR.filter(r=>r.label&&r.label.includes(y)).map(r=>{
+      var ra2=ya.filter(a=>a.roundId===r.id);
+      var s2=ra2.filter(a=>a.selected==='선발').length;
+      var p2=ra2.length?Math.round(s2/ra2.length*100):0;
+      return `<tr style="background:#f8faf8"><td style="padding-left:20px;color:var(--tx2);font-size:12px">└ ${r.label}</td><td style="text-align:center">${ra2.length}</td><td style="text-align:center;color:var(--g)">${s2}</td><td>${p2}%</td></tr>`;
+    }).join('');
+    return `<tr><td style="font-weight:800">${y}년</td><td style="text-align:center;font-weight:800">${ya.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${ys}</td><td style="text-align:center;color:var(--tx3)">${yl}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>${subRows}`;
   }).join('');
-  var dashHtml=`<div class="sg" style="grid-template-columns:repeat(4,1fr)">
-    <div class="sc2"><div class="n" style="color:var(--g)">${totApp}</div><div class="l">전체 접수</div></div>
-    <div class="sc2"><div class="n" style="color:#1565c0">${totSel}</div><div class="l">현재 선발</div></div>
-    <div class="sc2"><div class="n" style="color:#c62828">${dups.length}</div><div class="l">중복 수혜자</div></div>
-    <div class="sc2"><div class="n" style="color:var(--o)">${leg.filter(a=>a.selected==='선발').length}</div><div class="l">이전 수혜자</div></div></div>
+
+  var totSel=apps.filter(a=>a.selected==='선발').length;
+  var legSel=leg.filter(a=>a.selected==='선발').length;
+  document.getElementById('dbc').innerHTML=`
+    <h2 style="font-size:16px;font-weight:800;margin-bottom:14px">📊 연간 대시보드</h2>
+    <div class="sg" style="grid-template-columns:repeat(4,1fr)">
+      <div class="sc2"><div class="n" style="color:var(--g)">${apps.length}</div><div class="l">현재 전체 접수</div></div>
+      <div class="sc2"><div class="n" style="color:#1565c0">${totSel}</div><div class="l">현재 선발</div></div>
+      <div class="sc2"><div class="n" style="color:var(--o)">${legSel}</div><div class="l">이전 수혜자</div></div>
+      <div class="sc2"><div class="n" style="color:#2e7d32">${totSel+legSel}</div><div class="l">누적 수혜</div></div>
+    </div>
     <div class="card"><div class="cttl"><div class="cttl-l">구분별 누적 현황</div></div>
-    <table class="st"><thead><tr><th>구분</th><th style="text-align:center">목표</th><th style="text-align:center">현재 접수</th><th style="text-align:center">현재 선발</th><th style="text-align:center">이전 수혜</th><th style="text-align:center">누적</th><th>선발률</th></tr></thead>
-    <tbody>${dashCatRows}</tbody></table></div>
+    <table class="st"><thead><tr><th>구분</th><th style="text-align:center">목표</th><th style="text-align:center">현재 접수</th><th style="text-align:center">현재 선발</th><th style="text-align:center">이전 수혜</th><th style="text-align:center">누적 합계</th><th>선발률</th></tr></thead>
+    <tbody>${catRows||'<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:20px">데이터 없음</td></tr>'}</tbody></table></div>
     <div class="card"><div class="cttl"><div class="cttl-l">년도별 집계</div></div>
     <table class="st"><thead><tr><th>년도</th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th style="text-align:center">이전 수혜</th><th>선발률</th></tr></thead>
-    <tbody>${dashYrRows}</tbody></table></div>`;
-
-  var dupHtml=`<div class="card"><div class="cttl"><div class="cttl-l" style="color:#c62828">⚠ 중복 수혜 (이름+생년월일)</div></div>${dups.length?dups.map(g=>`<div class="hi"><div style="font-weight:800;font-size:15px">${g[0].name} <span class="dup-b">중복 ${g.length}회</span></div><div style="font-size:12px;color:var(--tx3)">${g[0].birth} · ${g[0].addr||'-'}</div>${g.map(a=>`<span class="hb y" style="margin-right:4px">${a.categoryName} (${a.roundLabel||'현재'})</span>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}</div>`;
-  var srchHtml='<div class="card"><div class="cttl"><div class="cttl-l">수혜 이력 조회</div></div><div class="hs"><input type="text" id="hq" placeholder="이름 검색"><button onclick="sH()">조회</button></div><div id="hr"></div></div>';
-
-  var topBtns=`<div style="display:flex;border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden">
-    <button class="db${SMODE==='dash'?' on':''}" data-m="dash" onclick="SMODE=this.dataset.m;rSel()">📊 대시보드</button>
-    <button class="db${SMODE==='round'?' on':''}" data-m="round" onclick="SMODE=this.dataset.m;rSel()">회차별</button>
-    <button class="db${SMODE==='year'?' on':''}" data-m="year" onclick="SMODE=this.dataset.m;rSel()">년도별</button>
-  </div>`;
-  var subBtns=SMODE==='round'?`<div style="display:flex;gap:5px;flex-wrap:wrap">${roundBtns}</div>`:SMODE==='year'?`<div style="display:flex;gap:5px;flex-wrap:wrap">${yearBtns}</div>`:'';
-  var mainHtml=SMODE==='round'?roundHtml:SMODE==='year'?yearHtml:dashHtml;
-
-  document.getElementById('sc').innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">${topBtns}${subBtns}</div>${mainHtml}${dupHtml}${srchHtml}`;
+    <tbody>${yrRows||'<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px">데이터 없음</td></tr>'}</tbody></table></div>`;
 }
 function sH(){
   const q=document.getElementById('hq')?.value.trim();if(!q){alert('이름 입력');return;}
@@ -736,7 +723,7 @@ function clrLeg(){if(!confirm('모든 이전 이력을 초기화합니까?'))ret
 function rSt(){
   const s=gset();
   document.getElementById('stc').innerHTML=`
-    <div class="stt"><div class="st-t${CST==='rounds'?' on':''}" onclick="swST('rounds')">회차 및 구분</div><div class="st-t${CST==='account'?' on':''}" onclick="swST('account')">계정 설정</div></div>
+    <div class="stt"><div class="st-t${CST==='rounds'?' on':''}" onclick="swST('rounds')">회차 및 구분</div><div class="st-t${CST==='account'?' on':''}" onclick="swST('account')">계정 설정</div><div class="st-t${CST==='data'?' on':''}" onclick="swST('data')">데이터 관리</div></div>
     <div id="str" style="display:${CST==='rounds'?'block':'none'}">
       <div class="card"><div class="cttl"><div class="cttl-l">회차 목록</div><button class="ibtn grn" onclick="oAR()">+ 회차 추가</button></div>
       ${s.rounds.map(r=>{const backed=localStorage.getItem('backup_'+r.id);return`<div class="ri2">
@@ -755,9 +742,34 @@ function rSt(){
     </div>
     <div id="sta" style="display:${CST==='account'?'block':'none'}">
       <div class="card"><div class="cttl"><div class="cttl-l">계정 정보</div></div><div style="font-size:13px;color:var(--tx2);line-height:2">현재 계정: <strong>admin</strong><br>변경: admin.html 내 <code style="background:#f0f4f0;padding:1px 6px;border-radius:4px">ACCS</code> 배열의 pw 수정</div></div>
+    </div>
+    <div id="std" style="display:${CST==='data'?'block':'none'}">
+      <div class="card"><div class="cttl"><div class="cttl-l">데이터 관리</div></div>
+        <div style="font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:14px">
+          ⚠ 서류가 완비로 잘못 표시되거나 샘플 정리 후 실제 운영 시작 시 사용.<br>
+          <strong style="color:#c62828">삭제된 데이터는 복구되지 않습니다.</strong>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--bg)">
+            <div><div style="font-weight:700">접수 데이터 삭제</div><div style="font-size:12px;color:var(--tx3)">모든 접수 신청 내역 삭제 (이전이력 유지)</div></div>
+            <button class="ibtn red" onclick="resetApps()">접수 데이터 삭제</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--bg)">
+            <div><div style="font-weight:700">샘플 데이터 재생성</div><div style="font-size:12px;color:var(--tx3)">접수 데이터 삭제 후 샘플 새로 생성</div></div>
+            <button class="ibtn blu" onclick="reinjectSample()">샘플 재생성</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--bg)">
+            <div><div style="font-weight:700">전체 초기화</div><div style="font-size:12px;color:var(--tx3)">접수·이전이력·설정 모두 삭제 후 재시작</div></div>
+            <button class="ibtn red" onclick="resetAll()">전체 초기화</button>
+          </div>
+        </div>
+      </div>
     </div>`;
 }
 function swST(t){CST=t;rSt();}
+function resetApps(){if(!confirm('모든 접수 데이터를 삭제합니까?\n(이전이력은 유지됩니다)'))return;DB.sa([]);closePanel();rD();renderSB();rSel();rSelDb();alert('접수 데이터가 삭제되었습니다.');}
+function reinjectSample(){if(!confirm('접수 데이터를 삭제하고 샘플을 새로 생성합니까?'))return;DB.sa([]);inj();closePanel();rD();renderSB();rSel();rSelDb();alert('샘플 데이터가 재생성되었습니다.');}
+function resetAll(){if(!confirm('모든 데이터(접수·이전이력·설정)를 초기화합니까?\n이 작업은 되돌릴 수 없습니다.'))return;if(!confirm('정말 전체 초기화합니까?'))return;['schl_apps','schl_settings','schl_legacy','schl_density','schl_colw'].forEach(k=>localStorage.removeItem(k));Object.keys(localStorage).filter(k=>k.startsWith('backup_')).forEach(k=>localStorage.removeItem(k));closePanel();const s=gset();CRD=s.rounds[0]?.id||null;CSD=s.rounds[0]?.id||null;renderSB();rD();rSel();rSelDb();rL();rSt();alert('전체 초기화 완료');}
 function bkR(rId){const s=gset(),apps=DB.ga().filter(a=>a.roundId===rId);const label=s.rounds.find(r=>r.id===rId)?.label||'';const rows=[['접수번호','이름','성별','생년월일','학교','연락처','주소','보호자','구분','접수일시','선발여부','누락서류','메모']];apps.forEach(a=>{const miss=gm(a);rows.push([a.id,a.name,a.gender||'',a.birth||'',a.school||'',a.phone||'',a.addr||'',`${a.guardianName||''}(${a.guardianRelation||''})`,a.categoryName||'',a.submittedAt?.slice(0,16)||'',a.selected||'-',miss.map(d=>d.name).join(', '),(a.notes||[]).map(n=>n.text).join(' / ')]);});csvD(rows,`백업_${label}_${new Date().toISOString().slice(0,10)}.csv`);localStorage.setItem('backup_'+rId,new Date().toISOString());rSt();}
 function dR(id,backed){if(!backed){alert('⚠ 먼저 백업(⬇ 백업 버튼)을 진행해야 삭제할 수 있습니다.');return;}if(!confirm('이 회차를 삭제합니까? 접수 데이터는 유지됩니다.'))return;const s=gset();s.rounds=s.rounds.filter(r=>r.id!==id);DB.ss(s);rSt();rD();renderSB();}
 function oAR(){document.getElementById('mi').innerHTML=`<h3>회차 추가</h3><label>회차명 *</label><input type="text" id="ml" placeholder="2026년 상반기"><div class="mbs"><button onclick="cM()">취소</button><button class="p" onclick="aR()">추가</button></div>`;document.getElementById('mbg').classList.add('on');}
