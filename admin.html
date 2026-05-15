@@ -187,10 +187,6 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
   </div>
   <div class="app-body">
     <div class="sidebar">
-      <div class="sb-logo">
-        <img src="logo.png" onerror="this.style.display='none';document.getElementById('sfb').style.display='flex'">
-        <div class="sb-fb" id="sfb"><div class="ic">재단<br>법인</div><div><div class="nm">의왕시인재육성재단</div><div class="sub">재/단/법/인</div></div></div>
-      </div>
       <div class="sb-sec">접수 관리</div>
       <div class="nav-g">
         <div class="ni" id="nhd" onclick="tg('d')"><div class="ni-l"><span class="ni-icon">📋</span> 접수 현황</div><span class="ni-arr" id="ad">▾</span></div>
@@ -221,7 +217,12 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 </div>
 <div class="ov" id="ov" onclick="closePanel()"></div>
 <div class="panel" id="panel">
-  <div class="phdr"><h2 id="ptl">-</h2><div class="phdr-r"><button class="pcl" id="ebt" onclick="toggleEdit()">✏</button><button class="pcl" onclick="closePanel()">✕</button></div></div>
+  <div class="phdr"><h2 id="ptl">-</h2><div class="phdr-r">
+    <button class="pcl" id="ebt" onclick="toggleEdit()" title="기본정보 수정">✏</button>
+    <button class="pcl" onclick="printPanel()" title="출력">🖨</button>
+    <button class="pcl" style="background:rgba(255,80,80,.25)" onclick="deleteApp()" title="접수 삭제">🗑</button>
+    <button class="pcl" onclick="closePanel()">✕</button>
+  </div></div>
   <div class="pb" id="pb2"></div>
 </div>
 <div class="modal-bg" id="mbg"><div class="modal" id="mi"></div></div>
@@ -263,7 +264,7 @@ function gds(){
   ]};
 }
 function gset(){return DB.gs()||gds();}
-let CRD=null,CSD=null,SAP=null,ADM='',EM=false,CST='rounds';
+let CRD=null,CSD=null,CYR=null,SAP=null,ADM='',EM=false,CST='rounds',SMODE='round';
 function sd2(d){const m={compact:'6px',normal:'10px',wide:'15px'};document.documentElement.style.setProperty('--row-py',m[d]||'10px');localStorage.setItem('schl_density',d);document.querySelectorAll('.db').forEach(b=>b.classList.toggle('on',b.dataset.d===d));}
 function ld2(){sd2(localStorage.getItem('schl_density')||'normal');}
 function doLogin(){
@@ -436,15 +437,35 @@ function oMan(){
   const fc=round.categories[0];if(fc)rMD(fc.id);
   document.getElementById('mbg').classList.add('on');
 }
-function rMD(catId){const s=gset(),r=s.rounds.find(r=>r.id===CRD),cat=r?.categories.find(c=>c.id===catId);const w=document.getElementById('mds');if(!w||!cat)return;w.innerHTML=cat.docs.map(d=>`<label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="mdc-${d.id}"><span>${d.name}${d.req?'<span style="color:var(--o)">*</span>':''}</span></label>`).join('');}
+function rMD(catId){
+  const s=gset(),r=s.rounds.find(r=>r.id===CRD),cat=r?.categories.find(c=>c.id===catId);
+  const w=document.getElementById('mds');if(!w||!cat)return;
+  w.innerHTML=cat.docs.map(d=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:var(--r8);margin-bottom:5px;background:var(--bg)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600">${d.name}${d.req?'<span style="color:var(--o)">*</span>':''}</div>
+        <div style="font-size:11px;color:var(--tx3)" id="mdfn-${d.id}">PDF 파일 선택</div>
+      </div>
+      <label style="cursor:pointer;background:var(--glt);color:var(--g);padding:5px 11px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;border:1px solid var(--g)">
+        선택<input type="file" accept=".pdf" id="mdf-${d.id}" style="display:none" onchange="mdfSel(this,'${d.id}')">
+      </label>
+    </div>`).join('');
+}
+function mdfSel(input,docId){
+  const nm=document.getElementById('mdfn-'+docId);
+  if(!nm)return;
+  if(input.files.length){nm.textContent='✓ '+input.files[0].name;nm.style.color='var(--g)';}
+  else{nm.textContent='PDF 파일 선택';nm.style.color='';}
+}
 function svM(){
   const v=id=>document.getElementById(id)?.value.trim();
   const catId=document.getElementById('mcc')?.value,name=v('mn'),phone=v('mp'),school=v('ms2'),guardian=v('mg2');
   if(!name||!phone||!school||!guardian){alert('필수 항목을 입력해 주세요');return;}
   const s=gset(),r=s.rounds.find(r=>r.id===CRD),cat=r?.categories.find(c=>c.id===catId);
-  const docs=Object.fromEntries((cat?.docs||[]).map(d=>[d.id,document.getElementById('mdc-'+d.id)?.checked||false]));
+  const docs=Object.fromEntries((cat?.docs||[]).map(d=>[d.id,(document.getElementById('mdf-'+d.id)?.files?.length||0)>0]));
+  const fileNames=Object.fromEntries((cat?.docs||[]).map(d=>{const f=document.getElementById('mdf-'+d.id)?.files?.[0];return[d.id,f?f.name:''];}));
   const id=gid(),apps=DB.ga();
-  apps.push({id,roundId:CRD,categoryId:catId,categoryName:cat?.name||'',name,birth:v('mb3')||'',gender:v('mg')||'',phone,email:v('me2')||'',school,dept:v('mdt')||'',addr:v('ma')||'',addrDetail:v('mad')||'',guardianName:guardian,guardianRelation:v('mr')||'부',guardianPhone:'',submittedAt:new Date().toISOString(),source:'manual',docs,fileUrls:{},docReview:{},notes:[{text:'방문/대리 접수 (수동 입력)',date:new Date().toLocaleDateString('ko-KR'),author:ADM}],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null});
+  apps.push({id,roundId:CRD,categoryId:catId,categoryName:cat?.name||'',name,birth:v('mb3')||'',gender:v('mg')||'',phone,email:v('me2')||'',school,dept:v('mdt')||'',addr:v('ma')||'',addrDetail:v('mad')||'',guardianName:guardian,guardianRelation:v('mr')||'부',guardianPhone:'',submittedAt:new Date().toISOString(),source:'manual',docs,fileUrls:{},fileNames,docReview:{},notes:[{text:'방문/대리 접수 (수동 입력)',date:new Date().toLocaleDateString('ko-KR'),author:ADM}],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null});
   DB.sa(apps);cM();rD();renderSB();
 }
 function cdm(){setTimeout(()=>{document.querySelectorAll('div[id^="__daum__"],iframe[id^="__daum__"]').forEach(el=>el.remove());document.body.style.overflow='';},100);}
@@ -460,18 +481,52 @@ function doBk(){
 function csvD(rows,fname){const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname;a.click();}
 function rSel(){
   if(!CSD){const s=gset();CSD=s.rounds[0]?.id||null;}
-  const s=gset(),apps=DB.ga(),leg=gl2(),round=s.rounds.find(r=>r.id===CSD);
-  const ra=apps.filter(a=>a.roundId===CSD),allSel=[...apps.filter(a=>a.selected==='선발'),...leg.filter(a=>a.selected==='선발')];
-  const totalSel=ra.filter(a=>a.selected==='선발').length;
+  const s=gset(),apps=DB.ga(),leg=gl2(),allRounds=s.rounds;
+  const allSel=[...apps.filter(a=>a.selected==='선발'),...leg.filter(a=>a.selected==='선발')];
   const dupM={};allSel.forEach(a=>{if(!a.birth)return;const k=`${a.name}_${a.birth}`;if(!dupM[k])dupM[k]=[];dupM[k].push(a);});
   const dups=Object.values(dupM).filter(g=>g.length>=2);
   const famM={};allSel.forEach(a=>{if(!a.addr)return;const k=ak(a.addr);if(!famM[k])famM[k]=[];famM[k].push(a);});
   const famD=Object.values(famM).filter(g=>g.length>=2&&new Set(g.map(a=>a.name)).size>=2);
-  const catR=(round?.categories||[]).map(cat=>{const ca=ra.filter(a=>a.categoryId===cat.id);const sel=ca.filter(a=>a.selected==='선발').length;const pct=ca.length?Math.round(sel/ca.length*100):0;return`<tr><td>${cat.name}</td><td style="text-align:center;font-weight:800">${ca.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${sel}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>`;}).join('');
-  document.getElementById('sc').innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><h2 style="font-size:16px;font-weight:800">${round?.label||''} 선발 현황</h2><button class="ibtn" onclick="expSel('${CSD}')">⬇ 선발 명단 CSV</button></div>
+
+  // 년도 목록 추출
+  const years=[...new Set([...allRounds.map(r=>r.label.match(/\d{4}/)?.[0]),...leg.map(a=>a.roundLabel?.match(/\d{4}/)?.[0])].filter(Boolean))].sort((a,b)=>b-a);
+
+  let tableHtml='';
+  if(SMODE==='round'){
+    const round=allRounds.find(r=>r.id===CSD);
+    const ra=apps.filter(a=>a.roundId===CSD);
+    const totalSel=ra.filter(a=>a.selected==='선발').length;
+    const catR=(round?.categories||[]).map(cat=>{const ca=ra.filter(a=>a.categoryId===cat.id);const sel=ca.filter(a=>a.selected==='선발').length;const pct=ca.length?Math.round(sel/ca.length*100):0;return`<tr><td>${cat.name}</td><td style="text-align:center;font-weight:800">${ca.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${sel}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>`;}).join('');
+    tableHtml=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px"><h3 style="font-size:14px;font-weight:800">${round?.label||''} 구분별 현황</h3><button class="ibtn" onclick="expSel('${CSD}')">⬇ 선발 명단 CSV</button></div>
     <div class="sg"><div class="sc2"><div class="n" style="color:var(--g)">${ra.length}</div><div class="l">전체 접수</div></div><div class="sc2"><div class="n" style="color:#1565c0">${totalSel}</div><div class="l">선발 확정</div></div><div class="sc2"><div class="n" style="color:#c62828">${dups.length}</div><div class="l">중복 수혜자</div></div><div class="sc2"><div class="n" style="color:var(--o)">${famD.length}</div><div class="l">가족 중복 가능</div></div></div>
-    <div class="card"><div class="cttl"><div class="cttl-l">구분별 현황</div></div><table class="st"><thead><tr><th>구분</th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th>선발률</th></tr></thead><tbody>${catR}<tr style="background:var(--glt)"><td style="font-weight:800">합계</td><td style="text-align:center;font-weight:800">${ra.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${totalSel}</td><td></td></tr></tbody></table></div>
+    <table class="st"><thead><tr><th>구분</th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th>선발률</th></tr></thead><tbody>${catR}<tr style="background:var(--glt)"><td style="font-weight:800">합계</td><td style="text-align:center;font-weight:800">${ra.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${totalSel}</td><td></td></tr></tbody></table>`;
+  } else {
+    // 년도별 모드
+    if(!CYR)CYR=years[0];
+    const yrApps=apps.filter(a=>{const r=allRounds.find(r=>r.id===a.roundId);return r?.label?.includes(CYR);});
+    const yrLeg=leg.filter(a=>a.roundLabel?.includes(CYR)&&a.selected==='선발');
+    const yrSel=yrApps.filter(a=>a.selected==='선발').length;
+    // 회차별 집계
+    const rndRows=allRounds.filter(r=>r.label?.includes(CYR)).map(r=>{
+      const ra2=yrApps.filter(a=>a.roundId===r.id);const sel2=ra2.filter(a=>a.selected==='선발').length;const pct=ra2.length?Math.round(sel2/ra2.length*100):0;
+      return`<tr><td style="font-weight:700">${r.label}</td><td colspan="2" style="color:var(--tx3);font-size:12px">${r.categories.map(c=>c.name).join(', ')}</td><td style="text-align:center;font-weight:800">${ra2.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${sel2}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>
+      ${r.categories.map(cat=>{const ca=yrApps.filter(a=>a.roundId===r.id&&a.categoryId===cat.id);const s2=ca.filter(a=>a.selected==='선발').length;const p2=ca.length?Math.round(s2/ca.length*100):0;return`<tr style="background:#f8faf8"><td style="padding-left:20px;color:var(--tx2);font-size:12px">└ ${cat.name}</td><td></td><td></td><td style="text-align:center">${ca.length}</td><td style="text-align:center;color:var(--g)">${s2}</td><td><span>${p2}%</span></td></tr>`;}).join('')}`;
+    }).join('');
+    tableHtml=`<div style="display:flex;align-items:center;margin-bottom:10px;gap:8px"><h3 style="font-size:14px;font-weight:800">${CYR}년 연간 현황</h3></div>
+    <div class="sg"><div class="sc2"><div class="n" style="color:var(--g)">${yrApps.length}</div><div class="l">${CYR}년 접수</div></div><div class="sc2"><div class="n" style="color:#1565c0">${yrSel}</div><div class="l">선발 확정</div></div><div class="sc2"><div class="n" style="color:#c62828">${yrSel+yrLeg.length}</div><div class="l">누적 수혜 (이전포함)</div></div><div class="sc2"><div class="n" style="color:var(--o)">${famD.length}</div><div class="l">중복 가능</div></div></div>
+    <table class="st"><thead><tr><th>회차</th><th></th><th></th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th>선발률</th></tr></thead><tbody>${rndRows||'<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">해당 없음</td></tr>'}</tbody></table>`;
+  }
+
+  document.getElementById('sc').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="display:flex;border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden">
+        <button class="db${SMODE==='round'?' on':''}" onclick="SMODE='round';rSel()">회차별</button>
+        <button class="db${SMODE==='year'?' on':''}" onclick="SMODE='year';rSel()">년도별</button>
+      </div>
+      ${SMODE==='round'?`<div style="display:flex;gap:5px;flex-wrap:wrap">${allRounds.map(r=>`<button class="db${CSD===r.id?' on':''}" onclick="gS('${r.id}')">${r.label}</button>`).join('')}</div>`:
+      `<div style="display:flex;gap:5px;flex-wrap:wrap">${years.map(y=>`<button class="db${CYR===y?' on':''}" onclick="CYR='${y}';rSel()">${y}년</button>`).join('')}</div>`}
+    </div>
+    <div class="card">${tableHtml}</div>
     <div class="card"><div class="cttl"><div class="cttl-l" style="color:#c62828">⚠ 중복 수혜 (이름+생년월일)</div></div>${dups.length?dups.map(g=>`<div class="hi"><div style="font-weight:800;font-size:15px">${g[0].name} <span class="dup-b">중복 ${g.length}회</span></div><div style="font-size:12px;color:var(--tx3)">${g[0].birth} · ${g[0].addr||'-'}</div>${g.map(a=>`<span class="hb y" style="margin-right:4px">${a.categoryName} (${a.roundLabel||'현재'})</span>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}</div>
     <div class="card"><div class="cttl"><div class="cttl-l" style="color:var(--o)">⚠ 가족 중복 가능 (동일 주소)</div></div>${famD.length?famD.map(g=>`<div class="hi"><div style="font-weight:800">${g.length}명 동일 주소 <span class="fam-b">확인 필요</span></div><div style="font-size:12px;color:var(--tx3);margin-top:3px">${g[0].addr}</div>${g.map(a=>`<div style="font-size:13px;margin-top:5px"><strong>${a.name}</strong> · ${a.categoryName} (${a.roundLabel||'현재'})</div>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}</div>
     <div class="card"><div class="cttl"><div class="cttl-l">수혜 이력 조회 (현재+이전)</div></div><div class="hs"><input type="text" id="hq" placeholder="이름 검색 (예: 홍길동)"><button onclick="sH()">조회</button></div><div id="hr"></div></div>`;
@@ -574,7 +629,8 @@ function svC(rid,cid){
   DB.ss(s);cM();rSt();renderSB();
 }
 function dC(rid,cid){if(!confirm('이 구분을 삭제합니까?'))return;const s=gset(),r=s.rounds.find(r=>r.id===rid);if(r)r.categories=r.categories.filter(c=>c.id!==cid);DB.ss(s);rSt();}
-function rG(){
+function cM(){document.getElementById('mbg').classList.remove('on');}
+document.getElementById('mbg').addEventListener('click',e=>{if(e.target===document.getElementById('mbg'))cM();});
   document.getElementById('gc').innerHTML=`<div style="max-width:760px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
       <img src="logo.png" style="height:30px;object-fit:contain" onerror="this.style.display='none'">
@@ -585,8 +641,54 @@ function rG(){
     ${[{ver:'v1.3.0',date:'2026.05',latest:true,items:['라이트 사이드바 레이아웃 (화이트 테마)','로고 이미지 통합 반영','접수현황·선발현황 사이드바 확장 서브메뉴','행 밀도 버튼 (좁게/보통/넓게)','설정 회차별 백업 버튼, 백업 후에만 삭제 가능','이전이력 헤더 확장 (학교·연락처·주소·보호자)']},{ver:'v1.2.0',date:'2026.05',latest:false,items:['서류 검토 기능 (적격/부적격/사유)','기본정보 인라인 수정','선발현황 대시보드','이전이력 회차 자동 이관','도움말 탭']},{ver:'v1.0.0',date:'2026.05',latest:false,items:['최초 시스템 구축']},].map(v=>`<div style="display:flex;gap:14px;margin-bottom:16px"><div style="flex-shrink:0;text-align:right;width:64px"><div style="font-weight:800;font-size:13px;color:${v.latest?'var(--g)':'var(--tx3)'}">${v.ver}</div><div style="font-size:11px;color:var(--tx3)">${v.date}</div>${v.latest?'<span style="background:var(--glt);color:var(--g);font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px">최신</span>':''}</div><div style="flex:1;border-left:2px solid ${v.latest?'var(--g)':'var(--bd)'};padding-left:14px"><ul style="padding-left:14px;font-size:13px;color:var(--tx2);line-height:2">${v.items.map(i=>`<li>${i}</li>`).join('')}</ul></div></div>`).join('')}
     </div></div>`;
 }
-function cM(){document.getElementById('mbg').classList.remove('on');}
-document.getElementById('mbg').addEventListener('click',e=>{if(e.target===document.getElementById('mbg'))cM();});
+function printPanel(){
+  const app=DB.ga().find(a=>a.id===SAP);if(!app)return;
+  const docs=gcd(app.roundId,app.categoryId);
+  const miss=gm(app);
+  const rv=app.docReview||{};
+  const w=window.open('','_blank','width=680,height=900');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>접수내역_${app.name}</title>
+  <style>body{font-family:'Apple SD Gothic Neo',sans-serif;padding:28px;font-size:13px;color:#1a1a1a;line-height:1.8}
+  h1{font-size:18px;font-weight:800;margin-bottom:6px;color:#2B7A3C}
+  .sub{font-size:12px;color:#999;margin-bottom:20px}
+  table{width:100%;border-collapse:collapse;margin-bottom:18px}
+  th{background:#f2f5f2;padding:8px 12px;text-align:left;font-size:12px;font-weight:700;color:#555;border:1px solid #e4eae4;width:100px}
+  td{padding:8px 12px;border:1px solid #e4eae4;font-size:13px}
+  .sec{font-size:11px;font-weight:800;color:#999;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+  .doc-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #e4eae4;border-radius:6px;margin-bottom:5px;font-size:13px}
+  .ok{color:#2B7A3C;font-weight:700}.ng{color:#c62828;font-weight:700}.miss{color:#E8673A}
+  .footer{margin-top:30px;padding-top:14px;border-top:1px solid #e4eae4;font-size:11px;color:#999;text-align:center}
+  @media print{body{padding:0}}</style></head><body>
+  <h1>장학금 신청서 접수 내역</h1>
+  <div class="sub">의왕시인재육성재단 · 출력일: ${new Date().toLocaleDateString('ko-KR')} · 접수번호: ${app.id}</div>
+  <div class="sec">기본 정보</div>
+  <table>
+    <tr><th>이름</th><td>${app.name}</td><th>성별</th><td>${app.gender||'-'}</td></tr>
+    <tr><th>생년월일</th><td>${app.birth||'-'}</td><th>연락처</th><td>${app.phone||'-'}</td></tr>
+    <tr><th>학교</th><td colspan="3">${app.school||'-'} ${app.dept?`(${app.dept})`:''}</td></tr>
+    <tr><th>주소</th><td colspan="3">${app.addr||'-'} ${app.addrDetail||''}</td></tr>
+    <tr><th>보호자</th><td>${app.guardianName||'-'}(${app.guardianRelation||'-'})</td><th>구분</th><td>${app.categoryName||'-'}</td></tr>
+    <tr><th>접수일시</th><td>${fdt(app.submittedAt)}</td><th>선발여부</th><td>${app.selected||'-'}</td></tr>
+  </table>
+  <div class="sec">서류 제출 현황</div>
+  ${docs.filter(d=>d.req).map(d=>{const sub=app.docs[d.id];const r=rv[d.id]||{};
+    return`<div class="doc-row"><span>${sub?'✓':'✗'}</span><span style="flex:1">${d.name}</span>
+    ${sub?`<span class="${r.status==='ok'?'ok':r.status==='ng'?'ng':''}">${r.status==='ok'?'적격':r.status==='ng'?'부적격: '+r.reason:'미검토'}</span>`:'<span class="miss">미제출</span>'}
+    </div>`;}).join('')}
+  ${(app.notes||[]).length?`<div class="sec">특이사항</div>${app.notes.map(n=>`<div style="background:#fffde7;padding:8px 10px;border-radius:6px;margin-bottom:5px;font-size:13px">${n.text} <span style="font-size:11px;color:#999">— ${n.date}</span></div>`).join('')}`:''}
+  <div class="footer">의왕시인재육성재단 · 사업자등록번호: 138-82-06305(16051) · 031-345-2590</div>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+function deleteApp(){
+  const app=DB.ga().find(a=>a.id===SAP);if(!app)return;
+  if(!confirm(`'${app.name}' 접수 데이터를 삭제합니까?\n\n이 작업은 되돌릴 수 없습니다.`))return;
+  if(!confirm(`정말 삭제합니까? 복구가 불가능합니다.`))return;
+  DB.sa(DB.ga().filter(a=>a.id!==SAP));
+  closePanel();rD();renderSB();
+}
 </script>
 </body>
 </html>
