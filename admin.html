@@ -6,96 +6,132 @@
 <title>관리자 | 의왕시인재육성재단</title>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <style>
-:root{--g:#2B7A3C;--g2:#3DAA54;--glt:#E8F5EC;--o:#E8673A;--olt:#FEF0EB;--bg:#F4F7F4;--wh:#fff;--bd:#E2EAE2;--tx:#1a1a1a;--tx2:#555;--tx3:#999;--r8:8px;--r12:12px;--r20:20px}
+:root{--g:#2B7A3C;--glt:#E8F5EC;--o:#E8673A;--olt:#FEF0EB;--bg:#F2F4F2;--wh:#fff;--bd:#E0E8E0;--tx:#1a1a1a;--tx2:#555;--tx3:#999;--r8:8px;--r12:12px;--r20:20px;--lh:1.75;--sidebar:210px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
-.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:var(--lh)}
+/* ── 로그인 ── */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
 .login-box{background:var(--wh);border-radius:16px;padding:36px 30px;width:320px;border:1px solid var(--bd)}
-.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.login-logo img{height:40px;object-fit:contain}
+.login-logo-fallback{display:flex;align-items:center;gap:8px}
 .login-icon{width:40px;height:40px;background:var(--g);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;text-align:center;line-height:1.3}
-.login-main{font-size:13px;font-weight:800;color:var(--g)}
+.login-nm{font-size:13px;font-weight:800;color:var(--g)}
 .login-sub{font-size:10px;color:var(--tx3)}
 .login-box h2{font-size:17px;font-weight:800;margin-bottom:18px}
 .login-box input{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:var(--r8);font-size:15px;margin-bottom:10px;font-family:inherit}
 .login-box input:focus{outline:none;border-color:var(--g)}
 .login-box button{width:100%;padding:13px;background:var(--g);color:#fff;border:none;border-radius:var(--r8);font-size:15px;font-weight:800;cursor:pointer}
 .login-err{color:var(--o);font-size:13px;margin-top:8px;text-align:center;display:none}
-.app{display:none;flex-direction:column;height:100vh}
-.topbar{background:var(--g);color:#fff;height:50px;display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
-.topbar h1{font-size:14px;font-weight:800}
-.topbar-r{display:flex;gap:8px;align-items:center;margin-left:auto}
+/* ── 앱 레이아웃 ── */
+.app{display:none;height:100vh;flex-direction:column}
+.topbar{background:var(--g);color:#fff;height:52px;display:flex;align-items:center;padding:0 16px;gap:14px;flex-shrink:0}
+.topbar-logo img{height:30px;object-fit:contain;filter:brightness(0)invert(1)}
+.topbar-logo-txt{font-size:14px;font-weight:800}
+.topbar-r{display:flex;align-items:center;gap:12px;margin-left:auto}
+.lh-ctrl{display:flex;align-items:center;gap:7px;font-size:12px;opacity:.85}
+.lh-ctrl input[type=range]{width:80px;height:4px;accent-color:#fff;cursor:pointer}
 .topbar-r span{font-size:12px;opacity:.75}
 .topbar button{background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 12px;border-radius:var(--r20);font-size:12px;cursor:pointer}
-.main-tabs{background:var(--wh);border-bottom:2px solid var(--bd);display:flex;padding:0 16px;flex-shrink:0}
-.main-tab{padding:11px 16px;font-size:13px;font-weight:700;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
-.main-tab.on{color:var(--g);border-bottom-color:var(--g)}
+.app-body{display:flex;flex:1;overflow:hidden}
+/* ── 사이드바 ── */
+.sidebar{width:var(--sidebar);background:var(--wh);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-section{padding:14px 12px 6px;font-size:10px;font-weight:800;color:var(--tx3);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--tx2);cursor:pointer;border-radius:var(--r8);margin:1px 8px;transition:.15s;text-decoration:none}
+.nav-item:hover{background:var(--glt);color:var(--g)}
+.nav-item.on{background:var(--g);color:#fff}
+.nav-item .ni{font-size:16px;flex-shrink:0}
+.sidebar-sep{height:1px;background:var(--bd);margin:8px 12px}
+.sidebar-footer{padding:14px;margin-top:auto;font-size:11px;color:var(--tx3);line-height:1.6}
+/* ── 컨텐츠 ── */
 .main-content{flex:1;overflow-y:auto}
-/* 공통 */
-.pane{padding:14px 16px;max-width:1100px}
+.pane{padding:16px;max-width:1200px}
+/* ── 공통 카드 ── */
 .card{background:var(--wh);border-radius:var(--r12);border:1px solid var(--bd);padding:16px;margin-bottom:12px}
 .card-ttl{font-size:14px;font-weight:800;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-/* 접수현황 */
+.card-ttl-left{display:flex;align-items:center;gap:8px}
+.card-ttl-left::before{content:'';width:3px;height:16px;background:var(--g);border-radius:2px;display:block}
+/* ── 대시보드 ── */
+.dash-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.dash-card{background:var(--wh);border-radius:var(--r12);border:1px solid var(--bd);padding:14px 16px}
+.dash-l{font-size:11px;color:var(--tx3);margin-bottom:5px}
+.dash-n{font-size:26px;font-weight:800}
+.dash-n.tot{color:var(--g)}.dash-n.ok{color:#2e7d32}.dash-n.ng{color:#c62828}.dash-n.fb{color:var(--o)}.dash-n.sel{color:#1565c0}
+/* ── 회차탭 ── */
 .round-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .rt{padding:7px 14px;border-radius:var(--r20);border:1px solid var(--bd);font-size:12px;font-weight:700;cursor:pointer;background:var(--wh);color:var(--tx2);transition:.15s}
 .rt.on{background:var(--g);color:#fff;border-color:var(--g)}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
-.sc{background:var(--wh);border-radius:var(--r8);border:1px solid var(--bd);padding:11px 13px}
-.sc-l{font-size:11px;color:var(--tx3);margin-bottom:3px}
-.sc-n{font-size:22px;font-weight:800}
-.sc-n.tot{color:var(--g)}.sc-n.ok{color:#2e7d32}.sc-n.ng{color:#c62828}.sc-n.fb{color:var(--o)}.sc-n.sel{color:#1565c0}
+/* ── 필터바 ── */
 .filter-bar{background:var(--wh);border-radius:var(--r8);border:1px solid var(--bd);padding:10px 12px;display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .filter-bar input,.filter-bar select{padding:7px 11px;border:1.5px solid var(--bd);border-radius:var(--r8);font-size:13px;background:var(--wh);font-family:inherit;-webkit-appearance:none;appearance:none}
 .filter-bar input{flex:1;min-width:140px}
 .filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--g)}
 .filter-bar select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
-.ibtn{padding:7px 12px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--wh);font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);font-family:inherit;white-space:nowrap}
+/* ── 버튼 ── */
+.ibtn{padding:7px 12px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--wh);font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);font-family:inherit;white-space:nowrap;transition:.15s}
 .ibtn:hover{background:var(--bg)}
 .ibtn.grn{background:var(--glt);color:var(--g);border-color:var(--g)}
 .ibtn.red{background:#ffebee;color:#c62828;border-color:#ffcdd2}
+.ibtn.blu{background:#e8f0fe;color:#1565c0;border-color:#c5d8fb}
+/* ── 목록 ── */
 .list-wrap{background:var(--wh);border-radius:var(--r8);border:1px solid var(--bd);overflow:hidden}
-.list-hdr{display:grid;grid-template-columns:30px 80px 130px 100px 65px 85px 100px 1fr;gap:6px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg)}
-.list-row{display:grid;grid-template-columns:30px 80px 130px 100px 65px 85px 100px 1fr;gap:6px;padding:10px 12px;border-bottom:.5px solid #eef2ee;align-items:center;cursor:pointer;transition:background .1s}
-.list-row:hover{background:#f8faf8}
+.list-hdr{display:grid;grid-template-columns:30px 85px 130px 100px 65px 80px 90px 90px 1fr;gap:5px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg)}
+.list-row{display:grid;grid-template-columns:30px 85px 130px 100px 65px 80px 90px 90px 1fr;gap:5px;padding:10px 12px;border-bottom:.5px solid #eef2ee;align-items:center;cursor:pointer;transition:.12s}
+.list-row:hover{background:#f5f8f5}
 .list-row.sel-row{background:var(--glt)}
 .list-row:last-child{border-bottom:none}
 .bdg{display:inline-block;padding:3px 8px;border-radius:var(--r20);font-size:11px;font-weight:700}
-.bdg.ok{background:var(--glt);color:var(--g)}.bdg.ng{background:#ffebee;color:#c62828}.bdg.pt{background:var(--olt);color:var(--o)}
+.bdg.ok{background:var(--glt);color:var(--g)}.bdg.ng{background:#ffebee;color:#c62828}.bdg.pt{background:var(--olt);color:var(--o)}.bdg.bl{background:#e8f0fe;color:#1565c0}
 .miss-txt{font-size:11px;color:var(--o);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fbdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:3px}
 .fbdot.s{background:var(--g)}.fbdot.u{background:#ddd}
 .src-tag{font-size:10px;padding:2px 6px;border-radius:var(--r20);background:#f5f5f5;color:var(--tx3);margin-left:3px}
 .src-tag.m{background:#fff8e1;color:var(--o)}
 .empty{text-align:center;padding:40px;color:var(--tx3)}
-/* 패널 */
+/* ── 패널 ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:99}
 .overlay.on{display:block}
-.panel{position:fixed;right:0;top:0;bottom:0;width:430px;background:var(--wh);overflow-y:auto;display:none;z-index:100;border-left:1px solid var(--bd)}
+.panel{position:fixed;right:0;top:0;bottom:0;width:460px;background:var(--wh);overflow-y:auto;display:none;z-index:100;border-left:1px solid var(--bd)}
 .panel.on{display:block}
 .phdr{background:var(--g);color:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1}
 .phdr h2{font-size:15px;font-weight:800}
+.phdr-r{display:flex;gap:8px}
 .cl{background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:17px}
 .pb{padding:14px 16px}
 .pm{background:var(--bg);border-radius:var(--r8);padding:11px 13px;margin-bottom:12px;font-size:13px}
-.pm table{width:100%}
-.pm td{padding:3px 0;vertical-align:top}
-.pm td:first-child{color:var(--tx3);width:65px;white-space:nowrap}
-.pm td:last-child{font-weight:600}
-.psec{font-size:12px;font-weight:800;color:var(--tx2);margin:13px 0 7px;text-transform:uppercase;letter-spacing:.4px}
-.dr{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:var(--r8);margin-bottom:5px;border:1px solid var(--bd)}
-.dr.sub{background:#f0fbf1;border-color:#c8e6c9}
-.dr.mis{background:#fff9f9;border-color:#ffcdd2}
-.dr-nm{font-size:13px;font-weight:600}
-.mbtn{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;border:none;cursor:pointer}
-.mbtn.vw{background:var(--glt);color:var(--g)}
-.mbtn.up{background:var(--olt);color:var(--o)}
+.pm-row{display:flex;align-items:center;padding:4px 0;gap:8px}
+.pm-lbl{color:var(--tx3);width:65px;font-size:12px;flex-shrink:0}
+.pm-val{font-weight:600;flex:1}
+.pm-inp{flex:1;padding:5px 9px;border:1.5px solid var(--bd);border-radius:6px;font-size:13px;font-family:inherit}
+.pm-inp:focus{outline:none;border-color:var(--g)}
+.psec{font-size:11px;font-weight:800;color:var(--tx3);margin:13px 0 7px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between}
+/* ── 서류 검토 ── */
+.doc-row{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:var(--r8);margin-bottom:6px;border:1px solid var(--bd);transition:.15s}
+.doc-row.ok{background:#f0fbf1;border-color:#c8e6c9}
+.doc-row.ng-doc{background:#fff9f9;border-color:#ffcdd2}
+.doc-row.pending{background:#f8faf8}
+.doc-row-info{flex:1;min-width:0}
+.doc-row-nm{font-size:13px;font-weight:600;margin-bottom:2px}
+.doc-row-reason{font-size:11px;color:var(--o);display:none}
+.doc-row.ng-doc .doc-row-reason{display:block}
+.doc-btns{display:flex;gap:4px;flex-shrink:0}
+.rv-btn{padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--bd);cursor:pointer;background:var(--wh);color:var(--tx2)}
+.rv-btn.ok{background:var(--glt);color:var(--g);border-color:var(--g)}
+.rv-btn.ng{background:#ffebee;color:#c62828;border-color:#ffcdd2}
+.rv-btn.view{background:#e8f0fe;color:#1565c0;border-color:#c5d8fb}
+.reason-inp{width:100%;margin-top:5px;padding:5px 8px;border:1.5px solid var(--bd);border-radius:6px;font-size:12px;font-family:inherit;display:none}
+.doc-row.ng-doc .reason-inp{display:block}
+.reason-inp:focus{outline:none;border-color:var(--o)}
+/* ── 메시지 ── */
 .msg-box{background:var(--bg);border:1px solid var(--bd);border-radius:var(--r8);padding:11px;font-size:12px;line-height:1.9;white-space:pre-wrap}
 .act-row{display:flex;gap:7px;margin-top:7px}
 .abtn{flex:1;padding:9px;border-radius:var(--r8);font-size:12px;font-weight:800;border:none;cursor:pointer}
 .abtn.copy{background:var(--glt);color:var(--g)}
 .abtn.fbs{background:#e8f5e9;color:#2e7d32}
 .abtn.fbd{background:#f5f5f5;color:var(--tx3);cursor:default}
+/* ── 특이사항 ── */
 .note-item{background:#fffde7;border-radius:var(--r8);padding:9px 11px;margin-bottom:5px;font-size:13px}
-.note-dt{font-size:11px;color:var(--tx3);margin-top:4px}
+.note-dt{font-size:11px;color:var(--tx3);margin-top:3px}
 .note-row{display:flex;gap:7px;margin-top:8px}
 .note-row textarea{flex:1;padding:8px 10px;border:1.5px solid var(--bd);border-radius:var(--r8);font-size:13px;resize:none;height:56px;font-family:inherit}
 .note-row textarea:focus{outline:none;border-color:var(--g)}
@@ -103,7 +139,11 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .warnbox{background:var(--olt);border-radius:var(--r8);padding:9px 12px;font-size:12px;color:var(--o);font-weight:700;margin-bottom:8px}
 .sel-sel{padding:5px 10px;border:1.5px solid var(--bd);border-radius:var(--r8);font-size:12px;font-family:inherit;cursor:pointer}
 .sel-sel:focus{outline:none;border-color:var(--g)}
-/* 선발현황 */
+/* ── 선발현황 ── */
+.sel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.sel-stat{background:var(--wh);border-radius:var(--r12);border:1px solid var(--bd);padding:14px 16px;text-align:center}
+.sel-stat .n{font-size:30px;font-weight:800;margin-bottom:3px}
+.sel-stat .l{font-size:12px;color:var(--tx3)}
 .sel-table{width:100%;border-collapse:collapse;font-size:13px}
 .sel-table th{background:var(--bg);padding:9px 11px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)}
 .sel-table td{padding:9px 11px;border-bottom:.5px solid #eef2ee;vertical-align:middle}
@@ -120,22 +160,25 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .hist-badge.y{background:var(--glt);color:var(--g)}.hist-badge.n{background:#f5f5f5;color:var(--tx3)}.hist-badge.p{background:var(--olt);color:var(--o)}
 .dup-bdg{background:#ffebee;color:#c62828;padding:3px 9px;border-radius:var(--r20);font-size:11px;font-weight:800;margin-left:6px}
 .fam-bdg{background:var(--olt);color:var(--o);padding:3px 9px;border-radius:var(--r20);font-size:11px;font-weight:800;margin-left:6px}
-/* 이전이력 */
+/* ── 이전이력 ── */
 .csv-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.legacy-item{display:grid;grid-template-columns:80px 70px 100px 110px 60px 40px;gap:6px;padding:9px 12px;border-bottom:.5px solid #eef2ee;font-size:13px;align-items:center}
-.legacy-hdr{display:grid;grid-template-columns:80px 70px 100px 110px 60px 40px;gap:6px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg)}
-/* 설정 */
+.legacy-hdr{display:grid;grid-template-columns:80px 70px 110px 110px 70px 40px;gap:6px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg)}
+.legacy-item{display:grid;grid-template-columns:80px 70px 110px 110px 70px 40px;gap:6px;padding:9px 12px;border-bottom:.5px solid #eef2ee;font-size:13px;align-items:center}
+/* ── 설정 ── */
+.settings-tabs{display:flex;gap:0;border-bottom:2px solid var(--bd);margin-bottom:14px}
+.st-tab{padding:9px 16px;font-size:13px;font-weight:700;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
+.st-tab.on{color:var(--g);border-bottom-color:var(--g)}
 .round-item{border:1px solid var(--bd);border-radius:var(--r8);padding:12px;margin-bottom:8px;background:var(--bg)}
-.ri-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ri-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
 .ri-nm{font-size:14px;font-weight:800}
 .cat-item{border:1px solid var(--bd);border-radius:var(--r8);padding:10px;margin-bottom:6px;background:var(--wh)}
-.ci-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ci-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:5px}
 .ci-nm{font-size:13px;font-weight:700}
 .ci-period{font-size:12px;color:var(--tx3);margin-top:2px}
 .sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
 .sdot.open{background:var(--g)}.sdot.closed{background:#ddd}.sdot.soon{background:var(--o)}
 .doc-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:var(--r20);background:#f0f4f0;color:var(--tx2);font-size:11px;margin:2px}
-/* 모달 */
+/* ── 모달 ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto}
 .modal-bg.on{display:flex}
 .modal{background:var(--wh);border-radius:16px;padding:22px;width:540px;max-width:95vw;margin-bottom:40px}
@@ -151,17 +194,25 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .de-row{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--bd);border-radius:var(--r8);margin-bottom:5px}
 .de-row input[type=text]{flex:1;padding:6px 9px}
 .de-row input[type=checkbox]{width:16px;height:16px;flex-shrink:0}
-.addr-row{display:flex;gap:8px;margin-bottom:8px}
-.addr-row input{flex:1}
+.addr-row-m{display:flex;gap:8px;margin-bottom:8px}
+.addr-row-m input{flex:1}
 .addr-btn{padding:9px 13px;background:var(--g);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+/* ── 사이트 푸터 ── */
+.site-footer{background:#1a1a1a;color:rgba(255,255,255,.6);text-align:center;padding:18px 20px;font-size:11px;line-height:1.9;flex-shrink:0}
+.site-footer strong{color:rgba(255,255,255,.9)}
 </style>
 </head>
 <body>
+
+<!-- 로그인 -->
 <div class="login-wrap" id="login-wrap">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-icon">재단<br>법인</div>
-      <div><div class="login-sub">재/단/법/인</div><div class="login-main">의왕시인재육성재단</div></div>
+      <img src="logo.png" alt="의왕시인재육성재단" onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
+      <div class="login-logo-fallback" id="logo-fb" style="display:none">
+        <div class="login-icon">재단<br>법인</div>
+        <div><div class="login-sub">재/단/법/인</div><div class="login-nm">의왕시인재육성재단</div></div>
+      </div>
     </div>
     <h2>관리자 로그인</h2>
     <input type="text" id="l-id" placeholder="아이디">
@@ -171,29 +222,73 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
   </div>
 </div>
 
+<!-- 앱 -->
 <div class="app" id="app">
+  <!-- 상단바 -->
   <div class="topbar">
-    <h1>의왕시인재육성재단 · 장학생 관리</h1>
-    <div class="topbar-r"><span id="adm-nm"></span><button onclick="logout()">로그아웃</button></div>
+    <div class="topbar-logo">
+      <img src="logo.png" alt="" onerror="this.style.display='none'">
+    </div>
+    <span class="topbar-logo-txt">장학생 관리 시스템</span>
+    <div class="topbar-r">
+      <div class="lh-ctrl">
+        <span>행간</span>
+        <input type="range" min="1.4" max="2.2" step="0.1" value="1.75" oninput="setLH(this.value)" title="행간 조절">
+      </div>
+      <span id="adm-nm"></span>
+      <button onclick="logout()">로그아웃</button>
+    </div>
   </div>
-  <div class="main-tabs">
-    <div class="main-tab on" onclick="switchMain('dash',this)">접수 현황</div>
-    <div class="main-tab" onclick="switchMain('selection',this)">선발 현황</div>
-    <div class="main-tab" onclick="switchMain('legacy',this)">이전 이력</div>
-    <div class="main-tab" onclick="switchMain('settings',this)">설정</div>
+
+  <!-- 본문 -->
+  <div class="app-body">
+    <!-- 사이드바 -->
+    <div class="sidebar">
+      <div class="sidebar-section">접수 관리</div>
+      <a class="nav-item on" id="nav-dash" onclick="switchMain('dash')"><span class="ni">📋</span> 접수 현황</a>
+      <a class="nav-item" id="nav-selection" onclick="switchMain('selection')"><span class="ni">🏆</span> 선발 현황</a>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-section">데이터</div>
+      <a class="nav-item" id="nav-legacy" onclick="switchMain('legacy')"><span class="ni">📁</span> 이전 이력</a>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-section">시스템</div>
+      <a class="nav-item" id="nav-settings" onclick="switchMain('settings')"><span class="ni">⚙</span> 설정</a>
+      <div class="sidebar-footer">
+        <strong style="color:var(--g)">의왕시인재육성재단</strong><br>
+        031-345-2590
+      </div>
+    </div>
+
+    <!-- 컨텐츠 -->
+    <div class="main-content">
+      <div id="pane-dash"><div class="pane" id="dash-cnt"></div></div>
+      <div id="pane-selection" style="display:none"><div class="pane" id="sel-cnt"></div></div>
+      <div id="pane-legacy" style="display:none"><div class="pane" id="legacy-cnt"></div></div>
+      <div id="pane-settings" style="display:none"><div class="pane" id="settings-cnt"></div></div>
+    </div>
   </div>
-  <div class="main-content">
-    <div id="pane-dash"><div class="pane" id="dash-cnt"></div></div>
-    <div id="pane-selection" style="display:none"><div class="pane" id="sel-cnt"></div></div>
-    <div id="pane-legacy" style="display:none"><div class="pane" id="legacy-cnt"></div></div>
-    <div id="pane-settings" style="display:none"><div class="pane" id="settings-cnt"></div></div>
+
+  <!-- 푸터 -->
+  <div class="site-footer">
+    <strong>의왕시인재육성재단</strong> ㅣ 사업자등록번호: 138-82-06305(16051) ㅣ 경기도 의왕시 오전로 122, 평생학습관 2층<br>
+    대표: 김 성 제 ㅣ 대표전화: 031-345-2590 ㅣ 팩스: 031-427-2590
   </div>
 </div>
+
+<!-- 패널 -->
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="panel" id="panel">
-  <div class="phdr"><h2 id="panel-ttl">-</h2><button class="cl" onclick="closePanel()">✕</button></div>
+  <div class="phdr">
+    <h2 id="panel-ttl">-</h2>
+    <div class="phdr-r">
+      <button class="cl" onclick="toggleEditMode()" id="edit-btn" title="기본정보 수정">✏</button>
+      <button class="cl" onclick="closePanel()">✕</button>
+    </div>
+  </div>
   <div class="pb" id="panel-body"></div>
 </div>
+
+<!-- 모달 -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal" id="modal-inner"></div>
 </div>
@@ -209,45 +304,19 @@ const DB={
   saveLegacy(a){localStorage.setItem('schl_legacy',JSON.stringify(a))}
 };
 
-// ── 예시 이전 이력 ──
 const SAMPLE_LEGACY=[
   {id:'lg-001',name:'김민준',birth:'050315',addr:'경기도 의왕시 포일로 123',addrDetail:'101동 505호',roundLabel:'2025년 상반기',categoryName:'대학부 희망드림',selected:'선발'},
   {id:'lg-002',name:'이서연',birth:'',addr:'경기도 의왕시 오전로 45',addrDetail:'나동 202호',roundLabel:'2025년 상반기',categoryName:'고등부 성적우수',selected:'선발'},
   {id:'lg-003',name:'박지민',birth:'060722',addr:'경기도 의왕시 청계로 78',addrDetail:'',roundLabel:'2025년 상반기',categoryName:'고등부 복지',selected:'선발'},
   {id:'lg-004',name:'최준혁',birth:'',addr:'경기도 의왕시 내손로 33',addrDetail:'',roundLabel:'2025년 하반기',categoryName:'고등부 성적우수',selected:'선발'},
   {id:'lg-005',name:'정하은',birth:'040901',addr:'경기도 의왕시 삼동로 55',addrDetail:'',roundLabel:'2025년 소상공인',categoryName:'소상공인 자녀',selected:'선발'},
-  {id:'lg-006',name:'김민준',birth:'050315',addr:'경기도 의왕시 포일로 123',addrDetail:'101동 505호',roundLabel:'2025년 하반기',categoryName:'대학부 희망드림',selected:'선발'}, // 중복 수혜 (동일인)
-  {id:'lg-007',name:'이지현',birth:'',addr:'경기도 의왕시 오전로 45',addrDetail:'나동 202호',roundLabel:'2025년 하반기',categoryName:'고등부 성적우수',selected:'선발'}, // 가족 중복 (이서연과 같은 주소)
-  {id:'lg-008',name:'강동원',birth:'040210',addr:'경기도 의왕시 왕곡로 12',addrDetail:'',roundLabel:'2025년 상반기',categoryName:'대학부 희망드림',selected:'미선발'},
-  {id:'lg-009',name:'윤수민',birth:'',addr:'경기도 의왕시 포일로 87',addrDetail:'',roundLabel:'2025년 하반기',categoryName:'고등부 복지',selected:'선발'},
-  {id:'lg-010',name:'황지우',birth:'050630',addr:'경기도 의왕시 청계로 21',addrDetail:'',roundLabel:'2025년 상반기',categoryName:'특기 (고등)',selected:'선발'},
+  {id:'lg-006',name:'김민준',birth:'050315',addr:'경기도 의왕시 포일로 123',addrDetail:'101동 505호',roundLabel:'2025년 하반기',categoryName:'대학부 희망드림',selected:'선발'},
+  {id:'lg-007',name:'이지현',birth:'',addr:'경기도 의왕시 오전로 45',addrDetail:'나동 202호',roundLabel:'2025년 하반기',categoryName:'고등부 성적우수',selected:'선발'},
 ];
 
 function getLegacy(){return DB.getLegacy()||SAMPLE_LEGACY;}
-
 const ACCOUNTS=[{id:'admin',pw:'1234',name:'담당자'}];
 function isJunior(n){return/고등|초등|중등|특기/.test(n);}
-
-function getDefaultSettings(){
-  return{rounds:[{
-    id:'r-2026-spring',label:'2026년 상반기',
-    categories:[
-      {id:'c-uni',name:'대학부 희망드림',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
-      {id:'c-high-g',name:'고등부 성적우수',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
-      {id:'c-high-w',name:'고등부 복지',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'수급자 확인서',req:true},{id:'d7',name:'자기소개서',req:true},{id:'d8',name:'계좌사본',req:true}]},
-    ]
-  },{
-    id:'r-2026-fall',label:'2026년 하반기',
-    categories:[
-      {id:'c-uni-f',name:'대학부 희망드림',startDate:'2026-08-01',endDate:'2026-08-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
-      {id:'c-high-f',name:'고등부 성적우수',startDate:'2026-08-01',endDate:'2026-08-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
-    ]
-  },{
-    id:'r-2026-soho',label:'2026년 소상공인',
-    categories:[{id:'c-soho',name:'소상공인 자녀',startDate:'2026-11-01',endDate:'2026-11-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'사업자등록증',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]}]
-  }]};
-}
-function getSettings(){return DB.getSettings()||getDefaultSettings();}
 function uid(){return 'x'+Math.random().toString(36).slice(2,9);}
 function genId(){const n=new Date();return`${String(n.getFullYear()).slice(2)}${String(n.getMonth()+1).padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;}
 function fmtDt(s){if(!s)return'-';const d=new Date(s);return`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
@@ -255,10 +324,34 @@ function fmtDate(d){return`${parseInt(d.slice(5,7))}/${parseInt(d.slice(8,10))}`
 function parseEnd(d,t){return new Date(`${d}T${t||'23:59'}:00`);}
 function parseStart(d){return new Date(`${d}T00:00:00`);}
 function catStatus(c){const n=new Date();if(n<parseStart(c.startDate))return'soon';if(n>parseEnd(c.endDate,c.endTime))return'closed';return'open';}
-function addrKey(addr){return addr?.replace(/\s+/g,'').slice(0,20)||'';}
+function addrKey(a){return a?.replace(/\s+/g,'').slice(0,20)||'';}
 
-let curRoundId=null,selAppId=null,adminName='';
+function getDefaultSettings(){
+  return{rounds:[{
+    id:'r-2026-spring',label:'2026년 상반기',
+    categories:[
+      {id:'c-uni',name:'대학부 희망드림',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
+      {id:'c-high',name:'고등부 성적우수',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
+    ]
+  },{
+    id:'r-2026-fall',label:'2026년 하반기',
+    categories:[
+      {id:'c-uni-f',name:'대학부 희망드림',startDate:'2026-08-01',endDate:'2026-08-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
+    ]
+  },{
+    id:'r-2026-soho',label:'2026년 소상공인',
+    categories:[{id:'c-soho',name:'소상공인 자녀',startDate:'2026-11-01',endDate:'2026-11-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'사업자등록증',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]}]
+  }]};
+}
+function getSettings(){return DB.getSettings()||getDefaultSettings();}
 
+let curRoundId=null,selAppId=null,adminName='',editMode=false,curSettingsTab='rounds';
+
+// ── 행간 조절 ──
+function setLH(v){document.documentElement.style.setProperty('--lh',v);localStorage.setItem('schl_lh',v);}
+function loadLH(){const v=localStorage.getItem('schl_lh');if(v){setLH(v);const el=document.querySelector('.lh-ctrl input');if(el)el.value=v;}}
+
+// ── 인증 ──
 function doLogin(){
   const id=document.getElementById('l-id').value.trim(),pw=document.getElementById('l-pw').value.trim();
   const acc=ACCOUNTS.find(a=>a.id===id&&a.pw===pw);
@@ -268,39 +361,34 @@ function doLogin(){
   document.getElementById('app').style.display='flex';
   document.getElementById('adm-nm').textContent=acc.name+' 님';
   const s=getSettings();curRoundId=s.rounds[0]?.id||null;
+  loadLH();
   renderDash();renderSelection();renderLegacy();renderSettings();
 }
 function logout(){document.getElementById('login-wrap').style.display='flex';document.getElementById('app').style.display='none';}
-function switchMain(tab,el){
-  document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
-  ['dash','selection','legacy','settings'].forEach(t=>{document.getElementById('pane-'+t).style.display=t===tab?'':'none';});
+
+function switchMain(tab){
+  ['dash','selection','legacy','settings'].forEach(t=>{
+    document.getElementById('pane-'+t).style.display=t===tab?'':'none';
+    document.getElementById('nav-'+t)?.classList.toggle('on',t===tab);
+  });
 }
 
+// ── 공통 ──
 function getCatDocs(roundId,catId){return getSettings().rounds.find(r=>r.id===roundId)?.categories.find(c=>c.id===catId)?.docs||[];}
 function getMissing(app){return getCatDocs(app.roundId,app.categoryId).filter(d=>d.req&&!app.docs[d.id]);}
-
-// 중복 수혜 체크 (현재 + 이전 이력 통합)
+function getDocReview(app){return app.docReview||{};}
 function getDupWarnings(app){
-  const allApps=DB.getApps(),legacy=getLegacy();
-  const warnings=[];
-  // 동일인 중복 (이름+생년월일)
+  const apps=DB.getApps(),legacy=getLegacy(),warnings=[];
   if(app.birth){
-    const samePersonApps=allApps.filter(a=>a.id!==app.id&&a.name===app.name&&a.birth===app.birth&&a.selected==='선발');
-    const samePersonLeg=legacy.filter(a=>a.name===app.name&&a.birth===app.birth&&a.selected==='선발');
-    if(samePersonApps.length||samePersonLeg.length){
-      const list=[...samePersonApps.map(a=>a.categoryName+' (현재)'), ...samePersonLeg.map(a=>a.categoryName+' '+a.roundLabel)];
-      warnings.push(`⚠ 동일인 중복 수혜: ${list.join(', ')}`);
-    }
+    const sp=apps.filter(a=>a.id!==app.id&&a.name===app.name&&a.birth===app.birth&&a.selected==='선발');
+    const sl=legacy.filter(a=>a.name===app.name&&a.birth===app.birth&&a.selected==='선발');
+    if(sp.length||sl.length)warnings.push(`⚠ 동일인 중복: ${[...sp.map(a=>a.categoryName+'(현재)'),...sl.map(a=>a.categoryName+' '+a.roundLabel)].join(', ')}`);
   }
-  // 가족 중복 (주소 동일, 다른 이름, 선발된 경우)
   if(app.addr){
     const key=addrKey(app.addr);
-    const famApps=allApps.filter(a=>a.id!==app.id&&a.name!==app.name&&addrKey(a.addr)===key&&a.selected==='선발');
-    const famLeg=legacy.filter(a=>a.name!==app.name&&addrKey(a.addr)===key&&a.selected==='선발');
-    if(famApps.length||famLeg.length){
-      const list=[...famApps.map(a=>a.name+' (현재)'), ...famLeg.map(a=>a.name+' '+a.roundLabel)];
-      warnings.push(`⚠ 동일 주소 가족 수혜: ${list.join(', ')}`);
-    }
+    const fp=apps.filter(a=>a.id!==app.id&&a.name!==app.name&&addrKey(a.addr)===key&&a.selected==='선발');
+    const fl=legacy.filter(a=>a.name!==app.name&&addrKey(a.addr)===key&&a.selected==='선발');
+    if(fp.length||fl.length)warnings.push(`⚠ 동일주소 가족: ${[...fp.map(a=>a.name+'(현재)'),...fl.map(a=>a.name+' '+a.roundLabel)].join(', ')}`);
   }
   return warnings;
 }
@@ -320,12 +408,12 @@ function renderDash(){
 
   document.getElementById('dash-cnt').innerHTML=`
     <div class="round-tabs">${rounds.map(r=>`<div class="rt${r.id===curRoundId?' on':''}" onclick="switchRound('${r.id}')">${r.label}</div>`).join('')}</div>
-    <div class="stats">
-      <div class="sc"><div class="sc-l">전체 접수</div><div class="sc-n tot">${apps.length}</div></div>
-      <div class="sc"><div class="sc-l">서류 완비</div><div class="sc-n ok">${ok}</div></div>
-      <div class="sc"><div class="sc-l">서류 미완</div><div class="sc-n ng">${apps.length-ok}</div></div>
-      <div class="sc"><div class="sc-l">안내 미발송</div><div class="sc-n fb">${fbP}</div></div>
-      <div class="sc"><div class="sc-l">선발 확정</div><div class="sc-n sel">${sel}</div></div>
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-l">전체 접수</div><div class="dash-n tot">${apps.length}</div></div>
+      <div class="dash-card"><div class="dash-l">서류 완비</div><div class="dash-n ok">${ok}</div></div>
+      <div class="dash-card"><div class="dash-l">서류 미완</div><div class="dash-n ng">${apps.length-ok}</div></div>
+      <div class="dash-card"><div class="dash-l">안내 미발송</div><div class="dash-n fb">${fbP}</div></div>
+      <div class="dash-card"><div class="dash-l">선발 확정</div><div class="dash-n sel">${sel}</div></div>
     </div>
     <div class="filter-bar">
       <input type="text" id="q" placeholder="이름 / 학교 검색" oninput="renderList()">
@@ -339,16 +427,18 @@ function renderDash(){
         <option value="ng">서류 미완</option>
         <option value="fb">안내 미발송</option>
         <option value="sel">선발 확정</option>
+        <option value="rv-ng">검토 부적격 있음</option>
       </select>
       <button class="ibtn grn" onclick="openManual()">+ 수동 입력</button>
       <button class="ibtn" onclick="doBackup()">⬇ CSV</button>
     </div>
     <div class="list-wrap">
-      <div class="list-hdr"><div>#</div><div>이름</div><div>학교</div><div>구분</div><div>상태</div><div>선발</div><div>안내발송</div><div>미제출 서류</div></div>
+      <div class="list-hdr"><div>#</div><div>이름</div><div>학교</div><div>구분</div><div>서류</div><div>검토</div><div>선발</div><div>안내발송</div><div>미제출 서류</div></div>
       <div id="list-body"></div>
     </div>`;
   renderList();
 }
+
 function switchRound(id){curRoundId=id;closePanel();renderDash();}
 
 function renderList(){
@@ -362,78 +452,179 @@ function renderList(){
   if(fst==='ng')apps=apps.filter(a=>getMissing(a).length>0);
   if(fst==='fb')apps=apps.filter(a=>getMissing(a).length>0&&!a.feedbackSent);
   if(fst==='sel')apps=apps.filter(a=>a.selected==='선발');
+  if(fst==='rv-ng')apps=apps.filter(a=>Object.values(a.docReview||{}).some(r=>r.status==='ng'));
+
   const body=document.getElementById('list-body');
   if(!apps.length){body.innerHTML='<div class="empty">해당 데이터가 없습니다</div>';return;}
+
   body.innerHTML=apps.map((a,i)=>{
     const miss=getMissing(a),isOk=miss.length===0;
-    const badge=isOk?'<span class="bdg ok">완비</span>':miss.length<=2?'<span class="bdg pt">일부 누락</span>':'<span class="bdg ng">미완료</span>';
+    const rvNg=Object.values(a.docReview||{}).filter(r=>r.status==='ng').length;
+    const badge=isOk?'<span class="bdg ok">완비</span>':miss.length<=2?'<span class="bdg pt">일부누락</span>':'<span class="bdg ng">미완료</span>';
+    const rvBadge=rvNg?`<span class="bdg ng">부적격 ${rvNg}</span>`:Object.values(a.docReview||{}).length?'<span class="bdg ok">검토완료</span>':'<span style="color:var(--tx3);font-size:12px">미검토</span>';
     const selB=a.selected==='선발'?'<span class="bdg ok">선발</span>':a.selected==='미선발'?'<span class="bdg ng">미선발</span>':'-';
-    const fb=a.feedbackSent?`<span class="fbdot s"></span>${a.feedbackSentAt?.slice(5,10)||'발송'}`:isOk?'-':`<span class="fbdot u"></span>미발송`;
-    const dup=getDupWarnings(a).length>0?'⚠':'';
+    const fb=a.feedbackSent?`<span class="fbdot s"></span>${a.feedbackSentAt?.slice(5,10)||''}`:isOk?'-':`<span class="fbdot u"></span>미발송`;
+    const dup=getDupWarnings(a).length?'⚠':'';
     return`<div class="list-row${selAppId===a.id?' sel-row':''}" onclick="openPanel('${a.id}')">
       <div style="color:var(--tx3)">${i+1}</div>
-      <div style="font-weight:800">${a.name}${dup?`<span style="color:var(--o);margin-left:3px;font-size:13px">${dup}</span>`:''}<span class="src-tag${a.source==='manual'?' m':''}">${a.source==='manual'?'수동':'온라인'}</span></div>
+      <div style="font-weight:800">${a.name}${dup?`<span style="color:var(--o);margin-left:3px">${dup}</span>`:''}<span class="src-tag${a.source==='manual'?' m':''}">${a.source==='manual'?'수동':'온라인'}</span></div>
       <div style="font-size:12px;color:var(--tx2)">${a.school||'-'}</div>
       <div style="font-size:12px">${a.categoryName||'-'}</div>
-      <div>${badge}</div><div>${selB}</div>
+      <div>${badge}</div><div>${rvBadge}</div><div>${selB}</div>
       <div style="font-size:12px">${fb}</div>
       <div class="miss-txt">${miss.length?miss.map(d=>d.name).join(', '):'-'}</div>
     </div>`;
   }).join('');
 }
 
+// ── 패널 ──
 function openPanel(id){
   const apps=DB.getApps(),app=apps.find(a=>a.id===id);if(!app)return;
-  selAppId=id;renderList();
-  const docs=getCatDocs(app.roundId,app.categoryId),miss=getMissing(app);
-  const dups=getDupWarnings(app),supps=app.supplements||[];
-  const msgTxt=miss.length?`안녕하세요, ${app.name} 지원자님.\n\n서류 검토 결과 아래 서류가 누락되어 있습니다.\n\n[미제출 서류]\n${miss.map((d,i)=>`  ${i+1}. ${d.name}`).join('\n')}\n\n접수번호: ${app.id}\n위 번호로 접수 사이트(보완 서류 제출 탭)에서 제출하시거나,\n직접 이메일/카카오로 전송하셔도 됩니다.\n\n기한: ${new Date().toLocaleDateString('ko-KR')} 이내\n\n의왕시인재육성재단 드림`:null;
-
-  document.getElementById('panel-ttl').textContent=app.name;
-  document.getElementById('panel-body').innerHTML=`
-    <div class="pm">
-      <table>
-        <tr><td>접수번호</td><td>${app.id}</td></tr>
-        <tr><td>학교</td><td>${app.school||'-'} ${app.dept?`(${app.dept})`:''}</td></tr>
-        <tr><td>연락처</td><td>${app.phone||'-'}</td></tr>
-        <tr><td>주소</td><td>${app.addr||'-'} ${app.addrDetail||''}</td></tr>
-        <tr><td>보호자</td><td>${app.guardianName||'-'} (${app.guardianRelation||'-'}) ${app.guardianPhone?`· ${app.guardianPhone}`:''}</td></tr>
-        <tr><td>구분</td><td>${app.categoryName||'-'}</td></tr>
-        <tr><td>접수일시</td><td>${fmtDt(app.submittedAt)}</td></tr>
-        <tr><td>선발여부</td><td><select class="sel-sel" onchange="setSelected('${app.id}',this.value)"><option value="">-</option><option value="선발" ${app.selected==='선발'?'selected':''}>✓ 선발</option><option value="미선발" ${app.selected==='미선발'?'selected':''}>✗ 미선발</option></select></td></tr>
-      </table>
-    </div>
-    ${dups.map(w=>`<div class="warnbox">${w}</div>`).join('')}
-    <div class="psec">서류 현황</div>
-    ${docs.filter(d=>d.req).map(d=>`
-      <div class="dr ${app.docs[d.id]?'sub':'mis'}">
-        <div class="dr-nm">${app.docs[d.id]?'✓':'✗'} ${d.name}</div>
-        ${app.docs[d.id]
-          ?`<button class="mbtn vw">보기</button>`
-          :`<label class="mbtn up" for="mup-${d.id}" style="cursor:pointer">직접 업로드</label><input type="file" id="mup-${d.id}" style="display:none" accept=".pdf" onchange="manualUpload('${app.id}','${d.id}',this)">`}
-      </div>`).join('')}
-    ${msgTxt?`
-      <div class="psec">누락 서류 안내 메시지</div>
-      <div class="msg-box" id="msg-box">${msgTxt}</div>
-      <div class="act-row">
-        <button class="abtn copy" onclick="copyMsg()">메시지 복사</button>
-        ${app.feedbackSent
-          ?`<button class="abtn fbd">✓ 발송 완료 (${app.feedbackSentAt?.slice(5,10)||''})</button>`
-          :`<button class="abtn fbs" onclick="markFb('${app.id}')">발송 완료 표시</button>`}
-      </div>`:`<div style="background:var(--glt);border-radius:var(--r8);padding:12px;text-align:center;color:var(--g);font-weight:800;margin-top:12px">✓ 서류 완비</div>`}
-    ${supps.length?`<div class="psec">보완 제출 이력 (${supps.length}회)</div>${supps.map(s=>`<div style="background:#f0f4ff;border-radius:var(--r8);padding:8px 10px;margin-bottom:5px;font-size:12px;color:var(--tx2)">${fmtDt(s.submittedAt)} · ${Object.keys(s.docs).length}개 추가 제출</div>`).join('')}`:''}
-    <div class="psec">특이사항 기록</div>
-    <div id="notes-wrap">${(app.notes||[]).length?(app.notes||[]).map(n=>`<div class="note-item">${n.text}<div class="note-dt">${n.date} · ${n.author||''}</div></div>`).join(''):'<div style="color:var(--tx3);font-size:12px;padding:4px 0">기록 없음</div>'}</div>
-    <div class="note-row"><textarea id="note-inp" placeholder="특이사항 메모..."></textarea><button onclick="addNote('${app.id}')">저장</button></div>`;
+  selAppId=id;editMode=false;renderList();renderPanelContent(app);
   document.getElementById('panel').classList.add('on');
   document.getElementById('overlay').classList.add('on');
 }
 function closePanel(){selAppId=null;document.getElementById('panel').classList.remove('on');document.getElementById('overlay').classList.remove('on');renderList();}
-function markFb(id){const apps=DB.getApps(),i=apps.findIndex(a=>a.id===id);if(i<0)return;apps[i].feedbackSent=true;apps[i].feedbackSentAt=new Date().toISOString();apps[i].feedbackSentBy=adminName;DB.saveApps(apps);openPanel(id);renderList();}
+
+function toggleEditMode(){
+  editMode=!editMode;
+  const apps=DB.getApps(),app=apps.find(a=>a.id===selAppId);
+  if(app)renderPanelContent(app);
+}
+
+function renderPanelContent(app){
+  const docs=getCatDocs(app.roundId,app.categoryId);
+  const miss=getMissing(app),dups=getDupWarnings(app),supps=app.supplements||[];
+  const rv=app.docReview||{};
+  const rvNgDocs=docs.filter(d=>rv[d.id]?.status==='ng');
+
+  // 누락 안내 메시지
+  const missMsg=miss.length?`안녕하세요, ${app.name} 지원자님.\n\n서류 검토 결과 아래 서류가 누락되어 있습니다.\n\n[미제출 서류]\n${miss.map((d,i)=>`  ${i+1}. ${d.name}`).join('\n')}\n\n접수번호: ${app.id}\n접수 사이트(보완 서류 제출 탭)에서 제출해 주세요.\n\n의왕시인재육성재단 드림`:null;
+  // 부적격 안내 메시지
+  const rvMsg=rvNgDocs.length?`안녕하세요, ${app.name} 지원자님.\n\n제출하신 서류 검토 결과 아래 서류에 문제가 있습니다.\n\n[부적격 서류]\n${rvNgDocs.map((d,i)=>`  ${i+1}. ${d.name}${rv[d.id]?.reason?' — '+rv[d.id].reason:''}`).join('\n')}\n\n접수번호: ${app.id}\n수정된 서류를 재제출해 주세요.\n\n의왕시인재육성재단 드림`:null;
+
+  document.getElementById('panel-ttl').textContent=app.name;
+  document.getElementById('edit-btn').style.background=editMode?'rgba(255,255,255,.4)':'rgba(255,255,255,.2)';
+
+  document.getElementById('panel-body').innerHTML=`
+    <!-- 기본정보 -->
+    <div class="pm">
+      ${editMode?`
+        <div class="pm-row"><span class="pm-lbl">이름</span><input class="pm-inp" id="ei-name" value="${app.name||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">학교</span><input class="pm-inp" id="ei-school" value="${app.school||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">학과/학년</span><input class="pm-inp" id="ei-dept" value="${app.dept||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">연락처</span><input class="pm-inp" id="ei-phone" value="${app.phone||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">이메일</span><input class="pm-inp" id="ei-email" value="${app.email||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">주소</span><input class="pm-inp" id="ei-addr" value="${app.addr||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">상세주소</span><input class="pm-inp" id="ei-adetail" value="${app.addrDetail||''}"></div>
+        <div class="pm-row"><span class="pm-lbl">보호자</span><input class="pm-inp" id="ei-guardian" value="${app.guardianName||''}"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="ibtn grn" style="flex:1" onclick="saveEdit('${app.id}')">저장</button>
+          <button class="ibtn" onclick="editMode=false;renderPanelContent(DB.getApps().find(a=>a.id==='${app.id}'))">취소</button>
+        </div>`:`
+        <div class="pm-row"><span class="pm-lbl">접수번호</span><span class="pm-val">${app.id}</span></div>
+        <div class="pm-row"><span class="pm-lbl">학교</span><span class="pm-val">${app.school||'-'} ${app.dept?`(${app.dept})`:''}</span></div>
+        <div class="pm-row"><span class="pm-lbl">연락처</span><span class="pm-val">${app.phone||'-'}</span></div>
+        <div class="pm-row"><span class="pm-lbl">주소</span><span class="pm-val">${app.addr||'-'} ${app.addrDetail||''}</span></div>
+        <div class="pm-row"><span class="pm-lbl">보호자</span><span class="pm-val">${app.guardianName||'-'}(${app.guardianRelation||'-'}) ${app.guardianPhone?'· '+app.guardianPhone:''}</span></div>
+        <div class="pm-row"><span class="pm-lbl">구분</span><span class="pm-val">${app.categoryName||'-'}</span></div>
+        <div class="pm-row"><span class="pm-lbl">접수일시</span><span class="pm-val">${fmtDt(app.submittedAt)}</span></div>
+        <div class="pm-row"><span class="pm-lbl">선발여부</span><span class="pm-val"><select class="sel-sel" onchange="setSelected('${app.id}',this.value)"><option value="">-</option><option value="선발" ${app.selected==='선발'?'selected':''}>✓ 선발</option><option value="미선발" ${app.selected==='미선발'?'selected':''}>✗ 미선발</option></select></span></div>`}
+    </div>
+
+    ${dups.map(w=>`<div class="warnbox">${w}</div>`).join('')}
+
+    <!-- 서류 검토 -->
+    <div class="psec"><span>서류 검토</span><span style="font-size:11px;color:var(--tx3)">${docs.filter(d=>d.req).length}개 필수 / ${Object.keys(rv).length}개 검토완료</span></div>
+    ${docs.filter(d=>d.req).map(d=>{
+      const r=rv[d.id]||{status:'pending'};
+      const sub=app.docs[d.id];
+      return`<div class="doc-row ${r.status==='ok'?'ok':r.status==='ng'?'ng-doc':'pending'}" id="drow-${d.id}">
+        <div class="doc-row-info">
+          <div class="doc-row-nm">${sub?'✓':'✗'} ${d.name}</div>
+          <div class="doc-row-reason" id="dreason-${d.id}">${r.reason||''}</div>
+          ${sub?`<input class="reason-inp" id="ri-${d.id}" placeholder="부적격 사유 입력..." value="${r.reason||''}" onchange="setDocReason('${app.id}','${d.id}',this.value)">`:''}
+        </div>
+        <div class="doc-btns">
+          ${sub?`
+            <button class="rv-btn view" onclick="viewDoc('${app.id}','${d.id}')">보기</button>
+            <button class="rv-btn${r.status==='ok'?' ok':''}" onclick="setDocStatus('${app.id}','${d.id}','ok')">적격</button>
+            <button class="rv-btn${r.status==='ng'?' ng':''}" onclick="setDocStatus('${app.id}','${d.id}','ng')">부적격</button>
+          `:'<span style="font-size:11px;color:var(--tx3)">미제출</span>'}
+        </div>
+      </div>`;
+    }).join('')}
+
+    <!-- 누락 안내 -->
+    ${missMsg?`<div class="psec">누락 서류 안내</div>
+    <div class="msg-box" id="msg-miss">${missMsg}</div>
+    <div class="act-row">
+      <button class="abtn copy" onclick="copyEl('msg-miss')">복사</button>
+      ${app.feedbackSent?`<button class="abtn fbd">✓ 발송완료 (${app.feedbackSentAt?.slice(5,10)||''})</button>`:`<button class="abtn fbs" onclick="markFb('${app.id}')">발송 완료 표시</button>`}
+    </div>`:''}
+
+    <!-- 부적격 안내 -->
+    ${rvMsg?`<div class="psec">부적격 서류 안내</div>
+    <div class="msg-box" id="msg-rv">${rvMsg}</div>
+    <div class="act-row"><button class="abtn copy" onclick="copyEl('msg-rv')">복사</button></div>`:''}
+
+    ${!missMsg&&!rvMsg?`<div style="background:var(--glt);border-radius:var(--r8);padding:12px;text-align:center;color:var(--g);font-weight:800;margin-top:12px">✓ 서류 완비 · 검토 이상 없음</div>`:''}
+
+    <!-- 보완이력 -->
+    ${supps.length?`<div class="psec">보완 제출 이력 (${supps.length}회)</div>${supps.map(s=>`<div style="background:#f0f4ff;border-radius:var(--r8);padding:8px 10px;margin-bottom:5px;font-size:12px;color:var(--tx2)">${fmtDt(s.submittedAt)} · ${Object.keys(s.docs).length}개 추가 제출</div>`).join('')}`:''}
+
+    <!-- 특이사항 -->
+    <div class="psec">특이사항</div>
+    <div id="notes-wrap">${(app.notes||[]).length?(app.notes||[]).map(n=>`<div class="note-item">${n.text}<div class="note-dt">${n.date} · ${n.author||''}</div></div>`).join(''):'<div style="color:var(--tx3);font-size:12px;padding:4px 0">기록 없음</div>'}</div>
+    <div class="note-row"><textarea id="note-inp" placeholder="특이사항 메모..."></textarea><button onclick="addNote('${app.id}')">저장</button></div>
+  `;
+}
+
+function saveEdit(id){
+  const v=sel=>document.getElementById(sel)?.value.trim();
+  const apps=DB.getApps(),i=apps.findIndex(a=>a.id===id);if(i<0)return;
+  apps[i].name=v('ei-name')||apps[i].name;
+  apps[i].school=v('ei-school')||apps[i].school;
+  apps[i].dept=v('ei-dept');
+  apps[i].phone=v('ei-phone')||apps[i].phone;
+  apps[i].email=v('ei-email');
+  apps[i].addr=v('ei-addr')||apps[i].addr;
+  apps[i].addrDetail=v('ei-adetail');
+  apps[i].guardianName=v('ei-guardian')||apps[i].guardianName;
+  apps[i].notes=apps[i].notes||[];
+  apps[i].notes.push({text:`기본정보 수정`,date:new Date().toLocaleDateString('ko-KR'),author:adminName});
+  DB.saveApps(apps);
+  editMode=false;
+  document.getElementById('panel-ttl').textContent=apps[i].name;
+  renderPanelContent(apps[i]);renderList();
+}
+
+function setDocStatus(appId,docId,status){
+  const apps=DB.getApps(),i=apps.findIndex(a=>a.id===appId);if(i<0)return;
+  apps[i].docReview=apps[i].docReview||{};
+  apps[i].docReview[docId]=apps[i].docReview[docId]||{};
+  apps[i].docReview[docId].status=status;
+  if(status==='ok')apps[i].docReview[docId].reason='';
+  DB.saveApps(apps);
+  renderPanelContent(apps[i]);renderList();
+}
+function setDocReason(appId,docId,reason){
+  const apps=DB.getApps(),i=apps.findIndex(a=>a.id===appId);if(i<0)return;
+  apps[i].docReview=apps[i].docReview||{};
+  apps[i].docReview[docId]=apps[i].docReview[docId]||{status:'ng'};
+  apps[i].docReview[docId].reason=reason;
+  DB.saveApps(apps);
+}
+function viewDoc(appId,docId){
+  const app=DB.getApps().find(a=>a.id===appId);
+  const url=app?.fileUrls?.[docId];
+  if(url){window.open(url,'_blank');}
+  else{alert('Firebase 연동 후 파일 보기가 가능합니다.\n\n현재는 로컬 저장 환경으로 파일 URL이 없습니다.');}
+}
+function markFb(id){const apps=DB.getApps(),i=apps.findIndex(a=>a.id===id);if(i<0)return;apps[i].feedbackSent=true;apps[i].feedbackSentAt=new Date().toISOString();apps[i].feedbackSentBy=adminName;DB.saveApps(apps);renderPanelContent(apps[i]);renderList();}
 function setSelected(id,val){const apps=DB.getApps(),i=apps.findIndex(a=>a.id===id);if(i<0)return;apps[i].selected=val||null;DB.saveApps(apps);renderList();renderSelection();}
-function manualUpload(appId,docId,inp){if(!inp.files.length)return;if(!inp.files[0].name.toLowerCase().endsWith('.pdf')){alert('PDF만 가능합니다');return;}const apps=DB.getApps(),i=apps.findIndex(a=>a.id===appId);if(i<0)return;apps[i].docs[docId]=true;apps[i].notes=apps[i].notes||[];apps[i].notes.push({text:`관리자 직접 업로드: ${inp.files[0].name}`,date:new Date().toLocaleDateString('ko-KR'),author:adminName});DB.saveApps(apps);openPanel(appId);renderList();}
-function copyMsg(){const el=document.getElementById('msg-box');if(!el)return;navigator.clipboard.writeText(el.textContent).then(()=>{el.style.background='var(--glt)';setTimeout(()=>el.style.background='',1500);});}
-function addNote(id){const inp=document.getElementById('note-inp');const text=inp?.value.trim();if(!text)return;const apps=DB.getApps(),i=apps.findIndex(a=>a.id===id);if(i<0)return;apps[i].notes=apps[i].notes||[];apps[i].notes.push({text,date:new Date().toLocaleDateString('ko-KR'),author:adminName});DB.saveApps(apps);openPanel(id);}
+function copyEl(id){const el=document.getElementById(id);if(!el)return;navigator.clipboard.writeText(el.textContent).then(()=>{el.style.background='var(--glt)';setTimeout(()=>el.style.background='',1500);});}
+function addNote(id){const inp=document.getElementById('note-inp');const text=inp?.value.trim();if(!text)return;const apps=DB.getApps(),i=apps.findIndex(a=>a.id===id);if(i<0)return;apps[i].notes=apps[i].notes||[];apps[i].notes.push({text,date:new Date().toLocaleDateString('ko-KR'),author:adminName});DB.saveApps(apps);renderPanelContent(apps[i]);}
 
 // 수동입력
 function openManual(){
@@ -441,57 +632,49 @@ function openManual(){
   if(!round){alert('회차 설정을 먼저 해주세요');return;}
   document.getElementById('modal-inner').innerHTML=`
     <h3>수동 접수 입력</h3>
-    <label>구분 *</label><select id="mc-cat" onchange="renderManualDocs(this.value)">${round.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
-    <div class="row2"><div><label>이름 *</label><input type="text" id="mc-name" placeholder="홍길동"></div><div><label>성별 *</label><select id="mc-gender"><option value="남">남</option><option value="여">여</option></select></div></div>
-    <div class="row2"><div><label id="mc-birth-lbl">생년월일 *</label><input type="text" id="mc-birth" placeholder="990101"></div><div><label>연락처 *</label><input type="text" id="mc-phone" placeholder="010-0000-0000"></div></div>
+    <label>구분 *</label><select id="mc-cat" onchange="renderMDocs(this.value)">${round.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+    <div class="row2"><div><label>이름 *</label><input type="text" id="mc-name"></div><div><label>성별</label><select id="mc-gender"><option value="남">남</option><option value="여">여</option></select></div></div>
+    <div class="row2"><div><label>생년월일</label><input type="text" id="mc-birth" placeholder="990101"></div><div><label>연락처 *</label><input type="text" id="mc-phone" placeholder="010-0000-0000"></div></div>
     <label>학교명 *</label><input type="text" id="mc-school">
     <label>학과/학년</label><input type="text" id="mc-dept">
     <label>이메일</label><input type="email" id="mc-email">
-    <label>주소</label><div class="addr-row"><input type="text" id="mc-addr" placeholder="도로명주소 검색" readonly><button class="addr-btn" onclick="searchManualAddr()">검색</button></div>
+    <label>주소</label><div class="addr-row-m"><input type="text" id="mc-addr" placeholder="도로명주소" readonly><button class="addr-btn" onclick="searchManualAddr()">검색</button></div>
     <input type="text" id="mc-addr-detail" placeholder="상세주소">
     <div class="row2"><div><label>보호자 이름 *</label><input type="text" id="mc-guardian"></div><div><label>관계</label><select id="mc-rel"><option value="부">부</option><option value="모">모</option><option value="조부">조부</option><option value="조모">조모</option><option value="기타">기타</option></select></div></div>
-    <label>서류 제출 현황 체크</label>
+    <label>서류 제출 현황</label>
     <div id="mc-docs" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px"></div>
     <div class="mbtns"><button onclick="closeModal()">취소</button><button class="primary" onclick="saveManual()">저장</button></div>`;
-  const firstCat=round.categories[0];if(firstCat)renderManualDocs(firstCat.id);
-  // 고등부 생년월일 처리
-  document.getElementById('mc-cat').addEventListener('change',function(){
-    const lbl=document.getElementById('mc-birth-lbl');
-    if(lbl)lbl.innerHTML=isJunior(this.options[this.selectedIndex].text)?'생년월일 <span style="color:var(--tx3);font-weight:400">(선택)</span>':'생년월일 *';
-  });
+  const firstCat=round.categories[0];if(firstCat)renderMDocs(firstCat.id);
   document.getElementById('modal-bg').classList.add('on');
 }
-function renderManualDocs(catId){
+function renderMDocs(catId){
   const s=getSettings(),r=s.rounds.find(r=>r.id===curRoundId),cat=r?.categories.find(c=>c.id===catId);
   const w=document.getElementById('mc-docs');if(!w||!cat)return;
   w.innerHTML=cat.docs.map(d=>`<label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="mdc-${d.id}"><span>${d.name}${d.req?'<span style="color:var(--o)">*</span>':''}</span></label>`).join('');
 }
-let _addrCb=null;
-function openAddrLayer(cb){
-  _addrCb=cb;
-  const layer=document.getElementById('addr-layer'),ov=document.getElementById('addr-ov'),em=document.getElementById('addr-em');
-  em.innerHTML='';layer.style.display='block';ov.style.display='block';
-  new daum.Postcode({oncomplete:function(d){closeAddrLayer();if(_addrCb)_addrCb(d.roadAddress||d.jibunAddress);},width:'100%',height:'440px'}).embed(em,{autoClose:false});
-}
-function closeAddrLayer(){document.getElementById('addr-layer').style.display='none';document.getElementById('addr-ov').style.display='none';_addrCb=null;}
-function searchManualAddr(){openAddrLayer(function(a){document.getElementById('mc-addr').value=a;document.getElementById('mc-addr-detail').focus();});}
 function saveManual(){
   const v=id=>document.getElementById(id)?.value.trim();
-  const catId=v('mc-cat'),name=v('mc-name'),phone=v('mc-phone'),school=v('mc-school'),guardian=v('mc-guardian');
-  const s=getSettings(),r=s.rounds.find(r=>r.id===curRoundId),cat=r?.categories.find(c=>c.id===catId);
+  const catId=document.getElementById('mc-cat')?.value,name=v('mc-name'),phone=v('mc-phone'),school=v('mc-school'),guardian=v('mc-guardian');
   if(!name||!phone||!school||!guardian){alert('필수 항목을 입력해 주세요');return;}
+  const s=getSettings(),r=s.rounds.find(r=>r.id===curRoundId),cat=r?.categories.find(c=>c.id===catId);
   const docs=Object.fromEntries((cat?.docs||[]).map(d=>[d.id,document.getElementById('mdc-'+d.id)?.checked||false]));
   const id=genId(),apps=DB.getApps();
-  apps.push({id,roundId:curRoundId,categoryId:catId,categoryName:cat?.name||'',name,birth:v('mc-birth')||'',gender:v('mc-gender')||'',phone,email:v('mc-email')||'',school,dept:v('mc-dept')||'',addr:v('mc-addr')||'',addrDetail:v('mc-addr-detail')||'',guardianName:guardian,guardianRelation:v('mc-rel')||'부',guardianPhone:'',submittedAt:new Date().toISOString(),source:'manual',docs,fileUrls:{},notes:[{text:'방문/대리 접수 (수동 입력)',date:new Date().toLocaleDateString('ko-KR'),author:adminName}],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null});
+  apps.push({id,roundId:curRoundId,categoryId:catId,categoryName:cat?.name||'',name,birth:v('mc-birth')||'',gender:v('mc-gender')||'',phone,email:v('mc-email')||'',school,dept:v('mc-dept')||'',addr:v('mc-addr')||'',addrDetail:v('mc-addr-detail')||'',guardianName:guardian,guardianRelation:v('mc-rel')||'부',guardianPhone:'',submittedAt:new Date().toISOString(),source:'manual',docs,fileUrls:{},docReview:{},notes:[{text:'방문/대리 접수 (수동 입력)',date:new Date().toLocaleDateString('ko-KR'),author:adminName}],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null});
   DB.saveApps(apps);closeModal();renderDash();
 }
 
-// CSV 백업
+function cleanDaum(){setTimeout(function(){document.querySelectorAll('div[id^="__daum__"],iframe[id^="__daum__"]').forEach(function(el){el.remove();});document.body.style.overflow='';},100);}
+function searchManualAddr(){new daum.Postcode({oncomplete:function(d){cleanDaum();document.getElementById('mc-addr').value=d.roadAddress||d.jibunAddress;setTimeout(()=>document.getElementById('mc-addr-detail')?.focus(),150);}}).open();}
+
 function doBackup(){
   const s=getSettings(),apps=DB.getApps().filter(a=>a.roundId===curRoundId);
   const label=s.rounds.find(r=>r.id===curRoundId)?.label||'';
-  const rows=[['접수번호','이름','성별','생년월일','학교','학과/학년','연락처','이메일','주소','상세주소','보호자','구분','접수일시','서류상태','선발여부','안내발송','누락서류','메모']];
-  apps.forEach(a=>{const miss=getMissing(a);rows.push([a.id,a.name,a.gender||'',a.birth||'',a.school||'',a.dept||'',a.phone||'',a.email||'',a.addr||'',a.addrDetail||'',`${a.guardianName||''}(${a.guardianRelation||''})`,a.categoryName||'',a.submittedAt?.slice(0,16)||'',miss.length?'미완료':'완비',a.selected||'-',a.feedbackSent?`발송(${a.feedbackSentAt?.slice(5,10)||''})`:miss.length?'미발송':'-',miss.map(d=>d.name).join(', '),(a.notes||[]).map(n=>n.text).join(' / ')]);});
+  const rows=[['접수번호','이름','성별','생년월일','학교','학과/학년','연락처','이메일','주소','상세주소','보호자','구분','접수일시','서류상태','검토결과','선발여부','안내발송','누락서류','메모']];
+  apps.forEach(a=>{
+    const miss=getMissing(a);
+    const rvResult=Object.entries(a.docReview||{}).filter(([,r])=>r.status==='ng').map(([id,r])=>getCatDocs(a.roundId,a.categoryId).find(d=>d.id===id)?.name+`(${r.reason||''})`).join(', ');
+    rows.push([a.id,a.name,a.gender||'',a.birth||'',a.school||'',a.dept||'',a.phone||'',a.email||'',a.addr||'',a.addrDetail||'',`${a.guardianName||''}(${a.guardianRelation||''})`,a.categoryName||'',a.submittedAt?.slice(0,16)||'',miss.length?'미완료':'완비',rvResult||'이상없음',a.selected||'-',a.feedbackSent?`발송(${a.feedbackSentAt?.slice(5,10)||''})`:miss.length?'미발송':'-',miss.map(d=>d.name).join(', '),(a.notes||[]).map(n=>n.text).join(' / ')]);
+  });
   csvDown(rows,`장학생_${label}_${new Date().toISOString().slice(0,10)}.csv`);
 }
 function csvDown(rows,fname){
@@ -505,10 +688,14 @@ function csvDown(rows,fname){
 // ─────────────────────────────────────────────
 function renderSelection(){
   const s=getSettings(),apps=DB.getApps(),legacy=getLegacy();
-  const allSel=[...apps.filter(a=>a.selected==='선발'), ...legacy.filter(a=>a.selected==='선발')];
+  const allSel=[...apps.filter(a=>a.selected==='선발'),...legacy.filter(a=>a.selected==='선발')];
+  const totalApp=apps.length,totalSel=apps.filter(a=>a.selected==='선발').length;
+  const dupMap={};allSel.forEach(a=>{if(!a.birth)return;const k=`${a.name}_${a.birth}`;if(!dupMap[k])dupMap[k]=[];dupMap[k].push(a);});
+  const dups=Object.values(dupMap).filter(g=>g.length>=2);
+  const famMap={};allSel.forEach(a=>{if(!a.addr)return;const k=addrKey(a.addr);if(!famMap[k])famMap[k]=[];famMap[k].push(a);});
+  const famDups=Object.values(famMap).filter(g=>g.length>=2&&new Set(g.map(a=>a.name)).size>=2);
 
-  // 회차별 테이블
-  const tables=s.rounds.map(round=>{
+  const roundTables=s.rounds.map(round=>{
     const ra=apps.filter(a=>a.roundId===round.id);
     const rows=round.categories.map(cat=>{
       const ca=ra.filter(a=>a.categoryId===cat.id);
@@ -517,65 +704,53 @@ function renderSelection(){
       return`<tr><td>${cat.name}</td><td style="text-align:center;font-weight:800">${ca.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${sel}</td><td><span>${pct}%</span><span class="pct-bar"><span class="pct-fill" style="width:${pct}%"></span></span></td></tr>`;
     }).join('');
     const tot=ra.length,totSel=ra.filter(a=>a.selected==='선발').length;
-    return`<div class="card"><div class="card-ttl"><span>${round.label} 선발 현황</span><button class="ibtn" onclick="exportSel('${round.id}')">⬇ 선발 명단 CSV</button></div>
+    return`<div class="card">
+      <div class="card-ttl"><div class="card-ttl-left">${round.label} 선발 현황</div><button class="ibtn" onclick="exportSel('${round.id}')">⬇ 선발 명단 CSV</button></div>
       <table class="sel-table"><thead><tr><th>구분</th><th style="text-align:center">접수</th><th style="text-align:center">선발</th><th>선발률</th></tr></thead>
       <tbody>${rows}<tr style="background:var(--glt)"><td style="font-weight:800">합계</td><td style="text-align:center;font-weight:800">${tot}</td><td style="text-align:center;font-weight:800;color:var(--g)">${totSel}</td><td></td></tr></tbody></table>
     </div>`;
   }).join('');
 
-  // 중복 수혜 (이름+생년월일)
-  const dupMap={};
-  allSel.forEach(a=>{if(!a.birth)return;const k=`${a.name}_${a.birth}`;if(!dupMap[k])dupMap[k]=[];dupMap[k].push(a);});
-  const dups=Object.values(dupMap).filter(g=>g.length>=2);
-  // 가족 중복 (주소 동일, 다른 이름)
-  const famMap={};
-  allSel.forEach(a=>{if(!a.addr)return;const k=addrKey(a.addr);if(!famMap[k])famMap[k]=[];famMap[k].push(a);});
-  const famDups=Object.values(famMap).filter(g=>g.length>=2&&new Set(g.map(a=>a.name)).size>=2);
-
   document.getElementById('sel-cnt').innerHTML=`
-    ${tables}
+    <div class="sel-grid">
+      <div class="sel-stat"><div class="n" style="color:var(--g)">${totalApp}</div><div class="l">전체 접수</div></div>
+      <div class="sel-stat"><div class="n" style="color:#1565c0">${totalSel}</div><div class="l">선발 확정</div></div>
+      <div class="sel-stat"><div class="n" style="color:#c62828">${dups.length}</div><div class="l">중복 수혜자</div></div>
+      <div class="sel-stat"><div class="n" style="color:var(--o)">${famDups.length}</div><div class="l">가족 중복 가능</div></div>
+    </div>
+    ${roundTables}
     <div class="card">
-      <div class="card-ttl" style="color:#c62828">⚠ 중복 수혜자 (동일인 - 이름+생년월일 기준)</div>
-      ${dups.length?dups.map(group=>`<div class="hist-item">
-        <div style="font-weight:800;font-size:15px">${group[0].name} <span class="dup-bdg">중복 ${group.length}회</span></div>
-        <div style="font-size:12px;color:var(--tx3);margin-top:3px">생년월일: ${group[0].birth} · 보호자: ${group[0].guardianName||'-'}</div>
-        ${group.map(a=>`<span class="hist-badge y" style="margin-right:5px">${a.categoryName} (${a.roundLabel||a.categoryName})</span>`).join('')}
-      </div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}
+      <div class="card-ttl"><div class="card-ttl-left" style="color:#c62828">⚠ 중복 수혜자 (이름+생년월일)</div></div>
+      ${dups.length?dups.map(g=>`<div class="hist-item"><div style="font-weight:800;font-size:15px">${g[0].name} <span class="dup-bdg">중복 ${g.length}회</span></div><div style="font-size:12px;color:var(--tx3)">${g[0].birth} · ${g[0].addr||'-'}</div>${g.map(a=>`<span class="hist-badge y" style="margin-right:4px">${a.categoryName} (${a.roundLabel||'현재'})</span>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}
     </div>
     <div class="card">
-      <div class="card-ttl" style="color:var(--o)">⚠ 가족 중복 수혜 가능성 (동일 주소 기준)</div>
-      ${famDups.length?famDups.map(group=>`<div class="hist-item">
-        <div style="font-weight:800;font-size:14px">동일 주소 <span class="fam-bdg">${group.length}명</span></div>
-        <div style="font-size:12px;color:var(--tx3);margin-top:3px">${group[0].addr}</div>
-        ${group.map(a=>`<div style="font-size:13px;margin-top:5px"><strong>${a.name}</strong> · ${a.categoryName} (${a.roundLabel||'현재'})</div>`).join('')}
-      </div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}
+      <div class="card-ttl"><div class="card-ttl-left" style="color:var(--o)">⚠ 가족 중복 가능 (동일 주소)</div></div>
+      ${famDups.length?famDups.map(g=>`<div class="hist-item"><div style="font-weight:800">${g.length}명 동일 주소 <span class="fam-bdg">확인 필요</span></div><div style="font-size:12px;color:var(--tx3);margin-top:3px">${g[0].addr}</div>${g.map(a=>`<div style="font-size:13px;margin-top:5px"><strong>${a.name}</strong> · ${a.categoryName} (${a.roundLabel||'현재'})</div>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}
     </div>
     <div class="card">
-      <div class="card-ttl">학생 수혜 이력 조회 (현재 + 이전)</div>
+      <div class="card-ttl"><div class="card-ttl-left">학생 수혜 이력 조회</div></div>
       <div class="hsearch"><input type="text" id="hist-q" placeholder="이름 검색 (예: 홍길동)"><button onclick="searchHistory()">조회</button></div>
       <div id="hist-result"></div>
     </div>`;
 }
 
 function searchHistory(){
-  const q=document.getElementById('hist-q')?.value.trim();
-  if(!q){alert('이름을 입력해 주세요');return;}
+  const q=document.getElementById('hist-q')?.value.trim();if(!q){alert('이름을 입력해 주세요');return;}
   const s=getSettings(),apps=DB.getApps(),legacy=getLegacy();
   const all=[...apps.map(a=>({...a,source_type:'current',roundLabel:s.rounds.find(r=>r.id===a.roundId)?.label||a.roundId})),...legacy.map(a=>({...a,source_type:'legacy'}))].filter(a=>a.name.includes(q));
   const result=document.getElementById('hist-result');
-  if(!all.length){result.innerHTML=`<div style="color:var(--tx3);text-align:center;padding:16px">"${q}" 이름의 이력이 없습니다</div>`;return;}
-  const groups={};
-  all.forEach(a=>{const k=`${a.name}_${a.birth||'no-birth'}`;if(!groups[k])groups[k]=[];groups[k].push(a);});
+  if(!all.length){result.innerHTML=`<div style="color:var(--tx3);text-align:center;padding:16px">"${q}" 이력 없음</div>`;return;}
+  const groups={};all.forEach(a=>{const k=`${a.name}_${a.birth||'x'}`;if(!groups[k])groups[k]=[];groups[k].push(a);});
   result.innerHTML=Object.values(groups).map(group=>{
     const rep=group[0],selCnt=group.filter(a=>a.selected==='선발').length;
     return`<div class="hist-item">
-      <div style="font-size:12px;color:var(--tx3)">생년월일: ${rep.birth||'-'} · 보호자: ${rep.guardianName||'-'} (${rep.guardianRelation||'-'})</div>
+      <div style="font-size:12px;color:var(--tx3)">생년월일: ${rep.birth||'-'} · 보호자: ${rep.guardianName||'-'}</div>
       <div style="font-size:15px;font-weight:800;margin:4px 0">${rep.name} ${selCnt>=2?'<span class="dup-bdg">중복 수혜 주의</span>':''}</div>
       <div style="font-size:12px;color:var(--tx2)">${rep.phone||'-'} · ${rep.school||'-'}</div>
-      <div style="font-size:12px;color:var(--tx3)">${rep.addr||'-'}</div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:12px;color:var(--tx3)">${rep.addr||'-'} ${rep.addrDetail||''}</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
         ${group.map(a=>`<div style="border:1px solid var(--bd);border-radius:var(--r8);padding:9px 12px">
-          <div style="font-size:11px;color:var(--tx3)">${a.source_type==='legacy'?'이전 이력':'현재 접수'} · ${a.roundLabel||'-'}</div>
+          <div style="font-size:11px;color:var(--tx3)">${a.source_type==='legacy'?'이전이력':'현재접수'} · ${a.roundLabel||'-'}</div>
           <div style="font-weight:700;margin-top:2px">${a.categoryName||'-'}</div>
           <span class="hist-badge ${a.selected==='선발'?'y':a.selected==='미선발'?'n':'p'}">${a.selected||'검토중'}</span>
         </div>`).join('')}
@@ -583,7 +758,6 @@ function searchHistory(){
     </div>`;
   }).join('');
 }
-
 function exportSel(roundId){
   const s=getSettings(),apps=DB.getApps().filter(a=>a.roundId===roundId&&a.selected==='선발');
   const label=s.rounds.find(r=>r.id===roundId)?.label||'';
@@ -593,92 +767,97 @@ function exportSel(roundId){
 }
 
 // ─────────────────────────────────────────────
-// 이전 이력 관리
+// 이전 이력
 // ─────────────────────────────────────────────
 function renderLegacy(){
   const legacy=getLegacy();
   document.getElementById('legacy-cnt').innerHTML=`
     <div class="card">
-      <div class="card-ttl">이전 선발 이력 관리</div>
-      <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.7">CSV 양식을 다운로드하여 이전 이력을 입력한 후 업로드하세요.<br>고등부는 생년월일을 빈칸으로 두셔도 됩니다.</div>
+      <div class="card-ttl"><div class="card-ttl-left">이전 선발 이력</div></div>
+      <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.8">CSV로 직접 업로드하거나, 접수 회차 종료 시 자동으로 이관할 수 있습니다. 고등부는 생년월일 빈칸 가능.</div>
       <div class="csv-actions">
-        <button class="ibtn grn" onclick="downloadTemplate()">⬇ CSV 양식 다운로드</button>
+        <button class="ibtn grn" onclick="dlTemplate()">⬇ CSV 양식 다운로드</button>
         <label class="ibtn" style="cursor:pointer">⬆ CSV 업로드<input type="file" accept=".csv" style="display:none" onchange="uploadLegacy(this)"></label>
-        <button class="ibtn red" onclick="clearLegacy()">초기화</button>
+        <button class="ibtn red" onclick="clearLegacy()">이력 초기화</button>
       </div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">
+        <div class="card-ttl-left">회차 자동 이관</div>
+      </div>
+      <div style="font-size:13px;color:var(--tx2);margin-bottom:12px;line-height:1.7">회차가 종료되면 해당 회차의 접수 데이터(선발 여부 포함)를 이전 이력으로 자동 이관합니다.<br>이관 후에도 원본 접수 데이터는 유지됩니다.</div>
+      ${getSettings().rounds.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--bd);border-radius:var(--r8);margin-bottom:6px;background:var(--bg)">
+        <div><div style="font-weight:700">${r.label}</div><div style="font-size:12px;color:var(--tx3)">${DB.getApps().filter(a=>a.roundId===r.id).length}명 접수됨</div></div>
+        <button class="ibtn blu" onclick="autoTransfer('${r.id}')">이전 이력으로 이관</button>
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-ttl"><div class="card-ttl-left">이력 목록 (${legacy.length}건)</div></div>
       <div class="list-wrap">
-        <div class="legacy-hdr"><div>이름</div><div>생년월일</div><div>회차명</div><div>구분</div><div>선발여부</div><div></div></div>
-        <div id="legacy-list">
-          ${legacy.length?legacy.map((a,i)=>`<div class="legacy-item">
-            <div style="font-weight:700">${a.name}</div>
-            <div style="color:var(--tx2)">${a.birth||'-'}</div>
-            <div style="font-size:12px;color:var(--tx2)">${a.roundLabel||'-'}</div>
-            <div style="font-size:12px">${a.categoryName||'-'}</div>
-            <div><span class="hist-badge ${a.selected==='선발'?'y':'n'}">${a.selected||'-'}</span></div>
-            <div><button class="ibtn red" style="padding:3px 8px;font-size:11px" onclick="deleteLegacy('${a.id}')">삭제</button></div>
-          </div>`).join(''):'<div class="empty">이전 이력이 없습니다</div>'}
-        </div>
+        <div class="legacy-hdr"><div>이름</div><div>생년월일</div><div>회차</div><div>구분</div><div>선발여부</div><div></div></div>
+        <div>${legacy.length?legacy.map(a=>`<div class="legacy-item">
+          <div style="font-weight:700">${a.name}</div>
+          <div style="color:var(--tx2)">${a.birth||'-'}</div>
+          <div style="font-size:12px;color:var(--tx2)">${a.roundLabel||'-'}</div>
+          <div style="font-size:12px">${a.categoryName||'-'}</div>
+          <div><span class="hist-badge ${a.selected==='선발'?'y':'n'}">${a.selected||'-'}</span></div>
+          <div><button class="ibtn red" style="padding:3px 8px;font-size:11px" onclick="delLegacy('${a.id}')">삭제</button></div>
+        </div>`).join(''):'<div class="empty">이전 이력이 없습니다</div>'}</div>
       </div>
     </div>`;
 }
 
-function downloadTemplate(){
+function autoTransfer(roundId){
+  const s=getSettings(),round=s.rounds.find(r=>r.id===roundId);
+  const apps=DB.getApps().filter(a=>a.roundId===roundId);
+  if(!apps.length){alert('이관할 접수 데이터가 없습니다');return;}
+  if(!confirm(`${round?.label||roundId}의 접수 데이터 ${apps.length}건을 이전 이력으로 이관합니까?\n(원본 데이터는 유지됩니다)`))return;
+  const existing=getLegacy();
+  const newItems=apps.map(a=>({
+    id:'transfer-'+a.id,name:a.name,birth:a.birth||'',
+    addr:a.addr||'',addrDetail:a.addrDetail||'',
+    roundLabel:round?.label||roundId,categoryName:a.categoryName||'',
+    selected:a.selected||'미선발',
+    guardianName:a.guardianName||'',school:a.school||'',phone:a.phone||''
+  }));
+  DB.saveLegacy([...existing,...newItems]);
+  renderLegacy();renderSelection();
+  alert(`${newItems.length}건이 이전 이력으로 이관되었습니다.`);
+}
+
+function dlTemplate(){
   const rows=[
     ['이름','생년월일(고등부빈칸가능)','주소','상세주소','회차명','구분명','선발여부(선발/미선발)'],
     ['홍길동','990101','경기도 의왕시 포일로 123','101동 505호','2025년 상반기','대학부 희망드림','선발'],
     ['이서연','','경기도 의왕시 오전로 45','','2025년 상반기','고등부 성적우수','선발'],
-    ['박민준','060315','경기도 의왕시 청계로 78','','2025년 하반기','대학부 희망드림','미선발'],
   ];
   csvDown(rows,'이전이력_양식.csv');
 }
-
 function uploadLegacy(input){
   if(!input.files.length)return;
   const reader=new FileReader();
   reader.onload=function(e){
     try{
-      const text=e.target.result;
-      const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
-      const headers=parseCsvRow(lines[0]);
-      const newItems=lines.slice(1).map((line,i)=>{
-        const vals=parseCsvRow(line);
-        return{
-          id:'lg-up-'+Date.now()+'-'+i,
-          name:vals[0]||'',birth:vals[1]||'',
-          addr:vals[2]||'',addrDetail:vals[3]||'',
-          roundLabel:vals[4]||'',categoryName:vals[5]||'',
-          selected:vals[6]||'선발'
-        };
+      const lines=e.target.result.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+      const items=lines.slice(1).map((line,i)=>{
+        const v=parseCSVRow(line);
+        return{id:'lg-up-'+Date.now()+'-'+i,name:v[0]||'',birth:v[1]||'',addr:v[2]||'',addrDetail:v[3]||'',roundLabel:v[4]||'',categoryName:v[5]||'',selected:v[6]||'선발'};
       }).filter(a=>a.name);
-      if(!newItems.length){alert('유효한 데이터가 없습니다');return;}
-      const existing=getLegacy();
-      DB.saveLegacy([...existing,...newItems]);
+      if(!items.length){alert('유효한 데이터가 없습니다');return;}
+      DB.saveLegacy([...getLegacy(),...items]);
       renderLegacy();renderSelection();
-      alert(`${newItems.length}건 추가되었습니다`);
-    }catch(err){alert('CSV 파싱 오류: '+err.message);}
+      alert(`${items.length}건 추가되었습니다`);
+    }catch(err){alert('파싱 오류: '+err.message);}
   };
-  reader.readAsText(input.files[0],'UTF-8');
-  input.value='';
+  reader.readAsText(input.files[0],'UTF-8');input.value='';
 }
-
-function parseCsvRow(line){
-  const result=[];let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i];
-    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else{inQ=!inQ;}}
-    else if(c===','&&!inQ){result.push(cur.trim());cur='';}
-    else{cur+=c;}
-  }
-  result.push(cur.trim());
-  return result;
+function parseCSVRow(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){r.push(cur.trim());cur='';}else cur+=c;}
+  r.push(cur.trim());return r;
 }
-
-function deleteLegacy(id){
-  if(!confirm('이 항목을 삭제하시겠습니까?'))return;
-  const legacy=getLegacy().filter(a=>a.id!==id);
-  DB.saveLegacy(legacy);renderLegacy();renderSelection();
-}
-function clearLegacy(){if(!confirm('모든 이전 이력을 초기화합니까?\n(예시 데이터도 삭제됩니다)'))return;DB.saveLegacy([]);renderLegacy();renderSelection();}
+function delLegacy(id){if(!confirm('삭제합니까?'))return;DB.saveLegacy(getLegacy().filter(a=>a.id!==id));renderLegacy();renderSelection();}
+function clearLegacy(){if(!confirm('모든 이전 이력을 초기화합니까?'))return;DB.saveLegacy([]);renderLegacy();renderSelection();}
 
 // ─────────────────────────────────────────────
 // 설정
@@ -686,27 +865,50 @@ function clearLegacy(){if(!confirm('모든 이전 이력을 초기화합니까?\
 function renderSettings(){
   const s=getSettings();
   document.getElementById('settings-cnt').innerHTML=`
-    <div class="card">
-      <div class="card-ttl"><span>회차 및 구분 관리</span><button class="ibtn grn" onclick="openAddRound()">+ 회차 추가</button></div>
-      ${s.rounds.map(r=>`<div class="round-item">
-        <div class="ri-hdr"><div class="ri-nm">${r.label}</div><div style="display:flex;gap:6px"><button class="ibtn" onclick="openAddCat('${r.id}')">+ 구분 추가</button><button class="ibtn red" onclick="deleteRound('${r.id}')">삭제</button></div></div>
-        ${r.categories.map(c=>{const st=catStatus(c);return`<div class="cat-item">
-          <div class="ci-hdr">
-            <div><div class="ci-nm"><span class="sdot ${st}"></span>${c.name}</div><div class="ci-period">${c.startDate} ~ ${c.endDate} ${c.endTime||''}</div></div>
-            <div style="display:flex;gap:5px"><button class="ibtn" onclick="openEditCat('${r.id}','${c.id}')">편집</button><button class="ibtn red" onclick="deleteCat('${r.id}','${c.id}')">삭제</button></div>
-          </div>
-          <div>${c.docs.map(d=>`<span class="doc-tag">${d.req?'<span style="color:var(--o)">*</span> ':''} ${d.name}</span>`).join('')}</div>
-        </div>`;}).join('')}
-        ${!r.categories.length?'<div style="color:var(--tx3);font-size:12px;padding:4px">구분이 없습니다</div>':''}
-      </div>`).join('')}
+    <div class="settings-tabs">
+      <div class="st-tab${curSettingsTab==='rounds'?' on':''}" onclick="switchSettingsTab('rounds')">회차 및 구분</div>
+      <div class="st-tab${curSettingsTab==='account'?' on':''}" onclick="switchSettingsTab('account')">계정 설정</div>
     </div>
-    <div class="card">
-      <div class="card-ttl">관리자 계정</div>
-      <div style="font-size:13px;color:var(--tx2);line-height:1.8">현재 계정: <strong>admin</strong> / 1234<br>변경: admin.html 내 <code>ACCOUNTS</code> 배열 수정</div>
+    <div id="st-rounds" style="display:${curSettingsTab==='rounds'?'block':'none'}">
+      <div class="card">
+        <div class="card-ttl"><div class="card-ttl-left">회차 목록</div><button class="ibtn grn" onclick="openAddRound()">+ 회차 추가</button></div>
+        ${s.rounds.map(r=>`<div class="round-item">
+          <div class="ri-hdr"><div class="ri-nm">${r.label}</div>
+          <div style="display:flex;gap:6px"><button class="ibtn" onclick="openAddCat('${r.id}')">+ 구분 추가</button><button class="ibtn red" onclick="deleteRound('${r.id}')">삭제</button></div></div>
+          ${r.categories.map(c=>{const st=catStatus(c);return`<div class="cat-item">
+            <div class="ci-hdr">
+              <div><div class="ci-nm"><span class="sdot ${st}"></span>${c.name}</div><div class="ci-period">${c.startDate} ~ ${c.endDate} ${c.endTime||''}</div></div>
+              <div style="display:flex;gap:5px"><button class="ibtn" onclick="openEditCat('${r.id}','${c.id}')">편집</button><button class="ibtn red" onclick="deleteCat('${r.id}','${c.id}')">삭제</button></div>
+            </div>
+            <div>${c.docs.map(d=>`<span class="doc-tag">${d.req?'<span style="color:var(--o)">*</span> ':''} ${d.name}</span>`).join('')}</div>
+          </div>`;}).join('')}
+          ${!r.categories.length?'<div style="color:var(--tx3);font-size:12px;padding:4px">구분이 없습니다</div>':''}
+        </div>`).join('')}
+      </div>
+    </div>
+    <div id="st-account" style="display:${curSettingsTab==='account'?'block':'none'}">
+      <div class="card">
+        <div class="card-ttl"><div class="card-ttl-left">계정 정보</div></div>
+        <div style="font-size:13px;color:var(--tx2);line-height:1.9">
+          현재 계정: <strong>admin</strong> / 비밀번호: <strong>1234</strong><br>
+          변경 방법: admin.html 파일을 텍스트 편집기로 열어 <code style="background:#f0f4f0;padding:2px 6px;border-radius:4px">ACCOUNTS</code> 배열에서 pw 값을 수정하세요.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-ttl"><div class="card-ttl-left">재단 정보</div></div>
+        <div style="font-size:13px;color:var(--tx2);line-height:2">
+          <strong>상호</strong>: 의왕시인재육성재단<br>
+          <strong>대표</strong>: 김 성 제<br>
+          <strong>사업자등록번호</strong>: 138-82-06305(16051)<br>
+          <strong>주소</strong>: 경기도 의왕시 오전로 122, 평생학습관 2층<br>
+          <strong>대표전화</strong>: 031-345-2590 / 팩스: 031-427-2590
+        </div>
+      </div>
     </div>`;
 }
+function switchSettingsTab(tab){curSettingsTab=tab;renderSettings();}
 function openAddRound(){document.getElementById('modal-inner').innerHTML=`<h3>회차 추가</h3><label>회차명 *</label><input type="text" id="m-label" placeholder="2026년 상반기"><div class="mbtns"><button onclick="closeModal()">취소</button><button class="primary" onclick="addRound()">추가</button></div>`;document.getElementById('modal-bg').classList.add('on');}
-function addRound(){const l=document.getElementById('m-label')?.value.trim();if(!l){alert('회차명을 입력하세요');return;}const s=getSettings();s.rounds.push({id:uid(),label:l,categories:[]});DB.saveSettings(s);closeModal();renderSettings();renderDash();}
+function addRound(){const l=document.getElementById('m-label')?.value.trim();if(!l){alert('회차명을 입력하세요');return;}const s=getSettings();s.rounds.push({id:uid(),label:l,categories:[]});DB.saveSettings(s);closeModal();renderSettings();renderDash();renderSelection();}
 function openAddCat(rid){openCatModal(rid,null);}
 function openEditCat(rid,cid){const s=getSettings(),cat=s.rounds.find(r=>r.id===rid)?.categories.find(c=>c.id===cid);openCatModal(rid,cat);}
 function openCatModal(rid,cat){
@@ -716,13 +918,13 @@ function openCatModal(rid,cat){
     <label>구분명 *</label><input type="text" id="m-name" value="${cat?.name||''}" placeholder="대학부 희망드림">
     <div class="row2"><div><label>접수 시작 *</label><input type="date" id="m-start" value="${cat?.startDate||''}"></div><div><label>접수 종료 *</label><input type="date" id="m-end" value="${cat?.endDate||''}"></div></div>
     <label>마감 시간</label><input type="time" id="m-et" value="${cat?.endTime||'18:00'}" style="width:120px">
-    <div style="font-size:12px;font-weight:800;color:var(--tx2);margin:12px 0 6px">제출 서류 (* = 필수)</div>
-    <div id="m-docs">${docs.map(d=>`<div class="de-row"><input type="checkbox" title="필수" ${d.req?'checked':''}><input type="text" value="${d.name}" placeholder="서류명"><button class="ibtn red" style="padding:4px 9px;font-size:12px" onclick="this.parentElement.remove()">삭제</button></div>`).join('')}</div>
+    <div style="font-size:12px;font-weight:800;color:var(--tx2);margin:12px 0 6px">제출 서류 (* 필수)</div>
+    <div id="m-docs">${docs.map(d=>`<div class="de-row"><input type="checkbox" ${d.req?'checked':''}><input type="text" value="${d.name}" placeholder="서류명"><button class="ibtn red" style="padding:4px 9px;font-size:11px" onclick="this.parentElement.remove()">삭제</button></div>`).join('')}</div>
     <button class="ibtn" onclick="addDR()" style="margin-top:6px">+ 서류 추가</button>
     <div class="mbtns"><button onclick="closeModal()">취소</button><button class="primary" onclick="saveCat('${rid}','${cat?.id||''}')">저장</button></div>`;
   document.getElementById('modal-bg').classList.add('on');
 }
-function addDR(){document.getElementById('m-docs').insertAdjacentHTML('beforeend',`<div class="de-row"><input type="checkbox" checked><input type="text" placeholder="서류명"><button class="ibtn red" style="padding:4px 9px;font-size:12px" onclick="this.parentElement.remove()">삭제</button></div>`);}
+function addDR(){document.getElementById('m-docs').insertAdjacentHTML('beforeend',`<div class="de-row"><input type="checkbox" checked><input type="text" placeholder="서류명"><button class="ibtn red" style="padding:4px 9px;font-size:11px" onclick="this.parentElement.remove()">삭제</button></div>`);}
 function saveCat(rid,cid){
   const name=document.getElementById('m-name')?.value.trim(),start=document.getElementById('m-start')?.value,end=document.getElementById('m-end')?.value,et=document.getElementById('m-et')?.value;
   if(!name||!start||!end){alert('필수 항목을 입력하세요');return;}
@@ -739,13 +941,5 @@ function deleteCat(rid,cid){if(!confirm('이 구분을 삭제합니까?'))return
 function closeModal(){document.getElementById('modal-bg').classList.remove('on');}
 document.getElementById('modal-bg').addEventListener('click',e=>{if(e.target===document.getElementById('modal-bg'))closeModal();});
 </script>
-<div id="addr-ov" onclick="closeAddrLayer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500"></div>
-<div id="addr-layer" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(500px,96vw);background:#fff;border-radius:14px;overflow:hidden;z-index:501;box-shadow:0 20px 60px rgba(0,0,0,.35)">
-  <div style="background:#2B7A3C;color:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:14px;font-weight:800">주소 검색</span>
-    <button onclick="closeAddrLayer()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">✕</button>
-  </div>
-  <div id="addr-em" style="height:440px;overflow:hidden"></div>
-</div>
 </body>
 </html>
