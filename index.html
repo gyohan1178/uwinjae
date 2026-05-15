@@ -105,10 +105,39 @@ input[type=file]{display:none}
 </div>
 
 <script>
+const SURL='https://zlmdxxginskguqqitsbp.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbWR4eGdpbnNrZ3VxcWl0c2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjQyMTcsImV4cCI6MjA5MzYwMDIxN30.1b1bGTNfq7a1ZTBeHVnzTRsjWgwZP4rY9ei3XqljNi0';
+const SHDRS={apikey:SKEY,Authorization:'Bearer '+SKEY,'Content-Type':'application/json'};
+
+async function sUPSERT_idx(table,rows){
+  try{
+    await fetch(SURL+'/rest/v1/'+table,{
+      method:'POST',
+      headers:{...SHDRS,Prefer:'resolution=merge-duplicates'},
+      body:JSON.stringify(rows)
+    });
+  }catch(e){console.warn('sUPSERT',e);}
+}
+
+// index.html 시작 시 서버에서 설정 가져오기
+async function syncSettingsFromSupa(){
+  try{
+    const r=await fetch(SURL+'/rest/v1/settings?select=id,data',{headers:SHDRS});
+    if(r.ok){
+      const rows=await r.json();
+      if(rows&&rows.length>0) localStorage.setItem('schl_settings',JSON.stringify(rows[0].data));
+    }
+  }catch(e){console.warn('syncSettings',e);}
+}
+syncSettingsFromSupa().then(()=>renderNew&&renderNew());
+
 const DB={
   getSettings(){try{return JSON.parse(localStorage.getItem('schl_settings')||'null')}catch(e){return null}},
   getApps(){try{return JSON.parse(localStorage.getItem('schl_apps')||'[]')}catch(e){return[]}},
-  saveApps(a){localStorage.setItem('schl_apps',JSON.stringify(a))}
+  saveApps(apps){
+    localStorage.setItem('schl_apps',JSON.stringify(apps));
+    sUPSERT_idx('applicants',apps.map(a=>({id:a.id,data:a})));
+  }
 };
 
 // 고등부/초등부 여부 판단 (생년월일 선택사항)
