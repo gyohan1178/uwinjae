@@ -75,6 +75,9 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .ibtn:hover{background:var(--bg)}.ibtn.grn{background:var(--glt);color:var(--g);border-color:var(--g)}
 .ibtn.red{background:#ffebee;color:#c62828;border-color:#ffcdd2}.ibtn.blu{background:#e8f0fe;color:#1565c0;border-color:#c5d8fb}.ibtn.org{background:var(--olt);color:var(--o);border-color:#f5c6b0}
 .lw{background:var(--wh);border-radius:var(--r8);border:1px solid var(--bd);overflow:hidden}
+.lh>div{position:relative;user-select:none}
+.col-rz{position:absolute;right:-3px;top:0;bottom:0;width:6px;cursor:col-resize;z-index:5;background:transparent;transition:background .15s}
+.col-rz:hover,.col-rz.dragging{background:rgba(43,122,60,.35);border-radius:3px}
 .lh{display:grid;grid-template-columns:28px 90px 130px 100px 65px 80px 90px 90px 1fr;gap:5px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg)}
 .lr{display:grid;grid-template-columns:28px 90px 130px 100px 65px 80px 90px 90px 1fr;gap:5px;padding:var(--row-py) 12px;border-bottom:.5px solid #edf2ed;align-items:center;cursor:pointer;transition:.12s}
 .lr:hover{background:#f5f8f5}.lr.sel{background:var(--glt)}.lr:last-child{border-bottom:none}
@@ -282,10 +285,46 @@ function doLogin(){
 function logout(){document.getElementById('lw').style.display='flex';document.getElementById('app').style.display='none';}
 function inj(){
   if(DB.ga().length>0)return;
-  const s=gset(),r=s.rounds[0],cats=r?.categories||[];if(!cats.length)return;
-  const rows=[{cat:cats[0],name:'홍길동',birth:'050315',g:'남',phone:'010-1234-5678',school:'한양대학교',dept:'경영학과 2학년',addr:'경기도 의왕시 포일로 123',ad:'101동 505호',gd:'홍판서',rel:'부'},{cat:cats[0],name:'이서연',birth:'060812',g:'여',phone:'010-2345-6789',school:'성균관대학교',dept:'법학과 1학년',addr:'경기도 의왕시 오전로 45',ad:'',gd:'이정호',rel:'부'},{cat:cats[1]||cats[0],name:'김민준',birth:'',g:'남',phone:'010-3456-7890',school:'의왕고등학교',dept:'2학년 3반',addr:'경기도 의왕시 청계로 78',ad:'302호',gd:'김영수',rel:'부'}];
-  const ml=[[5],[2],[]];
-  const apps=rows.map((rw,i)=>{const dm={};rw.cat.docs.forEach((d,di)=>{dm[d.id]=!ml[i]?.includes(di);});return{id:gid(),roundId:r.id,categoryId:rw.cat.id,categoryName:rw.cat.name,name:rw.name,birth:rw.birth,gender:rw.g,phone:rw.phone,email:'',school:rw.school,dept:rw.dept,addr:rw.addr,addrDetail:rw.ad,guardianName:rw.gd,guardianRelation:rw.rel,guardianPhone:'',submittedAt:new Date(Date.now()-i*3600000).toISOString(),source:'online',docs:dm,fileUrls:{},docReview:{},notes:[],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null};});
+  const s=gset(),r0=s.rounds[0],r1=s.rounds[1],r2=s.rounds[2];
+  const c0=r0?.categories[0],c1=r0?.categories[1],cf=r1?.categories[0],cs=r2?.categories[0];
+  if(!r0||!c0)return;
+  const mk=(rId,cat,o)=>{
+    const dm={};(cat?.docs||[]).forEach((d,i)=>{dm[d.id]=!(o.miss||[]).includes(i);});
+    const rv={};(o.rv||[]).forEach(([i,reason])=>{if(cat?.docs[i])rv[cat.docs[i].id]={status:'ng',reason};});
+    (o.ok||[]).forEach(i=>{if(cat?.docs[i])rv[cat.docs[i].id]={status:'ok',reason:''};});
+    return{id:gid(),roundId:rId,categoryId:cat?.id||'',categoryName:cat?.name||'',
+      name:o.name,birth:o.birth||'',gender:o.gender||'남',phone:o.phone||'010-0000-0000',
+      email:o.email||'',school:o.school||'',dept:o.dept||'',
+      addr:o.addr||'경기도 의왕시 포일로 1',addrDetail:o.ad||'',
+      guardianName:o.gn||'',guardianRelation:o.gr||'부',guardianPhone:'',
+      submittedAt:new Date(Date.now()-((o.daysAgo||0)*86400000)).toISOString(),
+      source:o.src||'online',docs:dm,fileUrls:{},docReview:rv,
+      notes:o.notes||[],feedbackSent:o.fb||false,
+      feedbackSentAt:o.fb?new Date(Date.now()-86400000).toISOString():null,
+      supplements:[],selected:o.sel||null};
+  };
+  const apps=[
+    // ── 2026 상반기 대학부 ──
+    mk(r0.id,c0,{name:'홍길동',birth:'050315',gender:'남',phone:'010-1234-5678',school:'한양대학교',dept:'경영학과 2학년',addr:'경기도 의왕시 포일로 123',ad:'101동 505호',gn:'홍판서',gr:'부',daysAgo:12,sel:'선발',ok:[0,1,2,3,4,5,6,7,8]}),
+    mk(r0.id,c0,{name:'이서연',birth:'031120',gender:'여',phone:'010-2345-6789',school:'성균관대학교',dept:'법학과 3학년',addr:'경기도 의왕시 오전로 45',ad:'나동 202호',gn:'이정호',gr:'부',daysAgo:11,sel:'미선발',ok:[0,1,2,3,4,5,6,7,8]}),
+    mk(r0.id,c0,{name:'박지훈',birth:'040822',gender:'남',phone:'010-3456-7890',school:'경기대학교',dept:'컴퓨터공학과 1학년',addr:'경기도 의왕시 내손로 88',ad:'302호',gn:'박성수',gr:'부',daysAgo:10,miss:[5],rv:[[5,'서명 누락']],fb:true,notes:[{text:'부적격 안내 발송 완료',date:'2026-05-08',author:'담당자'}]}),
+    mk(r0.id,c0,{name:'김민준',birth:'050315',gender:'남',phone:'010-4567-8901',school:'한양대학교',dept:'경영학과 2학년',addr:'경기도 의왕시 포일로 123',ad:'101동 505호',gn:'김영호',gr:'부',daysAgo:9,sel:'선발',ok:[0,1,2,3,4,5,6,7,8],notes:[{text:'이전 이력 중복 수혜 확인 요망',date:'2026-05-09',author:'담당자'}]}),
+    mk(r0.id,c0,{name:'최수민',birth:'060101',gender:'여',phone:'010-5678-9012',school:'아주대학교',dept:'간호학과 2학년',addr:'경기도 의왕시 삼동로 55',ad:'',gn:'최기원',gr:'부',daysAgo:8,miss:[2,6]}),
+    mk(r0.id,c0,{name:'정민지',birth:'050707',gender:'여',phone:'010-6789-0123',school:'경희대학교',dept:'식품영양학과 3학년',addr:'경기도 의왕시 청계로 78',ad:'A동 101호',gn:'정민우',gr:'모',daysAgo:7,sel:'선발',ok:[0,1,2,3,4,5,6,7,8]}),
+    // ── 2026 상반기 고등부 ──
+    mk(r0.id,c1,{name:'이준호',birth:'',gender:'남',phone:'010-7890-1234',school:'의왕고등학교',dept:'2학년 3반',addr:'경기도 의왕시 오전로 45',ad:'나동 301호',gn:'이정호',gr:'부',daysAgo:11,sel:'선발',ok:[0,1,2,3,4,5,6,7,8],notes:[{text:'형 이서연과 동일 주소 확인',date:'2026-05-07',author:'담당자'}]}),
+    mk(r0.id,c1,{name:'강다은',birth:'',gender:'여',phone:'010-8901-2345',school:'의왕여자고등학교',dept:'3학년 1반',addr:'경기도 의왕시 포일로 200',ad:'',gn:'강철수',gr:'부',daysAgo:6,miss:[3],rv:[[3,'발급일 3개월 초과']],fb:true}),
+    mk(r0.id,c1,{name:'윤서준',birth:'',gender:'남',phone:'010-9012-3456',school:'백운고등학교',dept:'1학년 2반',addr:'경기도 의왕시 내손로 12',ad:'',gn:'윤상철',gr:'부',daysAgo:5,miss:[6,7]}),
+    // ── 2026 하반기 ──
+    ...(r1&&cf?[
+      mk(r1.id,cf,{name:'손지아',birth:'040530',gender:'여',phone:'010-1122-3344',school:'연세대학교',dept:'사회복지학과 2학년',addr:'경기도 의왕시 왕곡로 30',ad:'',gn:'손병호',gr:'부',daysAgo:3}),
+      mk(r1.id,cf,{name:'임채원',birth:'030218',gender:'남',phone:'010-2233-4455',school:'고려대학교',dept:'경제학과 4학년',addr:'경기도 의왕시 오전로 99',ad:'202호',gn:'임수진',gr:'모',daysAgo:2}),
+    ]:[]),
+    // ── 2026 소상공인 ──
+    ...(r2&&cs?[
+      mk(r2.id,cs,{name:'오하늘',birth:'060315',gender:'여',phone:'010-3344-5566',school:'수원대학교',dept:'경영학과 1학년',addr:'경기도 의왕시 삼동로 80',ad:'301호',gn:'오철민',gr:'부',daysAgo:1}),
+    ]:[]),
+  ].filter(Boolean);
   DB.sa(apps);
 }
 function renderSB(){
@@ -295,6 +334,8 @@ function renderSB(){
 }
 function tg(g){const sub=document.getElementById('s'+g),arr=document.getElementById('a'+g),isO=sub.classList.contains('open');sub.classList.toggle('open',!isO);if(arr)arr.classList.toggle('open',!isO);if(!isO){if(g==='d')gD(CRD);if(g==='s')gS(CSD);}}
 function gD(id){CRD=id;sp('d');mk('d',id);rD();}
+function chSR(id){CSD=id;rSel();}
+function chYR(y){CYR=y;rSel();}
 function gS(id){CSD=id;sp('s');mk('s',id);rSel();}
 function sp(n){['d','s','l','st','g'].forEach(p=>{document.getElementById('p'+p).style.display=p===n?'':'none';});}
 function mk(g,id){document.querySelectorAll('.nsi').forEach(el=>el.classList.remove('on'));document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));const sub=document.getElementById('s'+g);if(sub){sub.classList.add('open');const arr=document.getElementById('a'+g);if(arr)arr.classList.add('open');const rounds=gset().rounds;sub.querySelectorAll('.nsi').forEach((el,i)=>{if(rounds[i]?.id===id)el.classList.add('on');});}}
@@ -334,6 +375,33 @@ function rD(){
     <div class="lw"><div class="lh"><div>#</div><div>이름</div><div>학교</div><div>구분</div><div>서류</div><div>검토</div><div>선발</div><div>안내발송</div><div>미제출 서류</div></div><div id="lb"></div></div>`;
   ld2();rList();
 }
+// ── 컬럼 드래그 리사이즈 ──
+let colW=[28,90,130,100,65,80,90,90,120];
+function loadColW(){const s=localStorage.getItem('schl_colw');if(s)try{colW=JSON.parse(s);}catch(e){}}
+function saveColW(){localStorage.setItem('schl_colw',JSON.stringify(colW));}
+function applyColW(){
+  const tpl=colW.map((w,i)=>i===colW.length-1?'1fr':w+'px').join(' ');
+  document.querySelectorAll('.lh,.lr').forEach(el=>el.style.gridTemplateColumns=tpl);
+}
+function initColResize(){
+  const hdr=document.querySelector('.lh');if(!hdr)return;
+  loadColW();applyColW();
+  [...hdr.children].forEach((cell,i)=>{
+    if(i>=colW.length-1)return;
+    const rz=document.createElement('div');
+    rz.className='col-rz';
+    rz.addEventListener('mousedown',e=>{
+      e.preventDefault();e.stopPropagation();
+      rz.classList.add('dragging');
+      const startX=e.pageX,startW=colW[i];
+      const onMove=e=>{colW[i]=Math.max(36,startW+(e.pageX-startX));applyColW();};
+      const onUp=()=>{rz.classList.remove('dragging');saveColW();document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+    cell.appendChild(rz);
+  });
+}
 function rList(){
   const q=(document.getElementById('q')?.value||'').toLowerCase(),fc=document.getElementById('fc')?.value||'',fs=document.getElementById('fs')?.value||'';
   let apps=DB.ga().filter(a=>a.roundId===CRD);
@@ -361,6 +429,7 @@ function rList(){
       <div class="mt">${miss.length?miss.map(d=>d.name).join(', '):'-'}</div>
     </div>`;
   }).join('');
+  requestAnimationFrame(initColResize);
 }
 function oP(id){const app=DB.ga().find(a=>a.id===id);if(!app)return;SAP=id;EM=false;rList();rPC(app);document.getElementById('panel').classList.add('on');document.getElementById('ov').classList.add('on');}
 function closePanel(){SAP=null;document.getElementById('panel').classList.remove('on');document.getElementById('ov').classList.remove('on');rList();}
@@ -523,8 +592,8 @@ function rSel(){
         <button class="db${SMODE==='round'?' on':''}" onclick="SMODE='round';rSel()">회차별</button>
         <button class="db${SMODE==='year'?' on':''}" onclick="SMODE='year';rSel()">년도별</button>
       </div>
-      ${SMODE==='round'?`<div style="display:flex;gap:5px;flex-wrap:wrap">${allRounds.map(r=>`<button class="db${CSD===r.id?' on':''}" onclick="gS('${r.id}')">${r.label}</button>`).join('')}</div>`:
-      `<div style="display:flex;gap:5px;flex-wrap:wrap">${years.map(y=>`<button class="db${CYR===y?' on':''}" onclick="CYR='${y}';rSel()">${y}년</button>`).join('')}</div>`}
+      ${SMODE==='round'?`<div style="display:flex;gap:5px;flex-wrap:wrap">${allRounds.map(r=>`<button class="db${CSD===r.id?' on':''}" onclick="chSR('${r.id}')">${r.label}</button>`).join('')}</div>`:
+      `<div style="display:flex;gap:5px;flex-wrap:wrap">${years.map(y=>`<button class="db${CYR===y?' on':''}" onclick="chYR('${y}')">${y}년</button>`).join('')}</div>`}
     </div>
     <div class="card">${tableHtml}</div>
     <div class="card"><div class="cttl"><div class="cttl-l" style="color:#c62828">⚠ 중복 수혜 (이름+생년월일)</div></div>${dups.length?dups.map(g=>`<div class="hi"><div style="font-weight:800;font-size:15px">${g[0].name} <span class="dup-b">중복 ${g.length}회</span></div><div style="font-size:12px;color:var(--tx3)">${g[0].birth} · ${g[0].addr||'-'}</div>${g.map(a=>`<span class="hb y" style="margin-right:4px">${a.categoryName} (${a.roundLabel||'현재'})</span>`).join('')}</div>`).join(''):'<div style="color:var(--g);font-weight:700;text-align:center;padding:10px">해당 없음 ✓</div>'}</div>
