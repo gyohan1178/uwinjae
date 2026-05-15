@@ -162,8 +162,9 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .fam-bdg{background:var(--olt);color:var(--o);padding:3px 9px;border-radius:var(--r20);font-size:11px;font-weight:800;margin-left:6px}
 /* ── 이전이력 ── */
 .csv-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.legacy-hdr{display:grid;grid-template-columns:80px 70px 110px 110px 70px 40px;gap:6px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg)}
-.legacy-item{display:grid;grid-template-columns:80px 70px 110px 110px 70px 40px;gap:6px;padding:9px 12px;border-bottom:.5px solid #eef2ee;font-size:13px;align-items:center}
+.legacy-wrap{overflow-x:auto}
+.legacy-hdr{display:grid;grid-template-columns:70px 60px 90px 90px 130px 80px 100px 36px;gap:6px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg);min-width:680px}
+.legacy-item{display:grid;grid-template-columns:70px 60px 90px 90px 130px 80px 100px 36px;gap:6px;padding:9px 12px;border-bottom:.5px solid #eef2ee;font-size:12px;align-items:center;min-width:680px}
 /* ── 설정 ── */
 .settings-tabs{display:flex;gap:0;border-bottom:2px solid var(--bd);margin-bottom:14px}
 .st-tab{padding:9px 16px;font-size:13px;font-weight:700;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
@@ -215,8 +216,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
       </div>
     </div>
     <h2>관리자 로그인</h2>
-    <input type="text" id="l-id" placeholder="아이디">
-    <input type="password" id="l-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')doLogin()">
+    <input type="text" id="l-id" placeholder="아이디" autocomplete="off">
+    <input type="password" id="l-pw" placeholder="비밀번호" autocomplete="new-password" onkeydown="if(event.key==='Enter')doLogin()">
     <button onclick="doLogin()">로그인</button>
     <div class="login-err" id="l-err">아이디 또는 비밀번호가 올바르지 않습니다.</div>
   </div>
@@ -354,6 +355,28 @@ function setLH(v){document.documentElement.style.setProperty('--lh',v);localStor
 function loadLH(){const v=localStorage.getItem('schl_lh');if(v){setLH(v);const el=document.querySelector('.lh-ctrl input');if(el)el.value=v;}}
 
 // ── 인증 ──
+function injectSampleIfEmpty(){
+  if(DB.getApps().length>0)return;
+  const s=getSettings(),round=s.rounds[0],cats=round?.categories||[];
+  if(!cats.length)return;
+  const samples=[
+    {cat:cats[0],name:'홍길동',birth:'050315',gender:'남',phone:'010-1234-5678',school:'한양대학교',dept:'경영학과 2학년',addr:'경기도 의왕시 포일로 123',addrDetail:'101동 505호',guardian:'홍판서',rel:'부'},
+    {cat:cats[0],name:'이서연',birth:'060812',gender:'여',phone:'010-2345-6789',school:'성균관대학교',dept:'법학과 1학년',addr:'경기도 의왕시 오전로 45',addrDetail:'',guardian:'이정호',rel:'부'},
+    {cat:cats[1]||cats[0],name:'김민준',birth:'',gender:'남',phone:'010-3456-7890',school:'의왕고등학교',dept:'2학년 3반',addr:'경기도 의왕시 청계로 78',addrDetail:'302호',guardian:'김영수',rel:'부'},
+  ];
+  const missList=[[5],[2],[/* 완비 */]];
+  const apps=samples.map((s,i)=>{
+    const docMap={};
+    s.cat.docs.forEach((d,di)=>{docMap[d.id]= !missList[i]?.includes(di);});
+    return{id:genId(),roundId:round.id,categoryId:s.cat.id,categoryName:s.cat.name,
+      name:s.name,birth:s.birth,gender:s.gender,phone:s.phone,email:'',school:s.school,dept:s.dept,
+      addr:s.addr,addrDetail:s.addrDetail,guardianName:s.guardian,guardianRelation:s.rel,guardianPhone:'',
+      submittedAt:new Date(Date.now()-i*3600000).toISOString(),source:'online',
+      docs:docMap,fileUrls:{},docReview:{},notes:[],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null};
+  });
+  DB.saveApps(apps);
+}
+
 function doLogin(){
   const id=document.getElementById('l-id').value.trim(),pw=document.getElementById('l-pw').value.trim();
   const acc=ACCOUNTS.find(a=>a.id===id&&a.pw===pw);
@@ -364,6 +387,7 @@ function doLogin(){
   document.getElementById('adm-nm').textContent=acc.name+' 님';
   const s=getSettings();curRoundId=s.rounds[0]?.id||null;
   loadLH();
+  injectSampleIfEmpty();
   renderDash();renderSelection();renderLegacy();renderSettings();renderGuide();
 }
 function logout(){document.getElementById('login-wrap').style.display='flex';document.getElementById('app').style.display='none';}
@@ -796,14 +820,16 @@ function renderLegacy(){
     </div>
     <div class="card">
       <div class="card-ttl"><div class="card-ttl-left">이력 목록 (${legacy.length}건)</div></div>
-      <div class="list-wrap">
-        <div class="legacy-hdr"><div>이름</div><div>생년월일</div><div>회차</div><div>구분</div><div>선발여부</div><div></div></div>
+      <div class="list-wrap legacy-wrap">
+        <div class="legacy-hdr"><div>이름</div><div>생년월일</div><div>학교</div><div>연락처</div><div>주소</div><div>보호자</div><div>회차 · 구분</div><div></div></div>
         <div>${legacy.length?legacy.map(a=>`<div class="legacy-item">
           <div style="font-weight:700">${a.name}</div>
           <div style="color:var(--tx2)">${a.birth||'-'}</div>
-          <div style="font-size:12px;color:var(--tx2)">${a.roundLabel||'-'}</div>
-          <div style="font-size:12px">${a.categoryName||'-'}</div>
-          <div><span class="hist-badge ${a.selected==='선발'?'y':'n'}">${a.selected||'-'}</span></div>
+          <div style="color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.school||'-'}</div>
+          <div style="color:var(--tx2)">${a.phone||'-'}</div>
+          <div style="color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${a.addr||''} ${a.addrDetail||''}">${a.addr||'-'}</div>
+          <div style="color:var(--tx2)">${a.guardianName||'-'}</div>
+          <div style="font-size:11px"><span class="hist-badge ${a.selected==='선발'?'y':'n'}" style="margin:0">${a.selected||'-'}</span><div style="color:var(--tx3);margin-top:2px">${a.roundLabel||'-'}<br>${a.categoryName||'-'}</div></div>
           <div><button class="ibtn red" style="padding:3px 8px;font-size:11px" onclick="delLegacy('${a.id}')">삭제</button></div>
         </div>`).join(''):'<div class="empty">이전 이력이 없습니다</div>'}</div>
       </div>
