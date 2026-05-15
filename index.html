@@ -87,8 +87,11 @@ input[type=file]{display:none}
 <body>
 <div class="hdr">
   <div class="logo-wrap">
-    <div class="logo-icon">재단<br>법인</div>
-    <div><div class="logo-sub">재/단/법/인</div><div class="logo-main">의왕시인재육성재단</div></div>
+    <img src="logo.png" alt="의왕시인재육성재단" style="height:36px;object-fit:contain" onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
+    <div id="logo-fb" style="display:none;align-items:center;gap:10px">
+      <div class="logo-icon">재단<br>법인</div>
+      <div><div class="logo-sub">재/단/법/인</div><div class="logo-main">의왕시인재육성재단</div></div>
+    </div>
   </div>
   <div class="page-badge">장학생 접수</div>
 </div>
@@ -392,5 +395,9 @@ function submitSuppl(){
 function phone(id){const el=document.getElementById(id);if(!el)return;el.addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{1,4})?(\d{1,4})?/,(_,a,b,c)=>[a,b,c].filter(Boolean).join('-'));});}
 renderNew();
 </script>
+<div style="background:#1a1a1a;color:rgba(255,255,255,.6);text-align:center;padding:18px 20px;font-size:11px;line-height:1.9;margin-top:20px">
+  <strong style="color:rgba(255,255,255,.9)">의왕시인재육성재단</strong> ㅣ 사업자등록번호: 138-82-06305(16051) ㅣ 경기도 의왕시 오전로 122, 평생학습관 2층<br>
+  대표: 김 성 제 ㅣ 대표전화: 031-345-2590 ㅣ 팩스: 031-427-2590
+</div>
 </body>
 </html>
