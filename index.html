@@ -309,11 +309,17 @@ function submitNew(){
   if(!name||(!junior&&!birth)||!phone_||!school||!dept||!guardian||!gender){alert('필수 항목을 모두 입력해 주세요');return;}
   if(!addr){alert('주소를 검색하여 입력해 주세요');return;}
   const req=selCat.docs.filter(d=>d.req),missing=req.filter(d=>!upFiles[d.id]);
-  if(missing.length){
+  if(missing.length && !window._warnedMiss){
+    window._warnedMiss=true;
     const w=document.getElementById('miss-warn');
     document.getElementById('miss-list').innerHTML=missing.map(d=>`<li>${d.name}</li>`).join('');
-    w.style.display='block';w.scrollIntoView({behavior:'smooth'});return;
+    w.style.display='block';w.scrollIntoView({behavior:'smooth'});
+    return;
   }
+  if(missing.length && !confirm(`미제출 서류(${missing.map(d=>d.name).join(', ')})가 있습니다.\n그래도 접수하시겠습니까?\n\n※ 나중에 보완 서류 제출 탭에서 추가 가능합니다.`)){
+    return;
+  }
+  window._warnedMiss=false;
   document.getElementById('miss-warn').style.display='none';
   const id=genId(),apps=DB.getApps();
   apps.push({
