@@ -186,7 +186,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
     <div class="t-icon" id="tfb">재단<br>법인</div>
     <div class="t-div"></div>
     <span class="t-title">장학생 관리 시스템</span>
-    <div class="t-r"><span id="anm"></span><button onclick="logout()">로그아웃</button></div>
+    <div class="t-r"><span id="sync-status" style="font-size:11px"></span><span id="anm"></span><button onclick="logout()">로그아웃</button></div>
   </div>
   <div class="app-body">
     <div class="sidebar">
@@ -235,13 +235,76 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 <div class="modal-bg" id="mbg"><div class="modal" id="mi"></div></div>
 <script>
 const SMPL_PDF='data:application/pdf;base64,JVBERi0xLjAKMSAwIG9iajw8L1BhZ2VzIDIgMCBSPj5lbmRvYmoKMiAwIG9iajw8L0tpZHMgWzMgMCBSXS9Db3VudCAxPj5lbmRvYmoKMyAwIG9iajw8L01lZGlhQm94IFswIDAgMzAwIDMwMF0+PmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXI8PC9TaXplIDQvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgoxNDUKJSVFT0YK';
+
+// ── Supabase 연동 ──
+const SURL='https://zlmdxxginskguqqitsbp.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbWR4eGdpbnNrZ3VxcWl0c2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjQyMTcsImV4cCI6MjA5MzYwMDIxN30.1b1bGTNfq7a1ZTBeHVnzTRsjWgwZP4rY9ei3XqljNi0';
+const SHDRS={apikey:SKEY,Authorization:'Bearer '+SKEY,'Content-Type':'application/json'};
+
+async function sGET(table){
+  try{
+    const r=await fetch(SURL+'/rest/v1/'+table+'?select=id,data',{headers:SHDRS});
+    if(!r.ok)return null;
+    return await r.json();
+  }catch(e){console.warn('sGET',e);return null;}
+}
+async function sUPSERT(table,rows){
+  try{
+    const r=await fetch(SURL+'/rest/v1/'+table,{
+      method:'POST',headers:{...SHDRS,Prefer:'resolution=merge-duplicates'},
+      body:JSON.stringify(rows)
+    });
+    if(!r.ok)console.warn('sUPSERT',table,await r.text());
+  }catch(e){console.warn('sUPSERT',e);}
+}
+async function sDEL(table,id){
+  try{
+    const r=await fetch(SURL+'/rest/v1/'+table+'?id=eq.'+encodeURIComponent(id),{
+      method:'DELETE',headers:SHDRS
+    });
+    if(!r.ok)console.warn('sDEL',table,await r.text());
+  }catch(e){console.warn('sDEL',e);}
+}
+
+async function loadFromSupa(){
+  const el=document.getElementById('sync-status');
+  if(el){el.textContent='☁ 서버 동기화 중...';el.style.color='var(--o)';}
+  try{
+    const [apps,sets,legs]=await Promise.all([sGET('applicants'),sGET('settings'),sGET('legacy')]);
+    if(apps&&apps.length>0) localStorage.setItem('schl_apps',JSON.stringify(apps.map(r=>r.data)));
+    if(sets&&sets.length>0) localStorage.setItem('schl_settings',JSON.stringify(sets[0].data));
+    if(legs&&legs.length>0) localStorage.setItem('schl_legacy',JSON.stringify(legs.map(r=>r.data)));
+    if(el){el.textContent='☁ 동기화 완료';el.style.color='var(--g)';setTimeout(()=>{if(el)el.textContent='';},3000);}
+  }catch(e){
+    console.warn('loadFromSupa',e);
+    if(el){el.textContent='⚠ 서버 연결 실패 (로컬 데이터 사용)';el.style.color='var(--o)';}
+  }
+}
+
 const DB={
   gs(){try{return JSON.parse(localStorage.getItem('schl_settings')||'null')}catch(e){return null}},
-  ss(s){localStorage.setItem('schl_settings',JSON.stringify(s))},
+  ss(s){
+    localStorage.setItem('schl_settings',JSON.stringify(s));
+    sUPSERT('settings',[{id:'main',data:s}]);
+  },
   ga(){try{return JSON.parse(localStorage.getItem('schl_apps')||'[]')}catch(e){return[]}},
-  sa(a){localStorage.setItem('schl_apps',JSON.stringify(a))},
+  sa(apps){
+    const prev=this.ga();
+    localStorage.setItem('schl_apps',JSON.stringify(apps));
+    // 추가/변경된 항목 upsert
+    sUPSERT('applicants',apps.map(a=>({id:a.id,data:a})));
+    // 삭제된 항목 delete
+    const curIds=new Set(apps.map(a=>a.id));
+    prev.filter(a=>!curIds.has(a.id)).forEach(a=>sDEL('applicants',a.id));
+  },
   gl(){try{return JSON.parse(localStorage.getItem('schl_legacy')||'null')}catch(e){return null}},
-  sl(a){localStorage.setItem('schl_legacy',JSON.stringify(a))}
+  sl(legs){
+    const prev=this.gl()||[];
+    localStorage.setItem('schl_legacy',JSON.stringify(legs));
+    sUPSERT('legacy',legs.map(a=>({id:a.id,data:a})));
+    const curIds=new Set(legs.map(a=>a.id));
+    prev.filter(a=>!curIds.has(a.id)).forEach(a=>sDEL('legacy',a.id));
+  }
 };
 const ACCS=[{id:'admin',pw:'1234',name:'담당자'}];
 const SL=[
@@ -283,9 +346,13 @@ function doLogin(){
   document.getElementById('lw').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('anm').textContent=acc.name+' 님';
-  ld2();inj();renderSB();
-  const s=gset();CRD=s.rounds[0]?.id||null;CSD=s.rounds[0]?.id||null;
-  rD();rSel();rSelDb();rL();rSt();rG();
+  ld2();
+  // Supabase에서 최신 데이터 로드 후 렌더링
+  loadFromSupa().then(()=>{
+    inj();renderSB();
+    const s=gset();CRD=s.rounds[0]?.id||null;CSD=s.rounds[0]?.id||null;
+    rD();rSel();rSelDb();rL();rSt();rG();
+  });
 }
 function logout(){document.getElementById('lw').style.display='flex';document.getElementById('app').style.display='none';}
 function inj(){
