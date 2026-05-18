@@ -245,10 +245,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
   <div class="app-body">
     <div class="sb-overlay" id="sb-ov" onclick="closeSB()"></div>
     <div class="sidebar" id="sidebar">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px 10px 14px;border-bottom:1px solid var(--bd);flex-shrink:0">
-        <img src="logo.png" style="height:28px;object-fit:contain;max-width:130px" onerror="this.style.display='none'">
-        <span style="font-size:11px;font-weight:800;color:var(--g)">의왕시인재육성재단</span>
-        <button onclick="closeSB()" id="sb-close" style="display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx3);padding:2px 4px;line-height:1">✕</button>
+      <div style="display:flex;align-items:center;justify-content:flex-end;padding:8px 10px;border-bottom:1px solid var(--bd);flex-shrink:0;min-height:42px">
+        <button onclick="closeSB()" id="sb-close" style="display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx3);padding:2px 6px;line-height:1">✕</button>
       </div>
       <div class="sb-sec">접수 관리</div>
       <div class="nav-g">
@@ -837,7 +835,7 @@ function rSelDb(){
   var catRows=Object.values(catMap).map(c=>{
     var pct=c.app?Math.round(c.sel/c.app*100):0;
     var diff=c.target?c.target-c.sel:null;
-    var diffTxt=diff!==null?(diff>0?`<span style="color:#c62828;font-weight:700"> 부족 ${diff}</span>`:diff===0?`<span style="color:var(--g);font-weight:700"> ✓충족</span>`:`<span style="color:#1565c0;font-weight:700"> 초과 ${Math.abs(diff)}</span>`):'';
+    var diffTxt=diff!==null?(diff>0?`<span style="color:#c62828;font-weight:700"> (부족 ${diff})</span>`:diff===0?`<span style="color:var(--g);font-weight:700"> (충족)</span>`:`<span style="color:#1565c0;font-weight:700"> (초과 ${Math.abs(diff)})</span>`):'';
     return `<tr><td style="font-weight:700">${c.name}</td><td style="text-align:center">${c.target||'−'}</td><td style="text-align:center;font-weight:800">${c.app}</td><td style="text-align:center;font-weight:800;color:var(--g)">${c.sel}${diffTxt}</td><td style="text-align:center;color:var(--tx3)">${c.legSel}</td><td style="text-align:center;font-weight:800">${c.sel+c.legSel}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>`;
   }).join('');
 
@@ -851,7 +849,7 @@ function rSelDb(){
       var ra2=ya.filter(a=>a.roundId===r.id);
       var s2=ra2.filter(a=>a.selected==='선발').length;
       var p2=ra2.length?Math.round(s2/ra2.length*100):0;
-      return `<tr style="background:#f8faf8"><td style="padding-left:20px;color:var(--tx2);font-size:12px">└ ${r.label}</td><td style="text-align:center">${ra2.length}</td><td style="text-align:center;color:var(--g)">${s2}</td><td>${p2}%</td></tr>`;
+      return `<tr style="background:#f8faf8"><td style="padding-left:20px;color:var(--tx2);font-size:12px">└ ${r.label}</td><td style="text-align:center">${ra2.length}</td><td style="text-align:center;color:var(--g)">${s2}</td><td style="text-align:center;color:var(--tx3)">−</td><td>${p2}%</td></tr>`;
     }).join('');
     return `<tr><td style="font-weight:800">${y}년</td><td style="text-align:center;font-weight:800">${ya.length}</td><td style="text-align:center;font-weight:800;color:var(--g)">${ys}</td><td style="text-align:center;color:var(--tx3)">${yl}</td><td><span>${pct}%</span><span class="pb2"><span class="pf" style="width:${pct}%"></span></span></td></tr>${subRows}`;
   }).join('');
