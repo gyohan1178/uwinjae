@@ -2,437 +2,2071 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>의왕시인재육성재단 장학생 접수</title>
-<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>장학생 관리 v2c 목업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-:root{--g:#2B7A3C;--g2:#3DAA54;--glt:#E8F5EC;--o:#E8673A;--olt:#FEF0EB;--bg:#F4F7F4;--wh:#fff;--bd:#E2EAE2;--tx:#1a1a1a;--tx2:#555;--tx3:#999;--r8:8px;--r12:12px;--r20:20px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);font-size:15px}
-.hdr{background:var(--wh);border-bottom:1px solid var(--bd);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-.logo-wrap{display:flex;align-items:center;gap:10px}
-.logo-icon{width:40px;height:40px;background:var(--g);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;text-align:center;line-height:1.3;flex-shrink:0}
-.logo-main{font-size:14px;font-weight:800;color:var(--g)}
-.logo-sub{font-size:10px;color:var(--tx3)}
-.page-badge{background:var(--glt);color:var(--g);font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r20)}
-.tabs{background:var(--wh);display:flex;border-bottom:2px solid var(--bd)}
-.tab{flex:1;padding:13px 0;text-align:center;font-size:14px;font-weight:700;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
-.tab.on{color:var(--g);border-bottom-color:var(--g)}
-.wrap{max-width:560px;margin:0 auto;padding:14px}
-.notice{background:var(--olt);border-left:3px solid var(--o);border-radius:0 var(--r8) var(--r8) 0;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#7a3010;line-height:1.7}
-.card{background:var(--wh);border-radius:var(--r12);border:1px solid var(--bd);padding:18px 16px;margin-bottom:12px}
-.stl{font-size:13px;font-weight:800;color:var(--g);margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid var(--glt);display:flex;align-items:center;gap:7px}
-.stl::before{content:'';width:3px;height:14px;background:var(--g);border-radius:2px;display:block;flex-shrink:0}
-label{display:block;font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:5px;margin-top:13px}
-label:first-of-type{margin-top:0}
-.req{color:var(--o);margin-left:2px}
-.opt{color:var(--tx3);font-weight:400;font-size:11px;margin-left:4px}
-input[type=text],input[type=tel],input[type=email],select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:var(--r8);font-size:15px;background:var(--wh);color:var(--tx);font-family:inherit;-webkit-appearance:none;appearance:none;transition:border-color .15s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px rgba(43,122,60,.09)}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.addr-row{display:flex;gap:8px;margin-bottom:8px}
-.addr-row input{flex:1}
-.addr-btn{padding:11px 14px;background:var(--g);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+:root{
+  --g:#2B7A3C;--glt:#E8F5EC;--g2:#1e5c2b;
+  --o:#E8673A;--olt:#FEF0EB;
+  --r:#c62828;--rlt:#ffebee;
+  --b:#1565c0;--blt:#e8f0fe;
+  --bg:#F3F5F3;--wh:#fff;--bd:#E0E8E0;
+  --tx:#1a1a1a;--tx2:#555;--tx3:#999;
+  --warn:#ff6f00;--warnlt:#fff8e1;
+  --r8:8px;--r12:12px;--r20:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+body{background:var(--bg);color:var(--tx);font-size:14px;line-height:1.6}
+.layout{display:flex;height:100vh;overflow:hidden;position:relative}
+
+/* 사이드바 */
+.sb{width:188px;background:var(--wh);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;z-index:1}
+.sb-logo{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.sb-ic{width:28px;height:28px;background:var(--g);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;text-align:center;line-height:1.2;flex-shrink:0}
+.sb-nm{font-size:11px;font-weight:700;color:var(--g)}.sb-sub{font-size:10px;color:var(--tx3)}
+.sb-sec{padding:10px 12px 2px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:1px}
+.si{display:flex;align-items:center;gap:7px;padding:8px 11px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;border-radius:7px;margin:1px 7px;transition:.15s}
+.si:hover{background:var(--glt);color:var(--g)}.si.on{background:var(--g);color:#fff}
+.si i{font-size:16px;flex-shrink:0}
+.si .dup-badge{margin-left:auto;background:#c62828;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-sep{height:1px;background:var(--bd);margin:5px 12px}
+.sb-foot{margin-top:auto;padding:10px 13px;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);line-height:1.7}
+
+/* 모바일 햄버거 버튼 */
+.sb-toggle{display:none;width:34px;height:34px;border:1px solid var(--bd);border-radius:8px;background:var(--wh);cursor:pointer;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-right:8px}
+.sb-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:99}
+.sb-backdrop.on{display:block}
+
+/* ── 반응형 ── */
+
+/* 메인 */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.topbar{background:var(--wh);border-bottom:1px solid var(--bd);padding:0 18px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-title{font-size:14px;font-weight:700}
+.tb-r{display:flex;align-items:center;gap:8px}
+.tb-titlerow{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.content{flex:1;overflow-y:auto;padding:14px 18px}
+.card{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);padding:14px 16px;margin-bottom:10px}
+.ct{font-size:13px;font-weight:700;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between}
+.ct-l{display:flex;align-items:center;gap:7px}
+.ct-l::before{content:'';width:3px;height:14px;background:var(--g);border-radius:2px;display:block}
+
+/* 버튼 */
+.btn{padding:6px 12px;border-radius:var(--r8);border:1px solid var(--bd);background:var(--wh);font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:.15s}
+.btn:hover{background:var(--bg)}.btn.solid{background:var(--g);color:#fff;border-color:var(--g)}.btn.solid:hover{background:var(--g2)}
+.btn.b{background:var(--blt);color:var(--b);border-color:#c5d8fb}
+.btn.o{background:var(--olt);color:var(--o);border-color:#f5c6b0}
+
+/* 배지 */
+.bdg{display:inline-block;padding:2px 8px;border-radius:var(--r20);font-size:11px;font-weight:700}
+.bdg.ok{background:var(--glt);color:var(--g)}.bdg.ng{background:var(--rlt);color:var(--r)}
+.bdg.pt{background:var(--olt);color:var(--o)}.bdg.bl{background:var(--blt);color:var(--b)}
+.bdg.gray{background:#f5f5f5;color:var(--tx3)}
+.bdg.warn{background:var(--warnlt);color:var(--warn)}
+
+/* 필터탭 */
+.filter-tabs{display:flex;gap:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden;margin-bottom:10px}
+.ftab{padding:8px 13px;font-size:12px;font-weight:700;color:var(--tx3);cursor:pointer;border-right:1px solid var(--bd);transition:.15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.ftab:last-child{border-right:none}.ftab:hover{background:var(--bg)}.ftab.on{background:var(--g);color:#fff}
+.ftab .cnt{background:rgba(0,0,0,.08);border-radius:10px;padding:1px 6px;font-size:10px}.ftab.on .cnt{background:rgba(255,255,255,.25)}
+
+/* 테이블 */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--bg);padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);white-space:nowrap;font-size:12px;position:sticky;top:0;z-index:5;box-shadow:0 1px 0 var(--bd)}
+.tbl td{padding:9px 10px;border-bottom:.5px solid #edf2ed;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.clk:hover td{background:#f5faf5;cursor:pointer}
+
+/* ── 중복 경고 카드 ── */
+.dup-warn{border:2px solid var(--warn);border-radius:var(--r12);padding:14px 16px;margin-bottom:10px;background:var(--warnlt)}
+.dup-warn-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dup-warn-hdr i{font-size:20px;color:var(--warn)}
+.dup-warn-hdr h4{font-size:14px;font-weight:700;color:var(--warn);flex:1}
+.dup-item{background:var(--wh);border:1px solid #ffe0b2;border-radius:var(--r8);padding:10px 12px;margin-bottom:7px;font-size:13px}
+.dup-item:last-child{margin-bottom:0}
+.dup-type{display:inline-block;padding:2px 8px;border-radius:var(--r20);font-size:10px;font-weight:700;margin-bottom:5px}
+.dup-type.self{background:var(--rlt);color:var(--r)}
+.dup-type.family{background:var(--warnlt);color:var(--warn)}
+.dup-type.phone{background:var(--blt);color:var(--b)}
+.dup-field{display:flex;gap:6px;align-items:center;font-size:12px;margin-top:4px;color:var(--tx2)}
+.dup-match{font-weight:700;color:var(--warn);background:#fff3e0;padding:1px 6px;border-radius:4px}
+
+/* 모달 */
+.modal-bg{display:none;position:absolute;inset:0;background:rgba(0,0,0,.3);z-index:200;align-items:flex-start;justify-content:flex-end}
+.modal-bg.on{display:flex}
+.modal-panel{width:420px;height:100%;background:var(--wh);overflow-y:auto;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,.15)}
+.mp-hdr{background:var(--g);color:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:1}
+.mp-hdr h3{font-size:14px;font-weight:700}
+.mp-body{padding:16px;flex:1}
+.mp-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center}
+.flabel{font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:4px;margin-top:12px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.flabel:first-child{margin-top:0}
+input[type=text],input[type=tel],input[type=email],input[type=date],select,textarea{width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;outline:none;background:var(--wh)}
+input:focus,select:focus,textarea:focus{border-color:var(--g)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.src-choice{display:flex;gap:6px;margin-bottom:12px}
+.sc{flex:1;padding:9px;border:1.5px solid var(--bd);border-radius:var(--r8);cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:var(--tx2);transition:.15s}
+.sc:hover{border-color:var(--g);color:var(--g)}.sc.on{border-color:var(--g);background:var(--glt);color:var(--g)}
+.sc i{display:block;font-size:20px;margin-bottom:4px}
+.dc{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r8);border:1px solid var(--bd);background:var(--bg);font-size:13px;cursor:pointer;transition:.15s;margin-bottom:4px}
+.dc:hover{background:var(--glt);border-color:var(--g)}.dc.on{background:var(--glt);border-color:var(--g)}
+.dc .chk{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc.on .chk{background:var(--g);border-color:var(--g);color:#fff}
+.mp-footer{padding:14px 16px;border-top:1px solid var(--bd);flex-shrink:0;display:flex;gap:8px;position:sticky;bottom:0;background:var(--wh)}
+
+/* 신규 접수 실시간 중복 경고 */
+.modal-dup{background:var(--warnlt);border:1.5px solid var(--warn);border-radius:var(--r8);padding:10px 13px;margin-top:10px;display:none}
+.modal-dup.on{display:block}
+.modal-dup-hdr{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--warn);margin-bottom:8px}
+.modal-dup-row{font-size:12px;background:var(--wh);border-radius:6px;padding:7px 10px;margin-bottom:5px;border:1px solid #ffe0b2;line-height:1.7}
+.modal-dup-row:last-child{margin-bottom:0}
+
 /* 서류 */
-.prog-bar{background:var(--bd);border-radius:4px;height:6px}
-.prog-fill{background:var(--g);height:6px;border-radius:4px;transition:width .3s}
-.prog-txt{font-size:12px;color:var(--tx3);text-align:right;margin-top:4px;margin-bottom:12px}
-.doc-item{border:1.5px solid var(--bd);border-radius:var(--r8);padding:12px;margin-bottom:8px;background:var(--bg);transition:all .2s}
-.doc-item.ok{border-color:#4caf50;background:#f0fbf1}
-.doc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.doc-nm{font-size:13px;font-weight:700}
-.doc-st{font-size:12px;color:var(--tx3)}
-.doc-st.ok{color:#2e7d32;font-weight:700}
-.doc-desc{font-size:12px;color:var(--tx3);margin-bottom:8px;line-height:1.5}
-.up-label{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border:1.5px dashed var(--bd);border-radius:var(--r8);background:var(--wh);color:var(--tx2);font-size:13px;cursor:pointer;transition:.15s}
-.doc-item.ok .up-label{border-color:#4caf50;color:#2e7d32}
-input[type=file]{display:none}
-.pdf-note{font-size:11px;color:var(--tx3);margin-top:4px;text-align:right}
-.warn{background:#fff3e0;border-radius:var(--r8);padding:12px 14px;font-size:13px;color:#bf360c;display:none;margin-bottom:10px}
-.warn ul{margin-top:6px;padding-left:17px;line-height:2}
-.sbtn{width:100%;padding:16px;background:var(--g);color:#fff;border:none;border-radius:var(--r12);font-size:17px;font-weight:800;cursor:pointer;margin-top:6px;transition:opacity .15s}
-.sbtn:active{opacity:.88}
-/* 구분 선택 */
-.cat-card{background:var(--wh);border:1.5px solid var(--bd);border-radius:var(--r12);padding:15px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.cat-card:hover{border-color:var(--g);box-shadow:0 2px 8px rgba(43,122,60,.08)}
-.cat-card.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
-.cat-nm{font-size:15px;font-weight:800}
-.cat-period{font-size:12px;color:var(--tx3);margin-top:3px}
-.cat-badge{padding:4px 11px;border-radius:var(--r20);font-size:12px;font-weight:700;flex-shrink:0}
-.cat-badge.open{background:var(--glt);color:var(--g)}
-.cat-badge.closed{background:#f5f5f5;color:var(--tx3)}
-.cat-badge.soon{background:var(--olt);color:var(--o)}
-.back-btn{display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--bd);color:var(--tx2);font-size:13px;font-weight:700;cursor:pointer;padding:7px 14px;border-radius:var(--r20);margin-bottom:14px}
-/* 보완 */
-.id-row{display:flex;gap:8px}
-.id-row input{flex:1}
-.id-row button{padding:11px 16px;background:var(--g);color:#fff;border:none;border-radius:var(--r8);font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
-.info-chip{background:var(--glt);border-radius:var(--r8);padding:10px 13px;font-size:13px;color:var(--g);font-weight:700;margin-bottom:13px}
-/* 완료 */
-.succ{text-align:center;padding:40px 20px}
-.succ-icon{width:68px;height:68px;background:var(--glt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
-.succ h2{font-size:22px;font-weight:800;margin-bottom:9px}
-.succ p{font-size:14px;color:var(--tx2);line-height:1.75}
-.succ-num{background:var(--glt);border-radius:var(--r8);padding:14px;margin-top:16px}
-.succ-num .lbl{font-size:12px;color:var(--g);margin-bottom:5px}
-.succ-num .num{font-size:22px;font-weight:800;color:var(--g);letter-spacing:3px}
-.succ-note{font-size:12px;color:var(--tx3);margin-top:10px}
-.no-open{text-align:center;padding:50px 20px;color:var(--tx3)}
-.no-open .ic{font-size:44px;margin-bottom:14px}
-.no-open h3{font-size:16px;font-weight:700;color:var(--tx2);margin-bottom:6px}
-@media(max-width:400px){.row2{grid-template-columns:1fr}}
+.ds{display:flex;align-items:center;padding:9px 12px;border-radius:var(--r8);border:1px solid var(--bd);margin-bottom:5px;background:var(--wh);gap:10px}
+.ds.ok{border-color:var(--g);background:var(--glt)}.ds.ng{border-color:var(--r);background:var(--rlt)}.ds.miss{background:#fafafa}
+.ds .dot{width:7px;height:7px;border-radius:50%;background:var(--bd);flex-shrink:0}
+.ds.ok .dot{background:var(--g)}.ds.ng .dot{background:var(--r)}
+.db2{padding:4px 9px;border-radius:6px;border:1px solid var(--bd);font-size:11px;font-weight:700;cursor:pointer;background:var(--wh);font-family:inherit;transition:.15s}
+.db2.ok{background:var(--glt);color:var(--g);border-color:var(--g)}.db2.ng{background:var(--rlt);color:var(--r);border-color:#ffcdd2}
+.fbt{padding:6px 13px;border-radius:var(--r20);border:1px solid var(--bd);font-size:12px;font-weight:700;cursor:pointer;background:var(--wh);color:var(--tx2);transition:.15s;display:flex;align-items:center;gap:5px}
+.fbt.on{background:var(--g);color:#fff;border-color:var(--g)}
+.fhist{font-size:12px;display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border-radius:var(--r8);margin-bottom:5px}
+
+/* 엑셀 미리보기 */
+.xl{border:1px solid #ccc;border-radius:var(--r8);overflow:auto;margin-bottom:8px}
+.xl-title{background:#1a6b3c;color:#fff;padding:7px 12px;font-size:12px;font-weight:700}
+.xl-hdr{display:flex;background:#217346;color:#fff}
+.xl-row{display:flex;border-bottom:.5px solid #e0e0e0}
+.xl-row:nth-child(even){background:#f9f9f9}.xl-row:hover{background:#f0f8f4}
+.xl-c{padding:6px 9px;font-size:11px;border-right:.5px solid #e0e0e0;white-space:nowrap;flex-shrink:0}
+.xl-hdr .xl-c{border-right-color:rgba(255,255,255,.2);font-weight:700}
+.xl-tabs{display:flex;gap:0;border:1px solid #ccc;border-radius:var(--r8) var(--r8) 0 0;overflow:hidden;border-bottom:none}
+.xlt{padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;background:#f5f5f5;color:var(--tx3);border-right:1px solid #ccc;transition:.15s}
+.xlt:last-child{border-right:none}.xlt.on{background:#217346;color:#fff}
+
+/* 스크린 */
+.screen{display:none}.screen.on{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.note-box{background:#fffde7;border-radius:var(--r8);padding:9px 11px;font-size:13px;margin-bottom:5px}
+/* ===== 반응형 (맨 끝에 배치하여 우선순위 보장) ===== */
+@media(max-width:900px){
+  .sb{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .25s ease;z-index:100;box-shadow:2px 0 12px rgba(0,0,0,.12)}
+  .sb.open{transform:translateX(0)}
+  .sb-toggle{display:flex}
+  .content{padding:12px 12px}
+  .topbar{padding:0 12px}
+  /* 모바일: screen 전체 자연 스크롤 (topbar 겹침 해결) */
+  .main{overflow:auto}
+  .screen.on{height:auto;min-height:100%;overflow:visible}
+  /* topbar 세로 스택: 1줄 [햄버거+제목] / 2줄 [버튼들] */
+  .topbar{position:static!important;height:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px;padding:10px 12px}
+  .tb-titlerow{width:100%}
+  .tb-r{width:100%;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+  .content{overflow:visible}
+  /* 4열 → 2열 (대시보드/지급/이의신청 통계카드) */
+  .content > div[style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
+  /* 3열 → 2열 */
+  .content div[style*="repeat(3,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:680px){
+  /* topbar: 폰트/버튼만 축소 (레이아웃은 900 세로스택 규칙 사용) */
+  .tb-title{font-size:13px}
+  .tb-r .btn{font-size:11px;padding:6px 10px}
+  .content{padding:10px 8px}
+  .card{padding:11px 12px}
+  /* 통계 카드 모두 2열 */
+  .content > div[style*="repeat(5"],
+  .content > div[style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
+  /* 3열 1열로 (예산/거주지 등 큰 카드) */
+  .content div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}
+  /* 상세화면 2열 → 1열 */
+  #det-content > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+  /* 상세 기본정보 4열 → 2열 */
+  #det-content div[style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
+  /* 모든 가로 표는 스크롤 가능하게 래핑 */
+  .scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* 모달/슬라이드 패널 폭 화면맞춤 */
+  .modal-panel{max-width:100%!important;width:100%!important}
+  .modal-box{width:94%!important;max-width:94%!important}
+  /* 검색+필터 한 줄 → 세로 */
+  #s-list .content > div[style*="display:flex"][style*="gap:8px"]{flex-wrap:wrap}
+  #list-cat-filter{width:100%!important}
+  /* 필터탭 가로 스크롤 */
+  .filter-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;white-space:nowrap}
+  .filter-tabs .ftab{flex-shrink:0}
+  /* 지급/구분금액/선발 표: 폰트 줄이고 패딩 축소 */
+  #pay-tbl, #cat-tbody, #sel-content table{font-size:11px}
+  #pay-tbl th, #pay-tbl td, #sel-content th, #sel-content td{padding:6px 6px!important}
+  /* 입력 폭 자동 */
+  #pay-tbl input[type=text]{width:auto!important;min-width:70px;max-width:100%}
+  #cat-tbody input[type=text]{width:80px!important}
+  /* 카드 안 표 자동 가로 스크롤 (보고서·이의신청 등) */
+  .card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .card > table{min-width:480px}
+  /* 접수목록 높이 모바일 보정: 자연스크롤이므로 제한 해제 */
+  #list-wrap{max-height:none!important;overflow-x:auto!important;overflow-y:visible!important}
+  #list-wrap .tbl{min-width:920px}
+}
+@media(max-width:480px){
+  /* 가장 좁은 화면: 통계카드도 1열은 과하니 유지, 폰트만 더 축소 */
+  .stat-num, .content [style*="font-size:22px"]{font-size:18px!important}
+  .tb-title{font-size:12px}
+  .modal-panel .mp-body{padding:14px 16px!important}
+  /* 2열 입력 → 1열 */
+  .row2{grid-template-columns:1fr!important}
+  /* 서류피드백 현황은 1열 대신 2열 유지 */
+  .dash-stat-grid{grid-template-columns:repeat(2,1fr)!important}
+  /* topbar 안 select 래퍼·select 전체폭 (겹침 방지) */
+  .topbar .tb-r{width:100%}
+  .topbar .tb-r > div[style*="position:relative"]{display:block!important;width:100%}
+  .topbar .tb-r select{width:100%!important;min-width:0!important}
+  /* 서류검토 행: 서류명 위 / 버튼 아래로 세로 배치 */
+  .ds{flex-wrap:wrap}
+  .ds > div[style*="margin-left:10px"]{margin-left:0!important;margin-top:6px;width:100%;justify-content:flex-start}
+  /* 카드 헤더: 제목/버튼 세로 정렬 (중복수혜·선발 등) */
+  .ct{flex-wrap:wrap;gap:8px;align-items:flex-start}
+}
 </style>
 </head>
 <body>
-<div class="hdr">
-  <div class="logo-wrap">
-    <img src="logo.png" alt="의왕시인재육성재단" style="height:36px;object-fit:contain" onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
-    <div id="logo-fb" style="display:none;align-items:center;gap:10px">
-      <div class="logo-icon">재단<br>법인</div>
-      <div><div class="logo-sub">재/단/법/인</div><div class="logo-main">의왕시인재육성재단</div></div>
+<div class="layout">
+<div class="sb-backdrop" id="sb-backdrop" onclick="toggleSidebar(false)"></div>
+<div class="sb" id="sb">
+  <div class="sb-logo"><div class="sb-ic">재단<br>법인</div><div><div class="sb-nm">의왕시인재육성재단</div><div class="sb-sub">장학생 관리 v2</div></div></div>
+  <div class="sb-sec">접수 관리</div>
+  <div class="si on" onclick="go('list')"><i class="ti ti-list"></i> 접수 목록</div>
+  <div class="si" onclick="goDetail(this)"><i class="ti ti-file-check"></i> 서류검토·피드백</div>
+  <div class="si" onclick="go('dup')"><i class="ti ti-alert-triangle"></i> 중복 수혜 검토 <span class="dup-badge" id="sidebar-dup-badge">0</span></div>
+  <div class="si" onclick="go('pay')"><i class="ti ti-credit-card"></i> 지급 관리</div>
+  <div class="sb-sep"></div>
+  <div class="sb-sec">집계</div>
+  <div class="si" onclick="go('dash')"><i class="ti ti-chart-bar"></i> 대시보드</div>
+  <div class="si" onclick="go('sel')"><i class="ti ti-trophy"></i> 선발 관리</div>
+  <div class="sb-sep"></div>
+  <div class="sb-sec">데이터</div>
+  <div class="si" onclick="go('excel')"><i class="ti ti-file-spreadsheet"></i> 엑셀 관리</div>
+  <div class="si" onclick="go('catmgr')"><i class="ti ti-settings"></i> 구분·금액 관리</div>
+  <div class="si" onclick="go('appeal')"><i class="ti ti-mail-question"></i> 이의신청</div>
+  <div class="si" onclick="go('report')"><i class="ti ti-report"></i> 보고서</div>
+  <div class="si" onclick="go('guide')"><i class="ti ti-book"></i> 사용 방법</div>
+  <div class="sb-foot"><strong style="color:var(--g)">의왕시인재육성재단</strong><br>031-345-2590</div>
+</div>
+
+<div class="main">
+
+<!-- ══ 접수 목록 ══ -->
+<div id="s-list" class="screen on">
+  <div class="topbar">
+    <span class="tb-title">📋 접수 목록 · 2026년</span>
+    <div class="tb-r">
+      <button onclick="openModal()" style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:var(--g);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap" onmouseover="this.style.background='var(--g2)'" onmouseout="this.style.background='var(--g)'">
+        <span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-plus" style="font-size:13px"></i></span>
+        새 접수 등록
+      </button>
     </div>
   </div>
-  <div class="page-badge">장학생 접수</div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 13px;cursor:pointer" onclick="setTab('all')"><div style="font-size:22px;font-weight:700;color:var(--g)" id="stat-all">0</div><div style="font-size:11px;color:var(--tx3)">전체</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 13px;cursor:pointer" onclick="setTab('miss')"><div style="font-size:22px;font-weight:700;color:var(--o)" id="stat-miss">0</div><div style="font-size:11px;color:var(--tx3)">서류 미수령</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 13px;cursor:pointer" onclick="setTab('ng')"><div style="font-size:22px;font-weight:700;color:var(--r)" id="stat-ng">0</div><div style="font-size:11px;color:var(--tx3)">부적격</div></div>
+      <div style="background:var(--warnlt);border:1.5px solid var(--warn);border-radius:var(--r8);padding:11px 13px;cursor:pointer" onclick="setTab('dup')"><div style="font-size:22px;font-weight:700;color:var(--warn)" id="stat-dup">0</div><div style="font-size:11px;color:var(--warn);font-weight:700">중복 의심</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 13px;cursor:pointer" onclick="setTab('sel')"><div style="font-size:22px;font-weight:700;color:#2e7d32" id="stat-sel">0</div><div style="font-size:11px;color:var(--tx3)">선발 확정</div></div>
+    </div>
+    <div class="filter-tabs" id="ftabs">
+      <div class="ftab on" data-f="all" onclick="setTab('all')">전체 <span class="cnt" id="cnt-all">0</span></div>
+      <div class="ftab" data-f="miss" onclick="setTab('miss')">서류 미수령 <span class="cnt" id="cnt-miss">0</span></div>
+      <div class="ftab" data-f="ng" onclick="setTab('ng')">부적격 <span class="cnt" id="cnt-ng">0</span></div>
+      <div class="ftab" data-f="nofb" onclick="setTab('nofb')">피드백 미발송 <span class="cnt" id="cnt-nofb">0</span></div>
+      <div class="ftab" data-f="dup" onclick="setTab('dup')"><i class="ti ti-alert-triangle" style="font-size:12px;color:var(--warn)"></i> 중복의심 <span class="cnt" id="cnt-dup">0</span></div>
+      <div class="ftab" data-f="sel" onclick="setTab('sel')">선발 확정 <span class="cnt" id="cnt-sel">0</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input type="text" id="list-search" placeholder="이름 · 전화번호 · 학교 검색" style="flex:1;padding:7px 11px" oninput="renderList(curFilter)">
+      <select id="list-cat-filter" style="width:160px;padding:7px 10px" onchange="renderList(curFilter)"><option value="">전체 구분</option></select>
+    </div>
+    <div id="list-wrap" style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);overflow:auto;max-height:calc(100vh - 280px)"></div>
+  </div>
+
+  <!-- 신규 접수 모달 -->
+  <div class="modal-bg" id="modal">
+    <div class="modal-panel">
+      <div class="mp-hdr">
+        <h3><i class="ti ti-user-plus" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i> 새 접수 등록</h3>
+        <button class="mp-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="mp-body">
+        <span class="flabel">접수 방법</span>
+        <div class="src-choice">
+          <div class="sc on" onclick="setSrc(this)"><i class="ti ti-mail"></i>이메일</div>
+          <div class="sc" onclick="setSrc(this)"><i class="ti ti-walk"></i>방문</div>
+        </div>
+
+        <div class="row2">
+          <div><span class="flabel">이름 *</span><input type="text" id="m-name" placeholder="홍길동" oninput="checkDup()"></div>
+          <div><span class="flabel">생년월일</span><input type="text" id="m-birth" placeholder="050315" oninput="checkDup()"></div>
+        </div>
+        <div class="row2">
+          <div><span class="flabel">연락처 *</span><input type="tel" id="m-phone" placeholder="010-0000-0000" oninput="checkDup()"></div>
+          <div><span class="flabel">이메일</span><input type="email" placeholder="abc@email.com"></div>
+        </div>
+        <div class="row2">
+          <div><span class="flabel">출신교/추천동 *</span><input type="text" id="m-school" placeholder="우성고 / 고천동 등"></div>
+          <div><span class="flabel">구분 *</span><select id="m-cat"><option>성적우수</option><option>성적우수(저소득층)</option><option>기숙사 장학생</option><option>체육특기</option></select></div>
+        </div>
+        <div class="row2">
+          <div><span class="flabel">입학대학</span><input type="text" id="m-univ" placeholder="동국대 등"></div>
+          <div><span class="flabel">학과/분야</span><input type="text" id="m-major" placeholder="사회복지학과 / 검도 등"></div>
+        </div>
+        <div class="row2">
+          <div><span class="flabel">보호자 이름</span><input type="text" id="m-guardian" placeholder="홍판서" oninput="checkDup()"></div>
+          <div><span class="flabel">관계</span><select><option>부</option><option>모</option><option>조부모</option><option>기타</option></select></div>
+        </div>
+        <div><span class="flabel">보호자 연락처</span><input type="tel" id="m-gphone" placeholder="010-0000-0000" oninput="checkDup()"></div>
+        <div><span class="flabel">주소</span><input type="text" id="m-addr" placeholder="도로명주소" oninput="checkDup()" style="margin-bottom:5px"><input type="text" placeholder="상세주소"></div>
+
+        <!-- ★ 실시간 중복 경고 -->
+        <div class="modal-dup" id="modal-dup">
+          <div class="modal-dup-hdr"><i class="ti ti-alert-triangle"></i> 중복 수혜 의심 — 확인 필요</div>
+          <div id="modal-dup-rows"></div>
+        </div>
+
+        <span class="flabel" style="margin-top:14px">서류 수령 현황 (1차 체크)</span>
+        <div id="doc-checks">
+          <div class="dc" onclick="this.classList.toggle('on')"><span>장학금 신청서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>개인정보 동의서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>주민등록등본 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>가족관계증명서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>재학증명서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>성적증명서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>건강보험료 납부확인서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>자기소개서 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+          <div class="dc" onclick="this.classList.toggle('on')"><span>계좌사본 <span style="font-size:10px;color:var(--o)">필수</span></span><div class="chk"><i class="ti ti-check" style="font-size:12px"></i></div></div>
+        </div>
+        <span class="flabel" style="margin-top:10px">메모</span>
+        <textarea rows="2" placeholder="특이사항 (선택)"></textarea>
+      </div>
+      <div class="mp-footer">
+        <button class="btn" style="flex:1" onclick="closeModal()">취소</button>
+        <button class="btn solid" style="flex:2" onclick="registerNew()"><i class="ti ti-check"></i> 등록 완료</button>
+      </div>
+    </div>
+  </div>
 </div>
-<div class="tabs">
-  <div class="tab on" id="tab-new" onclick="switchTab('new')">신규 접수</div>
-  <div class="tab" id="tab-supp" onclick="switchTab('supp')">보완 서류 제출</div>
+
+<!-- ══ 서류검토 + 피드백 통합 ══ -->
+<div id="s-detail" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn" onclick="go('list')" style="padding:5px 9px"><i class="ti ti-arrow-left"></i></button>
+      <span class="tb-title" id="det-title">서류검토 및 피드백</span>
+      <span id="det-dup-badge"></span>
+    </div>
+    <div class="tb-r">
+      <button class="btn b" onclick="go('sel')"><i class="ti ti-trophy"></i> 선발 처리</button>
+    </div>
+  </div>
+  <div class="content" id="det-content">
+    <div style="text-align:center;padding:40px;color:var(--tx3)">접수 목록에서 대상자를 선택하세요</div>
+  </div>
 </div>
-<div class="wrap">
-  <div id="pane-new"></div>
-  <div id="pane-supp" style="display:none"></div>
+
+<!-- ══ 중복 수혜 검토 ══ -->
+<div id="s-dup" class="screen">
+  <div class="topbar">
+    <span class="tb-title">⚠ 중복 수혜 검토</span>
+    <div class="tb-r"><span style="font-size:12px;color:var(--tx3)">자동 감지: 이름+생년월일 · 학생/학부모 전화번호 · 예금주</span></div>
+  </div>
+  <div class="content">
+    <div id="dup-summary" style="background:var(--warnlt);border:1.5px solid var(--warn);border-radius:var(--r12);padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--warn);display:flex;align-items:center;gap:10px">
+      <i class="ti ti-info-circle" style="font-size:18px;flex-shrink:0"></i>
+      <span id="dup-summary-text">중복 의심 항목을 검사 중입니다...</span>
+    </div>
+    <div id="dup-content"></div>
+  </div>
+</div>
+
+
+<!-- ══ 대시보드 ══ -->
+<div id="s-dash" class="screen">
+  <div class="topbar"><span class="tb-title">📊 연간 대시보드</span>
+    <div class="tb-r"><button class="btn" onclick="go('excel')"><i class="ti ti-download"></i> 통계 엑셀 내보내기</button></div>
+  </div>
+  <div class="content">
+    <!-- 요약 카드 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);padding:14px 16px"><div style="font-size:26px;font-weight:700;color:var(--g)" id="dash-total">0</div><div style="font-size:11px;color:var(--tx3)">현재 전체 접수</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);padding:14px 16px"><div style="font-size:26px;font-weight:700;color:var(--b)" id="dash-sel">0</div><div style="font-size:11px;color:var(--tx3)">선발 확정</div></div>
+      <div style="background:var(--warnlt);border:1.5px solid var(--warn);border-radius:var(--r12);padding:14px 16px"><div style="font-size:26px;font-weight:700;color:var(--warn)" id="dash-dup">0</div><div style="font-size:11px;color:var(--warn);font-weight:700">중복 의심</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);padding:14px 16px"><div style="font-size:26px;font-weight:700;color:#2e7d32" id="dash-pay">0</div><div style="font-size:11px;color:var(--tx3)">지급 완료</div></div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <!-- 구분별 현황 -->
+      <div class="card">
+        <div class="ct"><div class="ct-l">구분별 누적 현황</div></div>
+        <div class="scroll-x">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px">
+          <thead><tr style="background:var(--bg)">
+            <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">회차</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">구분</th>
+            <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">목표</th>
+            <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">접수</th>
+            <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">선발</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">선발률</th>
+          </tr></thead>
+          <tbody id="dash-cat-tbody"></tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- 서류·피드백 현황 -->
+      <div class="card">
+        <div class="ct"><div class="ct-l">서류 · 피드백 현황</div></div>
+        <div class="dash-stat-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="background:var(--glt);border-radius:var(--r8);padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--g);font-weight:600">서류 완비</span><span style="font-size:20px;font-weight:700;color:var(--g)" id="dash-doc-ok">0</span></div>
+          <div style="background:var(--olt);border-radius:var(--r8);padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--o);font-weight:600">1차 미수령</span><span style="font-size:20px;font-weight:700;color:var(--o)" id="dash-doc-miss">0</span></div>
+          <div style="background:var(--rlt);border-radius:var(--r8);padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--r);font-weight:600">2차 부적격</span><span style="font-size:20px;font-weight:700;color:var(--r)" id="dash-doc-ng">0</span></div>
+          <div style="background:var(--glt);border-radius:var(--r8);padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--g);font-weight:600">피드백 완료</span><span style="font-size:20px;font-weight:700;color:var(--g)" id="dash-fb-ok">0</span></div>
+          <div style="background:var(--olt);border-radius:var(--r8);padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--o);font-weight:600">피드백 미발송</span><span style="font-size:20px;font-weight:700;color:var(--o)" id="dash-fb-no">0</span></div>
+          <div style="background:var(--warnlt);border-radius:var(--r8);padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--warn);font-weight:600">중복 의심</span><span style="font-size:20px;font-weight:700;color:var(--warn)" id="dash-dup2">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 년도별 집계 -->
+    <div class="card">
+      <div class="ct"><div class="ct-l">년도별 집계</div></div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">년도</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">접수</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">선발</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">이전수혜</th>
+          <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">선발률</th>
+        </tr></thead>
+        <tbody>
+          <tr style="font-weight:700"><td style="padding:9px 10px;border-bottom:.5px solid #edf2ed">2026년</td><td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-weight:800">100</td><td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-weight:800;color:var(--g)">0</td><td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center;color:var(--tx3)">0</td><td style="padding:9px 10px;border-bottom:.5px solid #edf2ed"><div style="display:flex;align-items:center;gap:6px"><span>0%</span><div style="flex:1;height:5px;background:var(--bd);border-radius:3px"><div style="width:0%;height:5px;background:var(--g);border-radius:3px"></div></div></div></td></tr>
+          <tr style="background:#fafafa"><td style="padding:7px 10px 7px 20px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx2)">└ 성적우수</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px">59</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">0</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">−</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">대기</td></tr>
+          <tr style="background:#fafafa"><td style="padding:7px 10px 7px 20px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx2)">└ 성적우수(저소득층)</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px">18</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">0</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">−</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">대기</td></tr>
+          <tr style="background:#fafafa"><td style="padding:7px 10px 7px 20px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx2)">└ 기숙사 장학생</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px">20</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">0</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">−</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">대기</td></tr>
+          <tr style="background:#fafafa"><td style="padding:7px 10px 7px 20px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx2)">└ 체육특기</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px">3</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">0</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;color:var(--tx3)">−</td><td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">대기</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 선발 관리 ══ -->
+<div id="s-sel" class="screen">
+  <div class="topbar"><span class="tb-title">🏆 선발 관리</span>
+    <div class="tb-r">
+      <div style="position:relative;display:inline-block">
+        <select id="sel-round" onchange="renderSel()" style="appearance:none;-webkit-appearance:none;padding:8px 34px 8px 12px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer;min-width:160px">
+        <option value="0">2026년</option>
+        </select>
+        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--g);pointer-events:none;font-size:12px">▾</span>
+      </div>
+      <button class="btn" onclick="go('excel')"><i class="ti ti-download"></i> 선발 명단 엑셀</button>
+    </div>
+  </div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div id="sel-total" style="font-size:22px;font-weight:700;color:var(--g)">0</div><div style="font-size:11px;color:var(--tx3)">전체 접수</div></div>
+      <div style="background:var(--glt);border:1px solid var(--g);border-radius:var(--r8);padding:11px 14px"><div id="sel-cnt" style="font-size:22px;font-weight:700;color:var(--g)">0</div><div style="font-size:11px;color:var(--g);font-weight:700">선발 확정</div></div>
+      <div style="background:var(--rlt);border:1px solid #ffcdd2;border-radius:var(--r8);padding:11px 14px"><div id="sel-no" style="font-size:22px;font-weight:700;color:var(--r)">0</div><div style="font-size:11px;color:var(--r)">미선발</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div id="sel-pend" style="font-size:22px;font-weight:700;color:var(--tx3)">0</div><div style="font-size:11px;color:var(--tx3)">미정</div></div>
+    </div>
+    <div id="sel-content"></div>
+  </div>
+</div>
+
+<!-- ══ 지급 관리 ══ -->
+<div id="s-pay" class="screen">
+  <div class="topbar"><span class="tb-title">💳 지급 관리</span>
+    <div class="tb-r">
+      <select id="pay-round" onchange="renderPay()" style="appearance:none;-webkit-appearance:none;padding:7px 30px 7px 11px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer">
+        <option value="all">전체</option>
+        <option value="0">2026년</option>
+      </select>
+      <button class="btn solid" onclick="alert('전체 저장 완료')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
+      <button class="btn" onclick="go('excel')"><i class="ti ti-download"></i> 지급현황 엑셀</button>
+    </div>
+  </div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px" id="pay-stats"></div>
+    <div style="font-size:12px;color:var(--o);background:var(--olt);border-radius:var(--r8);padding:8px 11px;margin-bottom:10px">
+      <i class="ti ti-pencil" style="font-size:13px;vertical-align:-1px"></i> 드롭다운·날짜·텍스트 직접 입력·수정 가능. 전체 저장으로 반영됩니다.
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="scroll-x">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:720px" id="pay-tbl">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:8px 11px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">이름</th>
+          <th style="padding:8px 11px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">구분</th>
+          <th style="padding:8px 11px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">회차</th>
+          <th style="padding:8px 11px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급액</th>
+          <th style="padding:8px 11px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center;width:130px">계좌 확인</th>
+          <th style="padding:8px 11px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center;width:110px">지급 상태</th>
+          <th style="padding:8px 11px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center;width:120px">지급일</th>
+          <th style="padding:8px 11px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center;width:75px">장학증서</th>
+        </tr></thead>
+        <tbody id="pay-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- 예산 집행 -->
+    <div class="card" style="margin-top:12px">
+      <div class="ct"><div class="ct-l">예산 집행 현황</div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px" id="budget-grid">
+        <div style="background:var(--bg);border-radius:var(--r8);padding:12px 14px"><div style="font-size:11px;color:var(--tx3)">배정 예산</div><div style="font-size:20px;font-weight:700;margin-top:4px" id="budget-total">−</div></div>
+        <div style="background:var(--glt);border-radius:var(--r8);padding:12px 14px"><div style="font-size:11px;color:var(--tx3)">집행 완료</div><div style="font-size:20px;font-weight:700;color:var(--g);margin-top:4px" id="budget-done">0원</div></div>
+        <div style="background:var(--olt);border-radius:var(--r8);padding:12px 14px"><div style="font-size:11px;color:var(--tx3)">대기 / 잔액</div><div style="font-size:20px;font-weight:700;color:var(--o);margin-top:4px" id="budget-wait">−</div></div>
+      </div>
+      <div style="height:7px;background:var(--bd);border-radius:4px;overflow:hidden"><div id="budget-bar" style="height:7px;background:var(--g);border-radius:4px;width:0%"></div></div>
+      <div style="font-size:12px;color:var(--tx3);text-align:right;margin-top:4px" id="budget-pct"></div>
+    </div>
+
+    <!-- 거주지 요건 -->
+    <div class="card">
+      <div class="ct"><div class="ct-l"><i class="ti ti-map-pin" style="color:var(--b)"></i> 거주지 요건 확인 (의왕시)</div></div>
+      <div style="display:flex;gap:8px" id="addr-check">
+        <div style="flex:1;background:var(--glt);border-radius:var(--r8);padding:10px;text-align:center" id="addr-ok-div"><div style="font-size:18px;font-weight:700;color:var(--g)" id="addr-ok-cnt">0</div><div style="font-size:11px;color:var(--g)">의왕시 거주 ✓</div></div>
+        <div style="flex:1;background:var(--rlt);border-radius:var(--r8);padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--r)" id="addr-ng-cnt">0</div><div style="font-size:11px;color:var(--r)">타지역 — 확인 필요</div></div>
+        <div style="flex:1;background:var(--bg);border-radius:var(--r8);padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--tx3)" id="addr-miss-cnt">0</div><div style="font-size:11px;color:var(--tx3)">주소 미입력</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="s-excel" class="screen">
+  <div class="topbar"><span class="tb-title">📥 엑셀 데이터 관리</span></div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="card">
+        <div class="ct"><div class="ct-l"><i class="ti ti-download" style="color:var(--g)"></i> 내보내기</div></div>
+        <div style="font-size:12px;color:var(--tx3);margin-bottom:10px">시트별 선택 → 전체 데이터 .xlsx 다운로드</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="basic" checked> <strong>기본 정보</strong> (이름·생년·학교·대학·연락처·학부모 등)</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="account" checked> 계좌 정보 (은행·계좌·예금주·참석여부)</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="doc" checked> 서류 검토 결과</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="sel" checked> 선발 명단</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="pay"> 지급 현황</label>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" onclick="showXl()"><i class="ti ti-eye"></i> 미리보기</button>
+          <button class="btn solid" onclick="doExport()"><i class="ti ti-file-spreadsheet"></i> 엑셀 다운로드</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct"><div class="ct-l"><i class="ti ti-upload" style="color:var(--b)"></i> 가져오기</div></div>
+        <div style="font-size:12px;color:var(--tx3);margin-bottom:10px">기초자료 엑셀(.xlsx)을 업로드하면 시트별 구분으로 자동 등록됩니다.</div>
+        <div id="import-drop" style="border:2px dashed var(--bd);border-radius:var(--r8);padding:22px;text-align:center;color:var(--tx3);margin-bottom:10px;cursor:pointer;transition:.15s" onclick="document.getElementById('import-file').click()">
+          <i class="ti ti-cloud-upload" style="font-size:28px;display:block;margin-bottom:6px"></i>
+          .xlsx 파일 드래그 또는 클릭
+        </div>
+        <input type="file" id="import-file" accept=".xlsx,.xls" style="display:none" onchange="handleImportFile(this.files[0])">
+        <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--tx2);margin-bottom:8px"><input type="checkbox" id="import-replace"> 가져오기 전 기존 데이터 모두 삭제</label>
+        <div id="import-result" style="font-size:12px;margin-bottom:10px"></div>
+      </div>
+    </div>
+
+    <!-- 엑셀 미리보기 (실데이터) -->
+    <div class="card" id="xl-preview" style="display:none">
+      <div class="ct"><div class="ct-l">미리보기 (상위 5건)</div><span style="font-size:11px;color:var(--tx3)">실제 다운로드 파일에는 전체 데이터가 포함됩니다</span></div>
+      <div id="xl-preview-body" style="overflow-x:auto"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ 구분·금액 관리 ══ -->
+<div id="s-catmgr" class="screen">
+  <div class="topbar"><span class="tb-title">⚙ 구분·모집기간·금액 관리</span>
+    <div class="tb-r"><button class="btn solid" onclick="document.getElementById('cat-add-modal').classList.add('on')"><i class="ti ti-plus"></i> 구분 추가</button></div>
+  </div>
+  <div class="modal-bg" id="cat-add-modal">
+    <div class="modal-panel" style="max-width:400px">
+      <div class="mp-hdr"><h3>새 구분 추가</h3><button class="mp-close" onclick="document.getElementById('cat-add-modal').classList.remove('on')">✕</button></div>
+      <div class="mp-body">
+        <span class="flabel">회차 (직접 입력)</span>
+        <input type="text" placeholder="예: 2027년 상반기" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+        <span class="flabel">구분명</span>
+        <input type="text" placeholder="예: 고등부 성적우수" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+        <div class="row2">
+          <div><span class="flabel">모집 시작</span><input type="date" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+          <div><span class="flabel">모집 마감</span><input type="date" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+        </div>
+        <div class="row2">
+          <div><span class="flabel">목표 인원</span><input type="number" min="1" placeholder="5" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+          <div><span class="flabel">1인 지급액 (원)</span><input type="text" placeholder="1,500,000" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+        </div>
+        <span class="flabel">비고</span>
+        <textarea rows="2" placeholder="특이사항 (선택)" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;resize:none"></textarea>
+      </div>
+      <div class="mp-footer">
+        <button class="btn" style="flex:1" onclick="document.getElementById('cat-add-modal').classList.remove('on')">취소</button>
+        <button class="btn solid" style="flex:2" onclick="alert('구분이 추가되었습니다');document.getElementById('cat-add-modal').classList.remove('on')"><i class="ti ti-check"></i> 추가 완료</button>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <!-- 회차 탭 -->
+    <div style="display:flex;gap:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden;margin-bottom:14px">
+      <div class="ftab on">2026년</div>
+    </div>
+
+    <!-- 상반기 구분별 설정 -->
+    <div class="card" style="margin-bottom:0;padding:0;overflow:hidden">
+      <div class="scroll-x">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:760px">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);min-width:120px">구분명</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">모집 시작</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">모집 마감</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">목표 인원</th>
+          <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">1인 지급액</th>
+          <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">총 예산</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">편집</th>
+        </tr></thead>
+        <tbody id="cat-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 14px;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8)">
+      <span style="font-size:13px;color:var(--tx2)">2026년 총 예산: <strong style="color:var(--g)" id="cat-grand-total">0원</strong> / 목표 인원: <strong id="cat-grand-cnt">0명</strong></span>
+      <button class="btn solid" onclick="alert('전체 저장 완료')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 이의신청 ══ -->
+<div id="s-appeal" class="screen">
+  <div class="topbar"><span class="tb-title">📮 이의신청 관리</span><div class="tb-r"><button class="btn solid" onclick="document.getElementById('appeal-modal').classList.add('on')"><i class="ti ti-plus"></i> 이의신청 접수</button></div></div>
+  <div class="modal-bg" id="appeal-modal">
+    <div class="modal-panel">
+      <div class="mp-hdr"><h3>이의신청 접수</h3><button class="mp-close" onclick="document.getElementById('appeal-modal').classList.remove('on')">✕</button></div>
+      <div class="mp-body">
+        <span class="flabel">신청자 검색</span>
+        <div style="position:relative">
+          <input type="text" id="appeal-search" placeholder="이름 또는 전화번호 입력..." style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit" oninput="searchAppeal(this.value)" autocomplete="off">
+          <div id="appeal-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;max-height:180px;overflow-y:auto"></div>
+        </div>
+        <div id="appeal-selected" style="display:none;background:var(--glt);border:1px solid var(--g);border-radius:var(--r8);padding:9px 12px;margin-top:6px;font-size:13px">
+          <div id="appeal-selected-name" style="font-weight:700"></div>
+          <div id="appeal-selected-info" style="font-size:11px;color:var(--tx3);margin-top:2px"></div>
+        </div>
+        <span class="flabel">신청 유형</span>
+        <select style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit"><option>서류 처리 오류</option><option>담당자 안내 오류</option><option>시스템 오류</option><option>소득 기준 재산정</option><option>기타</option></select>
+        <span class="flabel">신청 사유</span>
+        <textarea rows="4" style="width:100%;padding:9px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;resize:none" placeholder="이의신청 사유를 상세히 입력하세요"></textarea>
+        <span class="flabel">접수일</span>
+        <input type="date" value="2026-06-01" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+        <span class="flabel">첨부 증빙</span>
+        <div style="border:2px dashed var(--bd);border-radius:var(--r8);padding:16px;text-align:center;color:var(--tx3);font-size:13px;cursor:pointer">📎 파일 첨부 (선택)</div>
+      </div>
+      <div class="mp-footer"><button class="btn" style="flex:1" onclick="document.getElementById('appeal-modal').classList.remove('on')">취소</button><button class="btn solid" style="flex:2" onclick="alert('이의신청이 접수되었습니다');document.getElementById('appeal-modal').classList.remove('on')"><i class="ti ti-check"></i> 접수 완료</button></div>
+    </div>
+  </div>
+  <div class="content">
+    <div id="appeal-stat-cards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--o)">0</div><div style="font-size:11px;color:var(--tx3)">전체 신청</div></div>
+      <div style="background:var(--olt);border:1px solid #f5c6b0;border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--o)">0</div><div style="font-size:11px;color:var(--o)">검토 중</div></div>
+      <div style="background:var(--glt);border:1px solid var(--g);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--g)">0</div><div style="font-size:11px;color:var(--g)">처리 완료</div></div>
+      <div style="background:var(--rlt);border:1px solid #ffcdd2;border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--r)">0</div><div style="font-size:11px;color:var(--r)">기각</div></div>
+    </div>
+    <div class="card">
+      <div class="ct"><div class="ct-l">이의신청 목록 · 2026년 상반기</div></div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:var(--bg)"><th style="padding:8px 10px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">신청자</th><th style="padding:8px 10px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">구분</th><th style="padding:8px 10px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">신청 사유</th><th style="padding:8px 10px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center">신청일</th><th style="padding:8px 10px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center">상태</th><th style="padding:8px 10px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);text-align:center">처리</th></tr></thead>
+        <tbody id="appeal-tbody"></tbody>
+      </table>
+    </div>
+    <div class="card"><div class="ct"><div class="ct-l">처리 기준</div></div><div style="font-size:13px;color:var(--tx2);line-height:2.1">· 이의신청 기간: 미선발 통보 후 <strong>7일 이내</strong><br>· 처리 기한: 접수 후 <strong>10일 이내</strong> 결과 통보<br>· 인용 사유: 담당자 오류, 시스템 오류, 명백한 서류 처리 오류<br>· 기각 사유: 선발 기준 미충족, 기간 초과, 정당한 판단 결과</div></div>
+  </div>
+</div>
+
+<!-- ══ 보고서 ══ -->
+<div id="s-report" class="screen">
+  <div class="topbar"><span class="tb-title">📋 보고서</span><div class="tb-r"><button class="btn"><i class="ti ti-printer"></i> 인쇄</button><button class="btn solid"><i class="ti ti-download"></i> PDF 저장</button></div></div>
+  <div class="content">
+    <div style="display:flex;gap:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden;margin-bottom:14px">
+      <div id="rt1" class="ftab on" onclick="switchReport(1)">회차별 결과 보고</div>
+      <div id="rt2" class="ftab" onclick="switchReport(2)">예산 집행 현황</div>
+      <div id="rt3" class="ftab" onclick="switchReport(3)">연간 수혜 현황</div>
+    </div>
+    <div id="rpt1">
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);padding:20px 24px;margin-bottom:12px">
+        <div style="text-align:center;margin-bottom:16px;border-bottom:2px solid var(--g);padding-bottom:14px"><div style="font-size:11px;color:var(--tx3)">의왕시인재육성재단</div><div style="font-size:18px;font-weight:700;margin-top:4px">2026년도 장학금 선발 결과 보고</div><div style="font-size:12px;color:var(--tx3);margin-top:6px">2026년 6월 1일 · 담당: 지원팀</div></div>
+        <div style="font-size:13px;font-weight:700;color:var(--g);margin-bottom:8px;border-left:3px solid var(--g);padding-left:10px">1. 개요</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px"><tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);font-weight:700;text-align:left;width:30%">접수 기간</th><td style="padding:8px 12px;border:1px solid var(--bd)">2026. 3. 1. ~ 2026. 4. 30.</td></tr><tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);font-weight:700;text-align:left">접수 방법</th><td style="padding:8px 12px;border:1px solid var(--bd)">이메일 접수 / 방문 접수 (병행)</td></tr><tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);font-weight:700;text-align:left">전체 접수</th><td style="padding:8px 12px;border:1px solid var(--bd)"><strong id="rpt-total">0명</strong></td></tr><tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);font-weight:700;text-align:left">최종 선발</th><td style="padding:8px 12px;border:1px solid var(--bd)"><strong style="color:var(--g)" id="rpt-sel">0명</strong></td></tr><tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);font-weight:700;text-align:left">지급 총액</th><td style="padding:8px 12px;border:1px solid var(--bd)"><strong id="rpt-amt">0원</strong></td></tr></table>
+        <div style="font-size:13px;font-weight:700;color:var(--g);margin-bottom:8px;border-left:3px solid var(--g);padding-left:10px">2. 구분별 선발 현황</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px"><thead><tr style="background:var(--g);color:#fff"><th style="padding:8px 10px;border:1px solid #1e5c2b;font-weight:700">구분</th><th style="padding:8px 10px;border:1px solid #1e5c2b;text-align:center;font-weight:700">목표</th><th style="padding:8px 10px;border:1px solid #1e5c2b;text-align:center;font-weight:700">접수</th><th style="padding:8px 10px;border:1px solid #1e5c2b;text-align:center;font-weight:700">선발</th><th style="padding:8px 10px;border:1px solid #1e5c2b;text-align:center;font-weight:700">선발률</th><th style="padding:8px 10px;border:1px solid #1e5c2b;text-align:right;font-weight:700">지급액</th></tr></thead><tbody id="rpt-cat-tbody"></tbody></table>
+        <div style="font-size:13px;font-weight:700;color:var(--g);margin-bottom:8px;border-left:3px solid var(--g);padding-left:10px">3. 특이사항</div>
+        <div style="font-size:13px;color:var(--tx2);line-height:2;background:var(--bg);border-radius:var(--r8);padding:12px 14px">· 선발·지급 진행 전 단계입니다.<br>· 중복 수혜 의심 건은 선발 전 검토 메뉴에서 확인하세요.<br>· 구분별 1인 지급액은 구분·금액 관리에서 설정합니다.</div>
+      </div>
+    </div>
+    <div id="rpt2" style="display:none"><div class="card"><div class="ct"><div class="ct-l">예산 집행 현황</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px"><div style="background:var(--bg);border-radius:var(--r8);padding:13px"><div style="font-size:11px;color:var(--tx3)">배정 예산</div><div style="font-size:20px;font-weight:700;margin-top:4px">48,000,000원</div></div><div style="background:var(--glt);border-radius:var(--r8);padding:13px"><div style="font-size:11px;color:var(--tx3)">집행 완료</div><div style="font-size:20px;font-weight:700;color:var(--g);margin-top:4px">32,000,000원</div><div style="font-size:11px;color:var(--g)">집행률 66.7%</div></div><div style="background:var(--olt);border-radius:var(--r8);padding:13px"><div style="font-size:11px;color:var(--tx3)">잔액 (하반기 이월)</div><div style="font-size:20px;font-weight:700;color:var(--o);margin-top:4px">16,000,000원</div></div></div><div style="height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:8px;background:var(--g);border-radius:4px;width:66.7%"></div></div><div style="font-size:12px;color:var(--tx3);text-align:right">집행률 66.7% — 48,000,000원 중 32,000,000원 집행</div></div></div>
+    <div id="rpt3" style="display:none"><div class="card"><div class="ct"><div class="ct-l">연간 수혜 현황</div></div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--bg)"><th style="padding:8px 10px;border:1px solid var(--bd);font-weight:700;text-align:left">연도</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">접수</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">선발</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:right;font-weight:700">지급 총액</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">선발률</th></tr></thead><tbody id="rpt3-tbody"></tbody></table><div style="font-size:11px;color:var(--tx3);margin-top:8px">※ 이전 연도 데이터는 누적 운영 시 자동 표시됩니다.</div></div></div>
+  </div>
+</div>
+
+<!-- ══ 사용 방법 ══ -->
+<div id="s-guide" class="screen">
+  <div class="topbar"><span class="tb-title">📖 사용 방법 가이드</span></div>
+  <div class="content">
+    <div class="card" style="margin-bottom:12px">
+      <div class="ct"><div class="ct-l">전체 업무 흐름</div><span style="font-size:12px;color:var(--tx3)">담당자 기준 순서</span></div>
+      <div style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px">
+        <div style="flex:1;min-width:95px;background:var(--glt);border:1.5px solid var(--g);border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">📥</div><div style="font-size:11px;font-weight:700;color:var(--g)">① 접수 등록</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">이메일·방문<br>시스템 입력</div></div>
+        <div style="display:flex;align-items:center;padding:0 4px;color:var(--bd);font-size:16px">›</div>
+        <div style="flex:1;min-width:95px;background:var(--olt);border:1.5px solid var(--o);border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">☑</div><div style="font-size:11px;font-weight:700;color:var(--o)">② 1차 수령</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">서류 실물<br>수령 체크</div></div>
+        <div style="display:flex;align-items:center;padding:0 4px;color:var(--bd);font-size:16px">›</div>
+        <div style="flex:1;min-width:95px;background:var(--rlt);border:1.5px solid #ffcdd2;border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">🔍</div><div style="font-size:11px;font-weight:700;color:var(--r)">③ 2차 검토</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">내용 적격<br>사유 기록</div></div>
+        <div style="display:flex;align-items:center;padding:0 4px;color:var(--bd);font-size:16px">›</div>
+        <div style="flex:1;min-width:95px;background:var(--blt);border:1.5px solid #c5d8fb;border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">📨</div><div style="font-size:11px;font-weight:700;color:var(--b)">④ 피드백</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">문자·이메일<br>자동 발송</div></div>
+        <div style="display:flex;align-items:center;padding:0 4px;color:var(--bd);font-size:16px">›</div>
+        <div style="flex:1;min-width:95px;background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">🏆</div><div style="font-size:11px;font-weight:700;color:#2e7d32">⑤ 선발</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">최종 확정<br>결과 안내</div></div>
+        <div style="display:flex;align-items:center;padding:0 4px;color:var(--bd);font-size:16px">›</div>
+        <div style="flex:1;min-width:95px;background:#fce4ec;border:1.5px solid #f48fb1;border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">💳</div><div style="font-size:11px;font-weight:700;color:#880e4f">⑥ 지급</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">계좌 확인<br>지급 처리</div></div>
+        <div style="display:flex;align-items:center;padding:0 4px;color:var(--bd);font-size:16px">›</div>
+        <div style="flex:1;min-width:95px;background:#f3e5f5;border:1.5px solid #ce93d8;border-radius:var(--r8);padding:10px 7px;text-align:center"><div style="font-size:18px;margin-bottom:3px">📊</div><div style="font-size:11px;font-weight:700;color:#7b1fa2">⑦ 보고</div><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5">엑셀·보고서<br>내보내기</div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card"><div class="ct"><div class="ct-l">📋 접수 목록</div></div><ul style="padding-left:16px;font-size:13px;color:var(--tx2);line-height:2.1"><li>구분별 필터 (성적우수·저소득층·기숙사·체육특기)</li><li>상태별 필터 탭 (미수령·부적격·중복의심 등)</li><li>행 클릭 → 해당 인원 서류검토 화면으로 이동</li><li>새 접수 등록 → 오른쪽 슬라이드 패널</li></ul></div>
+      <div class="card"><div class="ct"><div class="ct-l">📄 서류검토·피드백</div></div><ul style="padding-left:16px;font-size:13px;color:var(--tx2);line-height:2.1"><li>1차: 서류 수령 여부 체크</li><li>2차: 내용 적격/부적격 + 사유 입력</li><li>부적격 → 피드백 문자 자동 완성</li><li>발송 이력 자동 저장 (날짜·담당자)</li></ul></div>
+      <div class="card"><div class="ct"><div class="ct-l">💳 지급 관리</div></div><ul style="padding-left:16px;font-size:13px;color:var(--tx2);line-height:2.1"><li>선발 확정 → 지급 완료 상태 추적</li><li>예산 집행 현황 (배정/집행/잔액)</li><li>계좌 오류·의왕시 거주 요건 확인</li><li>장학증서 발급 여부 관리</li></ul></div>
+      <div class="card"><div class="ct"><div class="ct-l">📮 이의신청</div></div><ul style="padding-left:16px;font-size:13px;color:var(--tx2);line-height:2.1"><li>미선발자 이의신청 접수·처리</li><li>인용·기각 처리 및 이력 기록</li><li>신청 기간 7일 / 처리 기한 10일</li></ul></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ct"><div class="ct-l">🔒 수혜 제한 설정</div><span class="bdg warn">관리자</span></div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:var(--r8);gap:10px"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap">동일인 최대 수혜 횟수</div><div style="font-size:11px;color:var(--tx3);white-space:nowrap">이름+생년월일 기준</div></div><select style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;width:90px;flex-shrink:0"><option>없음</option><option selected>2회</option><option>3회</option></select></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:var(--r8);gap:10px"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap">가족 중복 수혜 제한</div><div style="font-size:11px;color:var(--tx3);white-space:nowrap">보호자 기준, 동일 회차</div></div><select style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;width:90px;flex-shrink:0"><option selected>1명</option><option>없음</option></select></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:var(--r8);gap:10px"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap">의왕시 거주 요건</div></div><select style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;width:90px;flex-shrink:0"><option selected>필수</option><option>선택</option></select></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:var(--r8);gap:10px"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap">이의신청 허용 기간</div></div><select style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;width:90px;flex-shrink:0"><option>5일</option><option selected>7일</option><option>14일</option></select></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
+</div>
 </div>
 
 <script>
-const SURL='https://zlmdxxginskguqqitsbp.supabase.co';
-const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbWR4eGdpbnNrZ3VxcWl0c2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjQyMTcsImV4cCI6MjA5MzYwMDIxN30.1b1bGTNfq7a1ZTBeHVnzTRsjWgwZP4rY9ei3XqljNi0';
-const SHDRS={apikey:SKEY,Authorization:'Bearer '+SKEY,'Content-Type':'application/json'};
+// ── 데이터 ──
+const ROUNDS = [
+  { label:'2026년', budget:0, cats:[
+    {name:'성적우수', target:59, tag:'성적우수', amt:1000000},
+    {name:'성적우수(저소득층)', target:18, tag:'저소득층', amt:1500000},
+    {name:'기숙사 장학생', target:20, tag:'기숙사', amt:500000},
+    {name:'체육특기', target:3, tag:'체육특기', amt:1000000},
+  ]},
+];
 
-async function sUPSERT_idx(table,rows){
-  try{
-    await fetch(SURL+'/rest/v1/'+table,{
-      method:'POST',
-      headers:{...SHDRS,Prefer:'resolution=merge-duplicates'},
-      body:JSON.stringify(rows)
-    });
-  }catch(e){console.warn('sUPSERT',e);}
-}
+const ROWS=[
+  {id:1,birth:"20070515",name:"김기연",phone:"010-9122-9530",parentPhone:"010-9122-3898",school:"우성고",univ:"동국대",major:"사회복지학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1002-1222-0855",acctHolder:"김기연",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:2,birth:"20070505",name:"김성규",phone:"010-4141-3728",parentPhone:"010-5058-3728",school:"우성고",univ:"성균관대",major:"공학계열",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"302-0200-7245-91",acctHolder:"김성규",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:3,birth:"20070512",name:"박준혁",phone:"010-5447-0512",parentPhone:"010-2704-1106",school:"우성고",univ:"아주대",major:"자유전공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1002-3106-7159",acctHolder:"박준혁",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:4,birth:"20070910",name:"송민준",phone:"010-4828-2092",parentPhone:"010-4768-2092",school:"우성고",univ:"경희대",major:"반도체공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"하나",acct:"534-910754-62007",acctHolder:"송민준",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:5,birth:"20070123",name:"유현호",phone:"010-2569-1790",parentPhone:"010-8921-4049",school:"우성고",univ:"성균관대",major:"반도체융합공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-1769-1193-53",acctHolder:"유현호",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:6,birth:"20071125",name:"이현진",phone:"010-3211-2177",parentPhone:"010-9136-2177",school:"우성고",univ:"아주대",major:"교통시스템공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"276701-04-293105",acctHolder:"이현진",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:7,birth:"20070508",name:"조은혁",phone:"010-3175-5981",parentPhone:"010-7706-5981",school:"우성고",univ:"성균관대",major:"전자전기공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-1705-0395-03",acctHolder:"조은혁",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:8,birth:"20070601",name:"채서희",phone:"010-5925-5471",parentPhone:"010-2934-3557",school:"우성고",univ:"숭실대",major:"신소재공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"603101-01-273401",acctHolder:"채서희",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:9,birth:"20070304",name:"김하은",phone:"010-2993-5261",parentPhone:"010-6311-8741",school:"우성고",univ:"전북대",major:"의예과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"302-1434-7363-01",acctHolder:"김하은",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:10,birth:"20070511",name:"박준희",phone:"010-7106-8945",parentPhone:"010-5490-3980",school:"우성고",univ:"서울대",major:"바이오시스템소재학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"280601-04-231810",acctHolder:"박준희",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:11,birth:"20071121",name:"김상현",phone:"010-5756-9956",parentPhone:"010-9919-9956",school:"우성고",univ:"성균관대",major:"자유전공계열",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"870501-00-104045",acctHolder:"김상현",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:12,birth:"20070303",name:"정은재",phone:"010-3418-7070",parentPhone:"010-2721-7070",school:"우성고",univ:"한국외대",major:"아시아언어문화대학",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"신협",acct:"132-103-258107",acctHolder:"정은재",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:13,birth:"20070702",name:"윤초은",phone:"010-7454-5574",parentPhone:"010-9335-5574",school:"우성고",univ:"홍익대",major:"영어교육과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"우리",acct:"1002-260-342327",acctHolder:"윤초은",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:14,birth:"20070905",name:"이재용",phone:"010-2127-5065",parentPhone:"010-4890-5065",school:"우성고",univ:"한양대",major:"경제금융학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-34-9741535",acctHolder:"이재용",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:15,birth:"20070418",name:"박희지",phone:"010-3696-8106",parentPhone:"010-2166-5425",school:"우성고",univ:"건국대",major:"부동산학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"기업",acct:"486-061254-01-011",acctHolder:"박희지",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:16,birth:"20070628",name:"김시원",phone:"010-9106-4522",parentPhone:"010-8535-4522",school:"우성고",univ:"연세대",major:"첨단컴퓨팅계열",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-36-0781875",acctHolder:"김시원",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:17,birth:"20070613",name:"조성원",phone:"010-2474-9677",parentPhone:"010-8887-9675",school:"우성고",univ:"고려대",major:"스마트보안학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"802202-00-047492",acctHolder:"조성원",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:18,birth:"20070629",name:"김서율",phone:"010-7753-9685",parentPhone:"010-4151-9685",school:"우성고",univ:"한양대",major:"정보시스템학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"우리",acct:"1002-756-508021",acctHolder:"김서율",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:19,birth:"20070412",name:"이정목",phone:"010-9038-1497",parentPhone:"010-9081-1497",school:"우성고",univ:"고려대",major:"전기전자공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오",acct:"3333-34-7611424",acctHolder:"이정목",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:20,birth:"20070929",name:"권시우",phone:"010-7730-6576",parentPhone:"010-9397-6576",school:"우성고",univ:"숭실대",major:"자유전공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"302-2116-5315-11",acctHolder:"권시우",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:21,birth:"20070523",name:"방민서",phone:"010-7173-7806",parentPhone:"010-8575-7806",school:"우성고",univ:"고려대",major:"기계공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"하나",acct:"391-911750-77007",acctHolder:"방민서",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:22,birth:"20071124",name:"목지우",phone:"010-4016-5857",parentPhone:"010-8758-5857",school:"우성고",univ:"인하대",major:"컴퓨터공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1002-4601-1059",acctHolder:"목지우",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:23,birth:"20060729",name:"염민준",phone:"010-3163-2629",parentPhone:"010-8957-2629",school:"우성고",univ:"중앙대",major:"화학공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-1781-4830-93",acctHolder:"염민준",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:24,birth:"20061107",name:"박현준",phone:"010-9466-7082",parentPhone:"010-9099-8628",school:"우성고",univ:"한양대",major:"미래자동차공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"356-0031-7029-23",acctHolder:"박현준",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:25,birth:"20061229",name:"최지호",phone:"010-5267-9932",parentPhone:"010-8978-8838",school:"우성고",univ:"서강대",major:"컴퓨터공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-2097-5968-03",acctHolder:"최지호",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:26,birth:"20060612",name:"이민우",phone:"010-7170-9533",parentPhone:"010-4557-1175",school:"우성고",univ:"성균관대",major:"공학계열",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"214901-04-353483",acctHolder:"이민우",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:27,birth:"20060619",name:"정가온",phone:"010-7244-3501",parentPhone:"010-9408-3501",school:"우성고",univ:"연세대",major:"국어국문학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오",acct:"3333-35-7437848",acctHolder:"정가온",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:28,birth:"20060116",name:"허지성",phone:"010-3767-1795",parentPhone:"010-8843-1794",school:"우성고",univ:"고려대",major:"교육학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"302-3767-1795-11",acctHolder:"허지성",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:29,birth:"20060104",name:"김채연",phone:"010-4540-5998",parentPhone:"010-9170-3813",school:"우성고",univ:"이화여대",major:"의예과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오",acct:"3333-31-4595429",acctHolder:"김채연",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:30,birth:"20070508",name:"곽수빈",phone:"010-4597-0640",parentPhone:"010-2639-4756",school:"모락고",univ:"동국대",major:"언론정보학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"276701-04-277628",acctHolder:"곽수빈",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:31,birth:"20070207",name:"김민주",phone:"010-3224-0284",parentPhone:"010-6589-0284",school:"모락고",univ:"숙명여대",major:"르꼬르동블루\n외식경영전공",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오",acct:"3333-33-2905839",acctHolder:"김민주",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:32,birth:"20070927",name:"김수지",phone:"010-4229-5801",parentPhone:"010-6253-5089",school:"모락고",univ:"동국대",major:"경영대학",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-1803-1657-23",acctHolder:"김수지",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:33,birth:"20071223",name:"김초영",phone:"010-3430-2909",parentPhone:"010-7633-2909",school:"모락고",univ:"강원대",major:"수의학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"276702-04-196474",acctHolder:"김초영",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:34,birth:"20070513",name:"노은율",phone:"010-2183-5373",parentPhone:"010-7226-1904",school:"모락고",univ:"고려대",major:"전기전자공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"592202-01-778865",acctHolder:"노은율",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:35,birth:"20070430",name:"이루미",phone:"010-4066-8641",parentPhone:"010-6356-0118",school:"모락고",univ:"이화여대",major:"정치외교학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"신한",acct:"110-619-071376",acctHolder:"이루미",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:36,birth:"20070126",name:"이지언",phone:"010-5848-3153",parentPhone:"010-8330-3153",school:"모락고",univ:"한국외국어대",major:"포르투갈어과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"우리",acct:"1002-760-962223",acctHolder:"이지언",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:37,birth:"20070615",name:"윤상범",phone:"010-3884-7898",parentPhone:"010-3119-7803",school:"모락고",univ:"경희대",major:"자유전공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 통화 완 / 23일까지 제출하기로 함",acctHolder:"",attend:"",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:38,birth:"20070727",name:"정수민",phone:"010-7252-7424",parentPhone:"010-8724-7424",school:"모락고",univ:"한국항공대",major:"항공경영대학",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"기업",acct:"486-050181-01-016",acctHolder:"정수민",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:39,birth:"20071130",name:"홍승찬",phone:"010-4132-2585",parentPhone:"010-3752-1012",school:"모락고",univ:"강원대",major:"약학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"276702-04-196867",acctHolder:"홍승찬",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:40,birth:"20070622",name:"고민재",phone:"010-6759-7942",parentPhone:"010-4217-3701",school:"백운고",univ:"한양대",major:"영어교육과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오",acct:"3333-34-3677710",acctHolder:"고민재",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:41,birth:"20070107",name:"김민솔",phone:"010-9513-9359",parentPhone:"010-5233-9359",school:"백운고",univ:"한양대",major:"도시공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"새마을금고",acct:"9002-1930-1008-1",acctHolder:"김민솔",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:42,birth:"20070731",name:"김주환",phone:"010-3494-8244",parentPhone:"010-6257-7772",school:"백운고",univ:"한양대(ERICA)",major:"약학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"870501-00-102728",acctHolder:"김주환",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:43,birth:"20070130",name:"김태훈",phone:"010-7513-2057",parentPhone:"010-3001-2057",school:"백운고",univ:"고려대",major:"의과대학",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-33-5412965",acctHolder:"김태훈",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:44,birth:"20070505",name:"류담인",phone:"010-6258-0658",parentPhone:"010-6221-9058",school:"백운고",univ:"연세대",major:"화공생명공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"603101-01-270822",acctHolder:"류담인",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:45,birth:"20070901",name:"박지현",phone:"010-5936-2678",parentPhone:"010-8779-2678",school:"백운고",univ:"동국대",major:"통계학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오",acct:"3333-34-7700423",acctHolder:"박지현",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:46,birth:"20070921",name:"신지윤",phone:"010-4097-2278",parentPhone:"010-2746-2278",school:"백운고",univ:"성균관대",major:"자유전공계열",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"302-2105-7988-61",acctHolder:"신지윤",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:47,birth:"20070718",name:"전하진",phone:"010-3029-7180",parentPhone:"010-2227-0325",school:"백운고",univ:"덕성여대",major:"약학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"261502-04-220504",acctHolder:"전하진",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:48,birth:"20070521",name:"정준",phone:"010-4999-7931",parentPhone:"010-5069-7931",school:"백운고",univ:"서울시립대",major:"전자전기컴퓨터공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 학생 전화 안받 / 엄마 통화 완 / 23일까지 내기로함",acctHolder:"",attend:"",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:49,birth:"20071128",name:"김시율",phone:"010-8673-1527",parentPhone:"010-2559-1527",school:"백운고",univ:"건국대",major:"문과대학자유전공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 학생 전화 안받 / 엄마 통화 완 / 23일까지 내기로함",acctHolder:"",attend:"",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:50,birth:"20070317",name:"권유한",phone:"010-3617-3478",parentPhone:"010-6409-8152",school:"의왕고",univ:"홍익대",major:"자율전공학부(자연)",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"수협",acct:"0010-6409-3478",acctHolder:"권유한",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:51,birth:"20071028",name:"이승민",phone:"010-5912-6898",parentPhone:"010-2836-5500",school:"의왕고",univ:"한양대(ERICA)",major:"기계공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1000-8063-9598",acctHolder:"이승민",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:52,birth:"20071224",name:"최윤아",phone:"010-8603-8748",parentPhone:"010-8295-8748",school:"의왕고",univ:"인하대",major:"수학교육과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"하나",acct:"464-910387-80507",acctHolder:"최윤아",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:53,birth:"20071230",name:"박시원",phone:"010-5430-8599",parentPhone:"010-2620-8596",school:"의왕고",univ:"세종대",major:"자유전공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스뱅크",acct:"1001-5888-4743",acctHolder:"박시원",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:54,birth:"20070707",name:"이지선",phone:"010-2664-3724",parentPhone:"010-5672-2664",school:"의왕고",univ:"한양대(ERICA)",major:"해양융합공학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 학생 전화 안받 / 엄마 통화 완",acctHolder:"",attend:"",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:55,birth:"20070103",name:"장현하",phone:"010-6257-0362",parentPhone:"010-2011-0190",school:"의왕고",univ:"가천대",major:"식품영양학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-33-1474316",acctHolder:"장현하",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:56,birth:"20070103",name:"장윤하",phone:"010-6257-0340",parentPhone:"010-2011-0190",school:"의왕고",univ:"한양대(ERICA)",major:"문화콘텐츠학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-33-2938425",acctHolder:"장윤하",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:57,birth:"20070829",name:"정새봄",phone:"010-5231-2238",parentPhone:"010-2760-4419",school:"의왕고",univ:"한동대",major:"자율전공학부",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-1957-0895-43",acctHolder:"정새봄",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:58,birth:"20070724",name:"임나연",phone:"010-4792-0724",parentPhone:"010-3267-8579",school:"의왕고",univ:"진주교대",major:"교육학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-0414-9404-63",acctHolder:"임나연",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:59,birth:"20071110",name:"윤하정",phone:"010-2101-8401",parentPhone:"010-2466-8401",school:"의왕고",univ:"가천대",major:"AI 인문대학",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 학생 전화 안받 / 엄마 통화 완",acctHolder:"",attend:"",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:60,birth:"19920129",name:"박은빛",phone:"010-4161-1935",parentPhone:"-",school:"고천동",univ:"동남보건대학교",major:"간호학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"302-1429-3160-21",acctHolder:"박은빛",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:61,birth:"20040930",name:"이태승",phone:"010-2703-3612",parentPhone:"010-2407-3612",school:"고천동",univ:"동국대학교",major:"컴퓨터.AI학부",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 학생 전화 안받 / 엄마 통화 완 / 신청 안하겠다? 설명함",acctHolder:"",attend:"",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:62,birth:"20030918",name:"김래현",phone:"010-9857-1950",parentPhone:"010-9967-1950",school:"고천동",univ:"선문대학교",major:"사학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1000-1436-0355",acctHolder:"김래현",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:63,birth:"20041001",name:"김태은",phone:"010-6660-8033",parentPhone:"010-2710-8033",school:"내손1동",univ:"계원예술대",major:"애니메이션과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"801302-01-831167",acctHolder:"김태은",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:64,birth:"20060120",name:"김현서",phone:"010-8038-9867",parentPhone:"010-5321-9971",school:"내손1동",univ:"수원여대",major:"패션학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"366502-01-187277",acctHolder:"김현서",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:65,birth:"20040321",name:"원수곤",phone:"010-4723-7368",parentPhone:"010-4178-8486",school:"내손1동",univ:"백석대",major:"안경광학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"603101-01-277508",acctHolder:"원수곤",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:66,birth:"20031031",name:"김주아",phone:"010-8780-2498",parentPhone:"010-3948-5224",school:"내손2동",univ:"용인예술과학대",major:"연기예술과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-31-2309198",acctHolder:"김주아",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:67,birth:"20040903",name:"진소민",phone:"010-7736-8415",parentPhone:"010-9015-1230",school:"내손2동",univ:"서울예술대",major:"영상학부, 영화전공",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"261501-04-212072",acctHolder:"진소민",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:68,birth:"20030605",name:"현지황",phone:"010-9185-9490",parentPhone:"010-4742-9490",school:"내손2동",univ:"협성대",major:"글로벌통상 · 문화학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스뱅크",acct:"1000-0073-6472",acctHolder:"현지황",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:69,birth:"20040221",name:"박소영",phone:"010-5508-8551",parentPhone:"010-9976-8551",school:"부곡동",univ:"호서대",major:"간호학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"신한",acct:"110-446-641197",acctHolder:"박소영",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:70,birth:"20060122",name:"손재영",phone:"010-9038-3522",parentPhone:"010-2535-2880",school:"부곡동",univ:"가천대",major:"컴퓨터공학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"356-1458-9913-83",acctHolder:"손재영",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:71,birth:"20050923",name:"장서윤",phone:"010-7720-7393",parentPhone:"010-9264-7393",school:"부곡동",univ:"동덕여대",major:"국제경영학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스뱅스",acct:"1000-6643-0774",acctHolder:"장서윤",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:72,birth:"20050507",name:"황시은",phone:"010-2911-4108",parentPhone:"010-8411-5600",school:"오전동",univ:"유한대",major:"방송미디어학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"국민",acct:"399102-04-191527",acctHolder:"황시은",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:73,birth:"20021006",name:"방재승",phone:"010-2807-9644",parentPhone:"010-8883-2028",school:"오전동",univ:"동아방송예대",major:"디지털영상디자인과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"211044-56-058101",acctHolder:"방재승",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:74,birth:"20040902",name:"신은숙",phone:"010-4094-0541",parentPhone:"010-3001-0541",school:"오전동",univ:"한남대",major:"미디어영상학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"301-0304-7193-01",acctHolder:"신은숙",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:75,birth:"20020402",name:"이하은",phone:"010-3908-3417",parentPhone:"010-4339-3417",school:"청계동",univ:"서울과학기술대학교",major:"경영학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"농협",acct:"352-1822-4907-13",acctHolder:"이하은",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:76,birth:"20050801",name:"윤태현",phone:"010-3604-2346",parentPhone:"010-8290-2346",school:"청계동",univ:"서울예술대학교",major:"한국음악전공",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"카카오뱅크",acct:"3333-31-2391531",acctHolder:"윤태현",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:77,birth:"20040802",name:"양혜주",phone:"010-9916-5956",parentPhone:"-",school:"청계동",univ:"혜전대학교",major:"간호학과",cat:"성적우수(저소득층)",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"케이뱅크",acct:"100-160-048139",acctHolder:"양혜주",attend:"참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
+  {id:78,birth:"20080417",name:"이룩",phone:"010-3175-6072",parentPhone:"010-2482-6072",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:79,birth:"20080226",name:"이성현",phone:"010-9880-3042",parentPhone:"010-3508-1948",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:80,birth:"20080812",name:"권승주",phone:"010-8856-6150",parentPhone:"010-5476-6150",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:81,birth:"20090328",name:"김승헌",phone:"010-6580-6509",parentPhone:"010-7747-6509",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:82,birth:"20091124",name:"황지환",phone:"010-5270-2352",parentPhone:"010-6208-3865",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:83,birth:"20090326",name:"함창욱",phone:"010-3005-3592",parentPhone:"010-8721-0281",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:84,birth:"20100907",name:"송은우",phone:"010-3699-2320",parentPhone:"010-2948-4565",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:85,birth:"20100828",name:"천우영",phone:"010-9262-4166",parentPhone:"010-4894-4166",school:"우성고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.03.01.",payState:"",cert:false,addr:"",appeal:null},
+  {id:86,birth:"20101110",name:"박성연",phone:"010-8336-2428",parentPhone:"010-2462-2428",school:"모락고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.3.4",payState:"",cert:false,addr:"",appeal:null},
+  {id:87,birth:"20090608",name:"김현서",phone:"010-6764-9242",parentPhone:"010-3875-0420",school:"모락고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.3.4",payState:"",cert:false,addr:"",appeal:null},
+  {id:88,birth:"20080516",name:"김태희",phone:"010-6405-1138",parentPhone:"010-4109-1138",school:"모락고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.3.4",payState:"",cert:false,addr:"",appeal:null},
+  {id:89,birth:"20080712",name:"신가온",phone:"010-7650-4414",parentPhone:"010-4123-4144",school:"모락고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2026.3.4",payState:"",cert:false,addr:"",appeal:null},
+  {id:90,birth:"20080709",name:"권민솔",phone:"010-7196-0510",parentPhone:"010-2290-0510",school:"백운고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2025.11.3.",payState:"",cert:false,addr:"",appeal:null},
+  {id:91,birth:"20080808",name:"박재은",phone:"010-5659-9193",parentPhone:"010-7365-9193",school:"백운고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2025.8.18.",payState:"",cert:false,addr:"",appeal:null},
+  {id:92,birth:"20081009",name:"오승진",phone:"010-4007-8530",parentPhone:"010-5099-2424",school:"백운고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2025.8.18.",payState:"",cert:false,addr:"",appeal:null},
+  {id:93,birth:"20080614",name:"정예원",phone:"010-7600-9209",parentPhone:"010-9121-4738",school:"백운고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2025.8.18.",payState:"",cert:false,addr:"",appeal:null},
+  {id:94,birth:"20081230",name:"강동우",phone:"010-6742-4779",parentPhone:"010-8730-4778",school:"의왕고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2025. 3. 10",payState:"",cert:false,addr:"",appeal:null},
+  {id:95,birth:"20080910",name:"공민지",phone:"010-9661-2203",parentPhone:"010-4593-3144",school:"의왕고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2024. 3. 11.",payState:"",cert:false,addr:"",appeal:null},
+  {id:96,birth:"20080819",name:"임베니",phone:"010-5840-2733",parentPhone:"010-5440-2733",school:"의왕고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2024. 3. 11.",payState:"",cert:false,addr:"",appeal:null},
+  {id:97,birth:"20080509",name:"박가온",phone:"010-2180-3501",parentPhone:"010-6218-3500",school:"의왕고",univ:"",major:"",cat:"기숙사 장학생",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"",acctHolder:"",attend:"",extra:"입소일: 2024. 3. 11.",payState:"",cert:false,addr:"",appeal:null},
+  {id:98,birth:"20070318",name:"이승혁",phone:"010-5066-9490",parentPhone:"010-9367-9490",school:"검도",univ:"",major:"검도",cat:"체육특기",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1000-8242-8794",acctHolder:"이승혁",attend:"참석",extra:"비고: 대학교 훈련단",payState:"",cert:false,addr:"",appeal:null},
+  {id:99,birth:"20091218",name:"박규원",phone:"010-9921-2887",parentPhone:"010-7294-1032",school:"탁구",univ:"",major:"탁구",cat:"체육특기",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"",acct:"22일 엄마 통화 완 / 내일까지 제출하기로",acctHolder:"",attend:"",extra:"비고: ",payState:"",cert:false,addr:"",appeal:null},
+  {id:100,birth:"20101109",name:"장재혁",phone:"010-6314-5198",parentPhone:"010-3122-8888",school:"태권도",univ:"",major:"태권도",cat:"체육특기",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1001-4658-2636",acctHolder:"장재혁",attend:"참석",extra:"비고: ",payState:"",cert:false,addr:"",appeal:null}
+];
 
-// index.html 시작 시 서버에서 설정 가져오기
-async function syncSettingsFromSupa(){
-  try{
-    const r=await fetch(SURL+'/rest/v1/settings?select=id,data',{headers:SHDRS});
-    if(r.ok){
-      const rows=await r.json();
-      if(rows&&rows.length>0) localStorage.setItem('schl_settings',JSON.stringify(rows[0].data));
-    }
-  }catch(e){console.warn('syncSettings',e);}
-}
-syncSettingsFromSupa().then(()=>renderNew&&renderNew());
+let curRound=0, curFilter='all', curDetail=null, editMode=false;
 
-const DB={
-  getSettings(){try{return JSON.parse(localStorage.getItem('schl_settings')||'null')}catch(e){return null}},
-  getApps(){try{return JSON.parse(localStorage.getItem('schl_apps')||'[]')}catch(e){return[]}},
-  saveApps(apps){
-    localStorage.setItem('schl_apps',JSON.stringify(apps));
-    sUPSERT_idx('applicants',apps.map(a=>({id:a.id,data:a})));
+function pbar(pct){return `<div style="display:flex;align-items:center;gap:6px"><span>${pct}%</span><div style="flex:1;height:5px;background:var(--bd);border-radius:3px;min-width:40px"><div style="width:${pct}%;height:5px;background:var(--g);border-radius:3px"></div></div></div>`;}
+
+function renderList(f){
+  curFilter=f||curFilter;
+  const rRows=ROWS.filter(r=>r.round===curRound);
+
+  // 통계 카운트 갱신
+  const cnt={
+    all: rRows.length,
+    miss: rRows.filter(r=>r.tag.includes('miss')).length,
+    ng: rRows.filter(r=>r.tag.includes('ng')).length,
+    nofb: rRows.filter(r=>r.tag.includes('nofb')).length,
+    dup: rRows.filter(r=>r.dup).length,
+    sel: rRows.filter(r=>r.sel==='선발').length,
+  };
+  ['all','miss','ng','dup','sel'].forEach(k=>{const e=document.getElementById('stat-'+k);if(e)e.textContent=cnt[k];});
+  ['all','miss','ng','nofb','dup','sel'].forEach(k=>{const e=document.getElementById('cnt-'+k);if(e)e.textContent=cnt[k];});
+
+  // 구분 필터 select 채우기 (한 번만)
+  const catSel=document.getElementById('list-cat-filter');
+  if(catSel && catSel.options.length<=1){
+    const cats=[...new Set(rRows.map(r=>r.cat))];
+    cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
   }
+
+  // 필터 적용
+  let rows = curFilter==='all' ? rRows
+           : curFilter==='dup' ? rRows.filter(r=>r.dup)
+           : rRows.filter(r=>r.tag.includes(curFilter));
+
+  // 구분 필터
+  const catVal = catSel ? catSel.value : '';
+  if(catVal) rows = rows.filter(r=>r.cat===catVal);
+
+  // 검색어
+  const q = (document.getElementById('list-search')?.value||'').trim().toLowerCase();
+  if(q) rows = rows.filter(r=>
+    (r.name||'').toLowerCase().includes(q) ||
+    (r.phone||'').includes(q) ||
+    (r.school||'').toLowerCase().includes(q) ||
+    (r.univ||'').toLowerCase().includes(q)
+  );
+
+  const wrap=document.getElementById('list-wrap');
+  if(!rows.length){wrap.innerHTML='<div style="text-align:center;padding:28px;color:var(--tx3)">해당 항목 없음</div>';return;}
+  wrap.innerHTML=`<table class="tbl" style="table-layout:auto;width:100%;white-space:nowrap"><thead><tr><th style="width:36px">#</th><th>이름</th><th>출신교/추천</th><th>입학대학</th><th>구분</th><th>1차수령</th><th>2차검토</th><th>피드백</th><th>선발</th><th>은행</th><th>계좌번호</th><th>예금주</th><th>참석여부</th></tr></thead><tbody>`
+  +rows.map((r,idx)=>`<tr class="clk" data-id="${r.id}" onclick="goDetail(this)">
+    <td style="color:var(--tx3)">${idx+1}</td>
+    <td>
+      <strong>${r.name}</strong>${r.dup?'<span class="bdg warn" style="font-size:9px;margin-left:4px">⚠중복</span>':''}
+      <br><span style="font-size:11px;color:var(--tx3)">${r.phone}</span>
+      <br><span style="font-size:11px;color:var(--tx3)">${r.birth||''}</span>
+    </td>
+    <td style="font-size:12px;color:var(--tx2)">${r.school||''}</td>
+    <td style="font-size:12px;color:var(--tx2)">${r.univ||''}</td>
+    <td><span class="bdg bl" style="font-size:10px">${r.cat}</span></td>
+    <td style="font-size:12px;font-weight:700;color:${r.s1==='0/9'?'var(--o)':r.s1.includes('미수령')?'var(--o)':'var(--g)'}">${r.s1}</td>
+    <td style="font-size:12px;font-weight:700;color:${r.s2.includes('부적격')?'var(--r)':r.s2==='대기'?'var(--tx3)':'var(--g)'}">${r.s2}</td>
+    <td><span class="bdg ${r.fb==='완료'?'ok':'pt'}" style="font-size:10px">${r.fb}</span></td>
+    <td><span class="bdg ${r.sel==='선발'?'ok':'gray'}" style="font-size:10px">${r.sel}</span></td>
+    <td style="font-size:11px;color:var(--tx2)">${r.bank||''}</td>
+    <td style="font-size:11px;color:var(--tx2)">${r.acct||''}</td>
+    <td style="font-size:11px;color:var(--tx2)">${r.acctHolder||''}</td>
+    <td style="font-size:11px;color:var(--tx2)">${r.attend||''}</td>
+  </tr>`).join('')+'</tbody></table>';
+}
+
+function setTab(f){
+  requestAnimationFrame(()=>initColResize(document.querySelector('#list-wrap .tbl')));
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.toggle('on',t.dataset.f===f));
+  renderList(f);
+}
+
+function goDetail(el){
+  const id=parseInt(el.closest('tr').dataset.id);
+  curDetail=ROWS.find(function(r){return r.id===id;})||null;
+  if(!curDetail)return;
+  editMode=false;
+  document.getElementById('det-title').textContent=curDetail.name+' · 서류검토 및 피드백';
+  const dupBadge=document.getElementById('det-dup-badge');
+  if(dupBadge)dupBadge.innerHTML=curDetail.dup?'<span class="bdg warn"><i class="ti ti-alert-triangle" style="font-size:11px"></i> 중복의심</span>':'';
+  renderDetail(curDetail);
+  go('detail');
+}
+
+// 서류 상태 저장소 (앱 ID → 서류별 상태)
+const DS={};
+const DOC_NAMES=['장학금 신청서','개인정보 동의서','주민등록등본','가족관계증명서','재학증명서','성적증명서','건강보험료 납부확인서','자기소개서','계좌사본'];
+const DOC_INIT={};
+
+function getDS(r){
+  if(!DS[r.id]) DS[r.id]=JSON.parse(JSON.stringify(DOC_INIT[r.id]||DOC_NAMES.map(()=>({recv:false,ok:null,reason:''}))));
+  return DS[r.id];
+}
+
+function toggleRecv(rid,di){
+  const d=getDS(curDetail)[di];
+  d.recv=!d.recv;
+  if(!d.recv){d.ok=null;d.reason='';}
+  renderDetail(curDetail);
+}
+function setOk(rid,di,val){
+  const d=getDS(curDetail)[di];
+  d.ok=val;
+  renderDetail(curDetail);
+}
+function setReason(rid,di,val){
+  getDS(curDetail)[di].reason=val;
+  updateFb();
+}
+function updateFb(){
+  const docs=getDS(curDetail);
+  const ng=docs.filter(d=>d.ok==='ng');
+  const miss=docs.filter(d=>!d.recv);
+  const issues=[...ng.map((d,_)=>{const i=docs.indexOf(d);return`· ${DOC_NAMES[i]} — ${d.reason||'부적격'}`}),...miss.map((_,__)=>{const i=docs.indexOf(_);return`· ${DOC_NAMES[i]} — 미제출`;})];
+  const el=document.getElementById('sms-msg');
+  if(el&&issues.length){
+    el.value=`[의왕시인재육성재단]\n안녕하세요, ${curDetail.name} 지원자님.\n\n■ 처리 필요 서류\n${issues.join('\n')}\n\n재발급·제출 후 담당자 이메일로 송부 바랍니다.\n☎ 031-345-2590`;
+  }
+  const cnt=document.getElementById('sms-cnt');
+  if(cnt&&el) cnt.textContent=el.value.length+'자 / 90자 기준';
+}
+
+function renderDetail(r){
+  const el=document.getElementById('det-content');
+  if(!el)return;
+  const docs=getDS(r);
+  const ngDocs=docs.map((d,i)=>({...d,nm:DOC_NAMES[i],i})).filter(d=>d.ok==='ng');
+  const missDocs=docs.map((d,i)=>({...d,nm:DOC_NAMES[i],i})).filter(d=>!d.recv);
+  const allOk=docs.every(d=>d.recv&&d.ok==='ok');
+
+  const docHtml=docs.map((d,i)=>{
+    const nm=DOC_NAMES[i];
+    const cls=d.recv?(d.ok==='ok'?' ok':d.ok==='ng'?' ng':''):' miss';
+    const rSt=d.recv?'var(--g)':'var(--bd)';
+    const rBg=d.recv?'var(--glt)':'var(--wh)';
+    const rTx=d.recv?'var(--g)':'var(--tx3)';
+    const oSt=d.recv&&d.ok==='ok'?'var(--g)':'var(--bd)';
+    const oBg=d.recv&&d.ok==='ok'?'var(--glt)':'var(--wh)';
+    const oTx=d.recv&&d.ok==='ok'?'var(--g)':'var(--tx3)';
+    const nSt=d.recv&&d.ok==='ng'?'var(--r)':'var(--bd)';
+    const nBg=d.recv&&d.ok==='ng'?'var(--rlt)':'var(--wh)';
+    const nTx=d.recv&&d.ok==='ng'?'var(--r)':'var(--tx3)';
+    const op=d.recv?'':'opacity:.3;pointer-events:none;';
+    return `<div class="ds${cls}" style="margin-bottom:5px;align-items:center">
+      <div class="dot"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13px">${nm}</div>
+        ${d.recv&&d.ok==='ng'?`<input type="text" value="${d.reason}" placeholder="부적격 사유" oninput="setReason(${r.id},${i},this.value)" style="margin-top:4px;font-size:12px;padding:3px 7px;border:1px solid #ffcdd2;border-radius:6px;width:95%;outline:none">`:``}
+      </div>
+      <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:10px">
+        <button onclick="toggleRecv(${r.id},${i})"
+          style="padding:4px 10px;border-radius:6px;border:1px solid ${rSt};background:${rBg};color:${rTx};font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+          ${d.recv?'✓ 수령':'미수령'}
+        </button>
+        <div style="width:1px;height:16px;background:var(--bd);margin:0 3px"></div>
+        <button onclick="setOk(${r.id},${i},'ok')"
+          style="padding:4px 10px;border-radius:6px;border:1px solid ${oSt};background:${oBg};color:${oTx};font-size:11px;font-weight:700;cursor:pointer;${op}">
+          ✓ 적격
+        </button>
+        <button onclick="setOk(${r.id},${i},'ng')"
+          style="padding:4px 10px;border-radius:6px;border:1px solid ${nSt};background:${nBg};color:${nTx};font-size:11px;font-weight:700;cursor:pointer;${op}">
+          ✗ 부적격
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const fbIssues=[...ngDocs.map(d=>`· ${d.nm} — ${d.reason||'부적격'}`), ...missDocs.map(d=>`· ${d.nm} — 미제출`)];
+  const fbBody=fbIssues.length
+    ?`[의왕시인재육성재단]\n안녕하세요, ${r.name} 지원자님.\n\n■ 처리 필요 서류\n${fbIssues.join('\n')}\n\n재발급·제출 후 담당자 이메일로 송부 바랍니다.\n☎ 031-345-2590`
+    :`[의왕시인재육성재단]\n안녕하세요, ${r.name} 지원자님.\n서류 검토 결과 이상 없습니다.\n☎ 031-345-2590`;
+
+  const s1txt=missDocs.length?`<span style="color:var(--o);font-weight:700">① 1차 미수령 ${missDocs.length}건</span>`:`<span style="color:var(--g);font-weight:700">① 1차 수령 완료 ✓</span>`;
+  const s2txt=ngDocs.length?`<span style="color:var(--r);font-weight:700">② 부적격 ${ngDocs.length}건</span>`:missDocs.length?`<span style="color:var(--tx3)">② 검토 대기</span>`:`<span style="color:var(--g);font-weight:700">② 2차 완료 ✓</span>`;
+  const s3txt=r.fb==='완료'?`<span style="color:var(--g);font-weight:700">③ 피드백 완료</span>`:fbIssues.length?`<span style="color:var(--o);font-weight:700">③ 피드백 필요</span>`:`<span style="color:var(--tx3)">③ 해당없음</span>`;
+
+  el.innerHTML=`
+    <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r12);padding:12px 16px;margin-bottom:10px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div><div style="font-size:17px;font-weight:800">${r.name}${r.dup?'<span class="bdg warn" style="font-size:10px;margin-left:6px">⚠중복</span>':''}</div>
+      <div style="font-size:12px;color:var(--tx3);margin-top:2px">${r.school||'−'} · ${r.cat} · 생년 ${r.birth||'−'}</div></div>
+      <div style="font-size:13px;color:var(--tx2)">${r.phone||'−'}</div>
+      <span class="bdg ${r.src==='방문'?'bl':'gray'}">${r.src||'미지정'} 접수</span>
+      ${editMode
+        ? `<span style="margin-left:auto;display:flex;gap:6px"><button class="btn solid" onclick="saveInfo()"><i class="ti ti-check"></i> 저장</button><button class="btn" onclick="editMode=false;renderDetail(curDetail)">취소</button></span>`
+        : `<button class="btn" style="margin-left:auto" onclick="editInfo()"><i class="ti ti-edit"></i> 기본정보 수정</button>`}
+    </div>
+    <div class="card" style="margin-bottom:10px;padding:12px 16px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px 16px;font-size:12px">
+        ${editMode ? `
+        <div><span style="color:var(--tx3)">이름</span><br><input id="ei-name" value="${r.name||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">생년월일</span><br><input id="ei-birth" value="${r.birth||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">학생 연락처</span><br><input id="ei-phone" value="${r.phone||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">학부모 연락처</span><br><input id="ei-pphone" value="${r.parentPhone||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">출신교/추천동</span><br><input id="ei-school" value="${r.school||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">입학대학</span><br><input id="ei-univ" value="${r.univ||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">학과/분야</span><br><input id="ei-major" value="${r.major||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">은행</span><br><input id="ei-bank" value="${r.bank||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">계좌번호</span><br><input id="ei-acct" value="${r.acct||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">예금주</span><br><input id="ei-holder" value="${r.acctHolder||''}" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        <div><span style="color:var(--tx3)">참석여부</span><br><select id="ei-attend" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"><option value=""${!r.attend?' selected':''}>미정</option><option value="참석"${r.attend==='참석'?' selected':''}>참석</option><option value="불참석"${r.attend==='불참석'?' selected':''}>불참석</option></select></div>
+        <div style="grid-column:span 2"><span style="color:var(--tx3)">주소</span><br><input id="ei-addr" value="${r.addr||''}" placeholder="도로명 주소" style="width:100%;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;margin-top:2px"></div>
+        ` : `
+        <div><span style="color:var(--tx3)">학생 연락처</span><br><strong>${r.phone||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">학부모 연락처</span><br><strong>${r.parentPhone||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">출신교/추천동</span><br><strong>${r.school||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">입학대학</span><br><strong>${r.univ||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">학과/분야</span><br><strong>${r.major||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">은행</span><br><strong>${r.bank||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">계좌번호</span><br><strong>${r.acct||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">예금주</span><br><strong>${r.acctHolder||'−'}</strong></div>
+        <div><span style="color:var(--tx3)">참석여부</span><br><strong>${r.attend||'−'}</strong></div>
+        <div style="grid-column:span 2"><span style="color:var(--tx3)">주소 ${r.addr?(r.addr.includes('의왕')?'<span class="bdg ok" style="font-size:9px">의왕시 ✓</span>':'<span class="bdg ng" style="font-size:9px">타지역</span>'):''}</span><br><strong>${r.addr||'−'}</strong></div>
+        ${r.extra?`<div style="grid-column:span 3"><span style="color:var(--tx3)">기타</span><br><strong>${r.extra}</strong></div>`:''}
+        `}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:var(--r8);padding:10px 14px;margin-bottom:12px;font-size:13px;flex-wrap:wrap">
+      ${s1txt}<span style="color:var(--bd)">›</span>${s2txt}<span style="color:var(--bd)">›</span>${s3txt}
+      <span class="bdg ${r.sel==='선발'?'ok':'gray'}" style="margin-left:auto">${r.sel}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+      <div class="card" style="margin-bottom:0">
+        <div class="ct">
+          <div class="ct-l">서류 검토</div>
+          <div style="font-size:11px">${ngDocs.length?`<span style="color:var(--r);font-weight:700">부적격 ${ngDocs.length}건</span>`:missDocs.length?`<span style="color:var(--o)">미수령 ${missDocs.length}건</span>`:`<span style="color:var(--g)">전체 완료 ✓</span>`}</div>
+        </div>
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">1차 수령 버튼 → 2차 적격/부적격 선택</div>
+        ${docHtml}
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:10px;border-color:${fbIssues.length?'var(--o)':'var(--bd)'}">
+          <div class="ct">
+            <div class="ct-l">피드백 발송</div>
+            ${fbIssues.length?`<span class="bdg pt">발송 필요 (${fbIssues.length}건)</span>`:'<span class="bdg ok">이상 없음</span>'}
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <div class="fbt on" data-ft="sms" onclick="setFbType(this.dataset.ft,this)"><i class="ti ti-message" style="font-size:12px"></i> 문자</div>
+            <div class="fbt" data-ft="email" onclick="setFbType(this.dataset.ft,this)"><i class="ti ti-mail" style="font-size:12px"></i> 이메일</div>
+            <div class="fbt" data-ft="both" onclick="setFbType(this.dataset.ft,this)">둘 다</div>
+          </div>
+          <div id="sms-area">
+            <input type="text" value="${r.phone}" style="margin-bottom:6px;width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+            <textarea id="sms-msg" rows="6" style="width:100%;padding:9px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;resize:none;line-height:1.7" oninput="const c=document.getElementById('sms-cnt');if(c)c.textContent=this.value.length+'자 / 90자 기준'">${fbBody}</textarea>
+            <div style="text-align:right;font-size:11px;color:var(--tx3);margin-top:3px" id="sms-cnt">${fbBody.length}자 / 90자 기준</div>
+          </div>
+          <div id="email-area" style="display:none">
+            <input type="text" placeholder="수신 이메일" style="margin-bottom:6px;width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+            <textarea rows="7" style="width:100%;padding:9px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;resize:none;line-height:1.7">${fbBody}</textarea>
+          </div>
+          <button class="btn solid" style="width:100%;margin-top:8px;justify-content:center" onclick="markSent()"><i class="ti ti-check"></i> 발송 완료 기록</button>
+          <div style="margin-top:10px;border-top:1px solid var(--bd);padding-top:8px">
+            <div style="font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:5px">발송 이력</div>
+            <div id="fhist-list">${r.fb==='완료'?'<div class="fhist"><i class="ti ti-message"></i><span>문자 · 서류 검토 안내</span><span style="margin-left:auto;font-size:11px;color:var(--tx3)">이전 발송</span></div>':'<div style="font-size:12px;color:var(--tx3)">발송 이력 없음</div>'}</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct"><div class="ct-l">메모</div></div>
+          ${r.dup?'<div style="background:#fffde7;border-radius:var(--r8);padding:8px 11px;font-size:13px;margin-bottom:6px">중복 수혜 검토 필요<div style="font-size:11px;color:var(--tx3);margin-top:2px">자동 메모</div></div>':''}
+          ${ngDocs.length?`<div style="background:var(--rlt);border-radius:var(--r8);padding:8px 11px;font-size:13px;margin-bottom:6px">${ngDocs.map(d=>d.nm+' — '+( d.reason||'부적격')).join('<br>')}<div style="font-size:11px;color:var(--tx3);margin-top:2px">서류 검토 자동 메모</div></div>`:''}
+          <textarea rows="2" placeholder="새 메모 입력..." style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;resize:none"></textarea>
+        </div>
+      </div>
+    </div>`;
+}
+
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  const map={list:0,detail:1,dup:2,pay:3,dash:4,sel:5,excel:6,catmgr:7,appeal:8,report:9,guide:10};
+  document.querySelectorAll('.si').forEach((el,i)=>el.classList.toggle('on',i===map[id]));
+  if(id==='dash') renderDash();
+  if(id==='sel') renderSel();
+  if(id==='pay') renderPay();
+  if(id==='appeal') renderAppeal();
+  if(id==='catmgr') renderCatMgr();
+  if(id==='dup') renderDup();
+  if(id==='report') renderReport();
+}
+
+function renderDash(){
+  const tbody=document.getElementById('dash-cat-tbody');
+  if(!tbody)return;
+  const cats=ROUNDS[0].cats;
+  const rows=ROWS.filter(r=>r.round===0);
+  tbody.innerHTML=cats.map((cat,i)=>{
+    const catRows=rows.filter(r=>r.cat===cat.name);
+    const app=catRows.length;                                   // 접수
+    const selN=catRows.filter(r=>r.sel==='선발').length;        // 선발
+    const tgt=cat.target||0;                                    // 목표
+    const pct=app?Math.round(selN/app*100):0;
+    const diff=tgt?tgt-selN:null;
+    const diffHtml=diff!==null?(diff>0?`<span style="color:var(--r);font-size:11px"> (부족 ${diff})</span>`:diff===0?`<span style="color:var(--g);font-size:11px"> (충족)</span>`:`<span style="color:var(--b);font-size:11px"> (초과 ${Math.abs(diff)})</span>`):'';
+    return `<tr>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx3)">${i===0?'2026년':''}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;font-weight:700">${cat.name}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">${tgt||'−'}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-weight:700">${app}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-weight:700;color:var(--b)">${selN}${diffHtml}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed">${pbar(pct)}</td>
+    </tr>`;
+  }).join('');
+
+  // 상단 요약 카드 갱신 (있으면)
+  const setTxt=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  setTxt('dash-total', rows.length);
+  setTxt('dash-sel', rows.filter(r=>r.sel==='선발').length);
+  setTxt('dash-dup', rows.filter(r=>r.dup).length);
+  setTxt('dash-pay', rows.filter(r=>r.payState==='done').length);
+
+  // 서류·피드백 현황
+  setTxt('dash-doc-ok', rows.filter(r=>r.s1!=='0/9' && !r.s1.includes('미수령') && r.s2==='적격').length);
+  setTxt('dash-doc-miss', rows.filter(r=>r.s1==='0/9' || r.s1.includes('미수령')).length);
+  setTxt('dash-doc-ng', rows.filter(r=>r.s2.includes('부적격')).length);
+  setTxt('dash-fb-ok', rows.filter(r=>r.fb==='완료').length);
+  setTxt('dash-fb-no', rows.filter(r=>r.fb==='미발송').length);
+  setTxt('dash-dup2', rows.filter(r=>r.dup).length);
+}
+
+function renderSel(){
+  const ri=parseInt(document.getElementById('sel-round').value)||0;
+  curRound=ri;
+  const rd=ROUNDS[ri];
+  const rRows=ROWS.filter(r=>r.round===ri);
+  document.getElementById('sel-total').textContent=rRows.length;
+  document.getElementById('sel-cnt').textContent=rRows.filter(r=>r.sel==='선발').length;
+  document.getElementById('sel-no').textContent=rRows.filter(r=>r.sel==='미선발').length;
+  document.getElementById('sel-pend').textContent=rRows.filter(r=>r.sel==='미정').length;
+
+  const content=document.getElementById('sel-content');
+  content.innerHTML=rd.cats.map(cat=>{
+    const catRows=rRows.filter(r=>r.cat===cat.name);
+    if(!catRows.length) return '';
+    const selCnt=catRows.filter(r=>r.sel==='선발').length;
+    const diff=cat.target-selCnt;
+    const diffHtml=diff>0?`<span style="color:var(--r);font-weight:700">부족 ${diff}명</span>`:diff===0?`<span style="color:var(--g);font-weight:700">충족</span>`:`<span style="color:var(--b);font-weight:700">초과 ${Math.abs(diff)}명</span>`;
+    return `<div class="card">
+      <div class="ct">
+        <div class="ct-l">${cat.name}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:12px;color:var(--tx3)">목표 ${cat.target}명 · 현재 선발 ${selCnt}명 · ${diffHtml}</span>
+          <button class="btn" style="font-size:11px;padding:3px 9px;background:var(--glt);color:var(--g);border-color:var(--g)" onclick="bulkSel('${cat.name}','선발')">전체 선발</button>
+          <button class="btn" style="font-size:11px;padding:3px 9px" onclick="bulkSel('${cat.name}','미정')">초기화</button>
+        </div>
+      </div>
+      <div class="scroll-x">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:560px">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">이름</th>
+          <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">학교</th>
+          <th style="padding:7px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">1차</th>
+          <th style="padding:7px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">2차</th>
+          <th style="padding:7px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">피드백</th>
+          <th style="padding:7px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);width:120px">선발 여부</th>
+        </tr></thead>
+        <tbody>${catRows.map(r=>`<tr onclick="goDetail({closest:()=>({dataset:{id:${r.id}}})})">
+          <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed"><strong>${r.name}</strong></td>
+          <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx2)">${r.school}</td>
+          <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px;font-weight:700;color:${r.s1.includes('미수령')?'var(--o)':'var(--g)'}">${r.s1}</td>
+          <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><span class="bdg ${r.s2==='적격'?'ok':r.s2.includes('부적격')?'ng':'gray'}">${r.s2}</span></td>
+          <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><span class="bdg ${r.fb==='완료'?'ok':'pt'}">${r.fb}</span></td>
+          <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+            <select onchange="selChange(this,${r.id})" style="padding:4px 7px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-weight:700;background:${r.sel==='선발'?'var(--glt)':r.sel==='미선발'?'var(--rlt)':'var(--bg)'};color:${r.sel==='선발'?'var(--g)':r.sel==='미선발'?'var(--r)':'var(--tx2)'}">
+              <option value="sel"${r.sel==='선발'?' selected':''}>✓ 선발</option>
+              <option value="no"${r.sel==='미선발'?' selected':''}>✗ 미선발</option>
+              <option value="pending"${r.sel==='미정'?' selected':''}>미정</option>
+            </select>
+          </td>
+        </tr>`).join('')}</tbody>
+      </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selChange(el,id){
+  const v=el.value;
+  const r=ROWS.find(r=>r.id===id);
+  if(r)r.sel=v==='sel'?'선발':v==='no'?'미선발':'미정';
+  el.style.background=v==='sel'?'var(--glt)':v==='no'?'var(--rlt)':'var(--bg)';
+  el.style.color=v==='sel'?'var(--g)':v==='no'?'var(--r)':'var(--tx2)';
+  renderSel();
+}
+function bulkSel(catName, state){
+  const msg = state==='선발' ? `${catName} 구분 전체를 선발 처리할까요?` : `${catName} 구분 선발 상태를 초기화할까요?`;
+  if(!confirm(msg)) return;
+  ROWS.filter(r=>r.round===curRound && r.cat===catName).forEach(r=>r.sel=state);
+  renderSel();
+}
+
+function openModal(){document.getElementById('modal').classList.add('on');}
+
+function registerNew(){
+  // 모달에서 값 읽기
+  const name   = document.getElementById('m-name')?.value.trim();
+  const birth  = document.getElementById('m-birth')?.value.trim();
+  const phone  = document.getElementById('m-phone')?.value.trim();
+  const gphone = document.getElementById('m-gphone')?.value.trim()||'';
+  const school = document.getElementById('m-school')?.value.trim()||'';
+  const univ   = document.getElementById('m-univ')?.value.trim()||'';
+  const major  = document.getElementById('m-major')?.value.trim()||'';
+  const cat    = document.getElementById('m-cat')?.value||'성적우수';
+  const srcEl  = document.querySelector('#modal .sc.on');
+  const src    = srcEl?(srcEl.textContent.trim().includes('이메일')?'이메일':'방문'):'이메일';
+
+  if(!name){alert('이름을 입력해주세요.');return;}
+  if(!phone){alert('연락처를 입력해주세요.');return;}
+
+  // 서류 수령 체크 (체크된 개수)
+  const checked = document.querySelectorAll('#doc-checks .dc.on').length;
+  const total   = document.querySelectorAll('#doc-checks .dc').length;
+  const s1txt   = total===0 ? '0/9' : (checked===total?total+'/'+total:`미수령 ${total-checked}`);
+
+  // 새 접수 데이터
+  const newRow = {
+    id:    ROWS.reduce((m,r)=>Math.max(m,r.id),0)+1,
+    birth: birth,
+    name:  name,
+    phone: phone,
+    parentPhone: gphone,
+    school: school,
+    univ:  univ,
+    major: major,
+    cat:   cat,
+    src:   src,
+    s1:    s1txt,
+    s2:    '대기',
+    fb:    '미발송',
+    sel:   '미정',
+    round: curRound,
+    tag:   checked<total?'miss nofb':'nofb',
+    bank:'', acct:'', acctHolder:'', attend:'', extra:'', addr:document.getElementById('m-addr')?.value.trim()||'',
+    payState:'', cert:false, appeal:null,
+  };
+
+  ROWS.push(newRow);
+
+  // 목록 다시 그리기 (통계 포함 갱신)
+  renderList(curFilter);
+  initColResize(document.querySelector('#list-wrap .tbl'));
+
+  // 모달 닫기 + 입력 초기화
+  closeModal();
+  document.querySelectorAll('#modal input[type=text],#modal input[type=tel],#modal input[type=email],#modal input[type=date]').forEach(el=>el.value='');
+  document.querySelectorAll('#doc-checks .dc').forEach(el=>el.classList.remove('on'));
+
+  // 방금 등록된 행 하이라이트
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('#list-wrap tbody tr');
+    const last=rows[rows.length-1];
+    if(last){
+      last.style.background='#e8f5e9';
+      setTimeout(()=>{last.style.background='';},2000);
+    }
+  },50);
+}
+
+
+function setFbType(t, el){
+  // 버튼 active 상태
+  el.closest('div').querySelectorAll('.fbt').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  // 영역 토글
+  const smsEl   = document.getElementById('sms-area');
+  const emailEl = document.getElementById('email-area');
+  if(smsEl)   smsEl.style.display   = (t==='sms'  ||t==='both') ? 'block' : 'none';
+  if(emailEl) emailEl.style.display = (t==='email' ||t==='both') ? 'block' : 'none';
+}
+
+function markSent(){
+  const list = document.getElementById('fhist-list');
+  if(!list) return;
+  const now = new Date();
+  const ts  = (now.getMonth()+1)+'.'+(String(now.getDate()).padStart(2,'0'))+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const type = document.querySelector('.fbt.on')?.textContent.trim()||'문자';
+  list.insertAdjacentHTML('afterbegin',
+    `<div class="fhist"><i class="ti ti-check" style="color:var(--g)"></i><span>${type} · 발송 완료</span><span style="margin-left:auto;font-size:11px;color:var(--g);font-weight:700">${ts}</span></div>`
+  );
+  if(curDetail) curDetail.fb='완료';
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('on');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+function setSrc(el){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+
+// ── 중복 수혜 자동 감지 ──
+function renderDup(){
+  const content=document.getElementById('dup-content');
+  const sumText=document.getElementById('dup-summary-text');
+  if(!content) return;
+  const rows=ROWS.filter(r=>r.round===curRound);
+  const groups=[];
+
+  // 1) 이름+생년월일 동일
+  const byNameBirth={};
+  rows.forEach(r=>{ if(r.name&&r.birth){const k=r.name+'|'+r.birth;(byNameBirth[k]=byNameBirth[k]||[]).push(r);} });
+  Object.values(byNameBirth).filter(g=>g.length>1).forEach(g=>{
+    groups.push({title:'동일인 중복 (이름+생년월일 일치)',color:'var(--r)',members:g,detail:`${g[0].name} · ${g[0].birth}`});
+  });
+
+  // 2) 학부모 연락처 동일 (이름 다름 → 가족 의심)
+  const byParent={};
+  rows.forEach(r=>{ const p=(r.parentPhone||'').replace(/[^0-9]/g,''); if(p&&p.length>=10){(byParent[p]=byParent[p]||[]).push(r);} });
+  Object.values(byParent).filter(g=>g.length>1).forEach(g=>{
+    if([...new Set(g.map(x=>x.name))].length>1) groups.push({title:'가족 중복 의심 (학부모 연락처 동일)',color:'var(--warn)',members:g,detail:`학부모 연락처: ${g[0].parentPhone}`});
+  });
+
+  // 3) 학생 연락처 동일 (이름 다름)
+  const byPhone={};
+  rows.forEach(r=>{ const p=(r.phone||'').replace(/[^0-9]/g,''); if(p&&p.length>=10){(byPhone[p]=byPhone[p]||[]).push(r);} });
+  Object.values(byPhone).filter(g=>g.length>1).forEach(g=>{
+    if([...new Set(g.map(x=>x.name))].length>1) groups.push({title:'학생 연락처 동일 (다른 이름)',color:'var(--b)',members:g,detail:`학생 연락처: ${g[0].phone}`});
+  });
+
+  ROWS.forEach(r=>r.dup=false);
+  groups.forEach(g=>g.members.forEach(m=>{const t=ROWS.find(x=>x.id===m.id);if(t)t.dup=true;}));
+  // 사이드바 중복 배지 갱신 (실제 중복의심 인원 수)
+  const dupN=ROWS.filter(r=>r.round===curRound && r.dup).length;
+  const sb=document.getElementById('sidebar-dup-badge');
+  if(sb){ sb.textContent=dupN; sb.style.display=dupN?'':'none'; }
+
+  if(sumText){
+    sumText.innerHTML = groups.length
+      ? `<strong>${groups.length}건의 중복 의심 그룹이 있습니다.</strong> 선발 처리 전 직접 확인 후 처리하세요.`
+      : `중복 의심 항목이 없습니다.`;
+    const box=document.getElementById('dup-summary');
+    if(box){ const ok=!groups.length;
+      box.style.background=ok?'var(--glt)':'var(--warnlt)';
+      box.style.borderColor=ok?'var(--g)':'var(--warn)';
+      box.style.color=ok?'var(--g)':'var(--warn)'; }
+  }
+  if(!groups.length){ content.innerHTML='<div style="text-align:center;padding:40px;color:var(--tx3)">✓ 검사 완료 — 중복 의심 항목 없음</div>'; return; }
+
+  content.innerHTML = groups.map((g,gi)=>`
+    <div class="card" style="border-color:${g.color}">
+      <div class="ct">
+        <div class="ct-l"><i class="ti ti-alert-triangle" style="color:${g.color}"></i> ${g.title}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" style="font-size:11px;padding:4px 9px;background:var(--rlt);color:var(--r);border-color:#ffcdd2" onclick="resolveDup(${gi},'반려')">반려 처리</button>
+          <button class="btn" style="font-size:11px;padding:4px 9px;background:var(--glt);color:var(--g);border-color:var(--g)" onclick="resolveDup(${gi},'해제')">확인 후 해제</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:10px;padding:8px 10px;background:var(--bg);border-radius:var(--r8)">${g.detail}</div>
+      <div class="scroll-x">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:560px">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:7px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--bd)">이름</th>
+          <th style="padding:7px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--bd)">생년월일</th>
+          <th style="padding:7px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--bd)">구분</th>
+          <th style="padding:7px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--bd)">학생연락처</th>
+          <th style="padding:7px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--bd)">학부모연락처</th>
+          <th style="padding:7px 10px;text-align:center;font-weight:700;border-bottom:1px solid var(--bd)">상세</th>
+        </tr></thead>
+        <tbody>${g.members.map(m=>`<tr>
+          <td style="padding:7px 10px;border-bottom:.5px solid #edf2ed"><strong>${m.name}</strong></td>
+          <td style="padding:7px 10px;border-bottom:.5px solid #edf2ed">${m.birth||'−'}</td>
+          <td style="padding:7px 10px;border-bottom:.5px solid #edf2ed"><span class="bdg bl" style="font-size:10px">${m.cat}</span></td>
+          <td style="padding:7px 10px;border-bottom:.5px solid #edf2ed">${m.phone||'−'}</td>
+          <td style="padding:7px 10px;border-bottom:.5px solid #edf2ed">${m.parentPhone||'−'}</td>
+          <td style="padding:7px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:3px 8px" onclick="curDetail=ROWS.find(x=>x.id===${m.id});document.getElementById('det-title').textContent=curDetail.name+' · 서류검토 및 피드백';renderDetail(curDetail);go('detail')">보기</button></td>
+        </tr>`).join('')}</tbody>
+      </table>
+      </div>
+    </div>`).join('');
+}
+function resolveDup(gi,action){
+  alert(action==='해제'?'중복 의심을 해제했습니다.':'해당 그룹을 반려 처리했습니다.');
+  renderDup(); renderList(curFilter);
+}
+
+function checkDup(){
+  const name=document.getElementById('m-name')?.value.trim()||'';
+  const birth=document.getElementById('m-birth')?.value.trim()||'';
+  const phone=(document.getElementById('m-phone')?.value||'').replace(/[^0-9]/g,'');
+  const gphone=(document.getElementById('m-gphone')?.value||'').replace(/[^0-9]/g,'');
+  const dup=document.getElementById('modal-dup');
+  const rowsEl=document.getElementById('modal-dup-rows');
+  if(!dup||!rowsEl)return;
+  let items=[];
+  // 이름+생년월일 일치
+  if(name&&birth){
+    const hit=ROWS.find(r=>r.name===name&&r.birth===birth);
+    if(hit) items.push(`<div class="modal-dup-row"><span class="dup-type self" style="display:inline-block;margin-bottom:4px">동일인 의심</span><br><strong>${name}</strong>(${birth}) — 이미 등록된 동일 인적사항이 있습니다</div>`);
+  }
+  // 학부모 연락처 일치 (다른 이름)
+  if(gphone&&gphone.length>=10){
+    const hit=ROWS.find(r=>(r.parentPhone||'').replace(/[^0-9]/g,'')===gphone && r.name!==name);
+    if(hit) items.push(`<div class="modal-dup-row"><span class="dup-type family" style="display:inline-block;margin-bottom:4px">가족 의심</span><br>학부모 연락처가 <strong>${hit.name}</strong>(${hit.cat})와 동일합니다</div>`);
+  }
+  // 학생 연락처 일치 (다른 이름)
+  if(phone&&phone.length>=10){
+    const hit=ROWS.find(r=>(r.phone||'').replace(/[^0-9]/g,'')===phone && r.name!==name);
+    if(hit) items.push(`<div class="modal-dup-row"><span class="dup-type phone" style="display:inline-block;margin-bottom:4px">연락처 중복</span><br>학생 연락처가 <strong>${hit.name}</strong>와 동일합니다</div>`);
+  }
+  if(items.length){dup.classList.add('on');rowsEl.innerHTML=items.join('');}
+  else{dup.classList.remove('on');rowsEl.innerHTML='';}
+}
+
+// 엑셀 시트 데이터 생성
+function buildSheets(){
+  const rows=ROWS.filter(r=>r.round===curRound);
+  const sheets={};
+  // 기본 정보
+  sheets.basic={name:'기본정보', cols:['연번','이름','생년월일','구분','출신교/추천동','입학대학','학과/분야','학생연락처','학부모연락처','기타'],
+    data:rows.map((r,i)=>[i+1,r.name,r.birth,r.cat,r.school,r.univ,r.major,r.phone,r.parentPhone,r.extra||''])};
+  // 계좌 정보
+  sheets.account={name:'계좌정보', cols:['연번','이름','구분','은행','계좌번호','예금주','참석여부'],
+    data:rows.map((r,i)=>[i+1,r.name,r.cat,r.bank,r.acct,r.acctHolder,r.attend])};
+  // 서류 검토
+  sheets.doc={name:'서류검토', cols:['연번','이름','구분','1차수령','2차검토','피드백'],
+    data:rows.map((r,i)=>[i+1,r.name,r.cat,r.s1,r.s2,r.fb])};
+  // 선발 명단
+  sheets.sel={name:'선발명단', cols:['연번','이름','생년월일','구분','학생연락처','선발여부'],
+    data:rows.filter(r=>r.sel==='선발').map((r,i)=>[i+1,r.name,r.birth,r.cat,r.phone,r.sel])};
+  // 지급 현황
+  const payState={done:'지급완료',wait:'지급대기',error:'반송',''  :'미정'};
+  sheets.pay={name:'지급현황', cols:['연번','이름','구분','은행','계좌번호','예금주','지급상태','지급일','장학증서'],
+    data:rows.filter(r=>r.sel==='선발').map((r,i)=>[i+1,r.name,r.cat,r.bank,r.acct,r.acctHolder,payState[r.payState||'']||'미정',r.payDate||'',r.cert?'발급':'미발급'])};
+  return sheets;
+}
+
+function getSelectedSheets(){
+  const checked=[...document.querySelectorAll('.xl-sheet:checked')].map(c=>c.value);
+  return checked.length?checked:['basic'];
+}
+
+function showXl(){
+  const sheets=buildSheets();
+  const sel=getSelectedSheets();
+  const body=document.getElementById('xl-preview-body');
+  document.getElementById('xl-preview').style.display='block';
+  // 탭 + 첫 시트 미리보기
+  let html='<div class="xl-tabs" style="margin-bottom:8px">';
+  sel.forEach((s,i)=>{ html+=`<div class="xlt${i===0?' on':''}" onclick="previewSheet('${s}',this)">${sheets[s].name}</div>`; });
+  html+='</div><div id="xl-preview-table"></div>';
+  body.innerHTML=html;
+  previewSheet(sel[0]);
+  document.getElementById('xl-preview').scrollIntoView({behavior:'smooth'});
+}
+
+function previewSheet(key,el){
+  const sheets=buildSheets();
+  const s=sheets[key];
+  if(!s) return;
+  document.querySelectorAll('#xl-preview-body .xlt').forEach(t=>t.classList.remove('on'));
+  if(el) el.classList.add('on');
+  const head='<div class="xl-hdr">'+s.cols.map(c=>`<div class="xl-c" style="min-width:90px">${c}</div>`).join('')+'</div>';
+  const body=s.data.slice(0,5).map(row=>'<div class="xl-row">'+row.map(c=>`<div class="xl-c" style="min-width:90px">${c==null?'':c}</div>`).join('')+'</div>').join('');
+  document.getElementById('xl-preview-table').innerHTML=
+    `<div class="xl"><div class="xl-title">의왕시인재육성재단 | 2026년 | ${s.name}</div>${head}${body}</div>`
+    +`<div style="font-size:11px;color:var(--tx3);margin-top:6px">전체 ${s.data.length}건 중 상위 5건 미리보기</div>`;
+}
+
+function doExport(){
+  if(typeof XLSX==='undefined'){alert('엑셀 모듈 로딩 중입니다. 잠시 후 다시 시도해주세요.');return;}
+  const sheets=buildSheets();
+  const sel=getSelectedSheets();
+  const wb=XLSX.utils.book_new();
+  sel.forEach(key=>{
+    const s=sheets[key];
+    const aoa=[s.cols, ...s.data];
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols']=s.cols.map(()=>({wch:14}));
+    XLSX.utils.book_append_sheet(wb, ws, s.name);
+  });
+  const today=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `의왕시인재육성재단_장학생_${today}.xlsx`);
+}
+
+
+function searchAppeal(q){
+  const res=document.getElementById('appeal-results');
+  const sel=document.getElementById('appeal-selected');
+  if(!q.trim()){res.style.display='none';return;}
+  const found=ROWS.filter(r=>r.name.includes(q)||r.phone.includes(q));
+  if(!found.length){
+    res.innerHTML='<div style="padding:10px 12px;font-size:13px;color:var(--tx3)">검색 결과 없음</div>';
+    res.style.display='block';return;
+  }
+  res.style.display='block';
+  res.innerHTML=found.map(r=>`<div onclick="selectAppeal(${r.id})" style="padding:10px 12px;cursor:pointer;border-bottom:.5px solid var(--bd);font-size:13px" onmouseover="this.style.background='var(--glt)'" onmouseout="this.style.background=''">
+    <strong>${r.name}</strong> <span style="font-size:11px;color:var(--tx3)">${r.phone}</span>
+    <br><span style="font-size:11px;color:var(--tx3)">${r.cat} · ${r.school}</span>
+    ${r.sel==='미선발'?'<span class="bdg ng" style="font-size:10px;margin-left:4px">미선발</span>':''}
+  </div>`).join('');
+}
+function selectAppeal(id){
+  const r=ROWS.find(r=>r.id===id);if(!r)return;
+  document.getElementById('appeal-search').value=r.name+' '+r.phone;
+  document.getElementById('appeal-results').style.display='none';
+  document.getElementById('appeal-selected').style.display='block';
+  document.getElementById('appeal-selected-name').textContent=r.name+' ('+r.cat+')';
+  document.getElementById('appeal-selected-info').textContent=r.phone+' · '+r.school+' · 선발: '+r.sel;
+}
+
+
+function initColResize(tableSelector){
+  const tbl = typeof tableSelector === 'string'
+    ? document.querySelector(tableSelector)
+    : (tableSelector || document.querySelector('#list-wrap .tbl'));
+  if(!tbl) return;
+  const ths = tbl.querySelectorAll('th');
+  ths.forEach(th=>{
+    if(th.querySelector('.col-resizer')) return;
+    const r = document.createElement('div');
+    r.className = 'col-resizer';
+    th.appendChild(r);
+    let startX, startW;
+    r.addEventListener('mousedown', e=>{
+      startX=e.clientX; startW=th.offsetWidth;
+      r.classList.add('active');
+      const onMove = e2=>{
+        const w = Math.max(40, startW + e2.clientX - startX);
+        th.style.width = w + 'px';
+        th.style.minWidth = w + 'px';
+      };
+      const onUp = ()=>{
+        r.classList.remove('active');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      e.preventDefault();
+    });
+  });
+}
+
+
+// ── 지급관리 렌더링 ──
+function renderPay(){
+  const val=document.getElementById('pay-round').value;
+  const ri=val==='all'?null:parseInt(val);
+  const rows=ri===null?ROWS.filter(r=>r.sel==='선발'):ROWS.filter(r=>r.round===ri&&r.sel==='선발');
+
+  // 요약 카드
+  const stats=document.getElementById('pay-stats');
+  const done=rows.filter(r=>r.payState==='done').length;
+  const wait=rows.filter(r=>!r.payState||r.payState==='wait').length;
+  const err=rows.filter(r=>r.payState==='error').length;
+  if(stats) stats.innerHTML=`
+    <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--g)">${rows.length}</div><div style="font-size:11px;color:var(--tx3)">선발 확정</div></div>
+    <div style="background:var(--glt);border:1.5px solid var(--g);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--g)">${done}</div><div style="font-size:11px;color:var(--g);font-weight:700">지급 완료</div></div>
+    <div style="background:var(--olt);border:1px solid #f5c6b0;border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--o)">${wait}</div><div style="font-size:11px;color:var(--o)">지급 대기</div></div>
+    <div style="background:var(--rlt);border:1px solid #ffcdd2;border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--r)">${err}</div><div style="font-size:11px;color:var(--r)">반송/오류</div></div>`;
+
+  // 테이블
+  const tbody=document.getElementById('pay-tbody');
+  if(!tbody) return;
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--tx3)">선발 확정자가 없습니다</td></tr>';return;}
+
+  tbody.innerHTML=rows.map(r=>{
+    // 구분에서 지급액 찾기
+    let amt=0;
+    ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{if(cat.name===r.cat)amt=cat.amt;}));
+    const fmtAmt=amt?amt.toLocaleString()+'원':'−';
+    const ps=r.payState||'wait';
+    const stateColor=ps==='done'?'var(--g)':ps==='error'?'var(--r)':'var(--tx2)';
+    const stateBg=ps==='done'?'var(--glt)':ps==='error'?'var(--rlt)':'var(--bg)';
+    const certBg=r.cert?'var(--glt)':'var(--bg)';
+    const certColor=r.cert?'var(--g)':'var(--tx2)';
+    const rLabel={0:'2026년'}[r.round]||'2026년';
+    return `<tr>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed">
+        <strong style="cursor:pointer;color:var(--g)" onclick="curDetail=ROWS.find(x=>x.id===${r.id});if(curDetail){document.getElementById('det-title').textContent=curDetail.name+' · 서류검토 및 피드백';renderDetail(curDetail);go('detail')}">${r.name} ↗</strong>
+        <br><span style="font-size:11px;color:var(--tx3)">${r.phone}</span>
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx2)">${r.cat}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;font-size:12px;color:var(--tx3)">${rLabel}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:right;font-weight:700">${fmtAmt}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+        <input type="text" value="${r.acct||''}" placeholder="계좌번호 입력" oninput="ROWS.find(x=>x.id===${r.id}).acct=this.value"
+          style="width:100%;padding:4px 7px;border:1px solid var(--bd);border-radius:6px;font-size:12px;outline:none">
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+        <select onchange="ROWS.find(x=>x.id===${r.id}).payState=this.value;payStateChange(this)"
+          style="padding:4px 7px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-family:inherit;background:${stateBg};color:${stateColor};font-weight:700;width:100%">
+          <option value="wait"${ps==='wait'?' selected':''}>⏳ 지급대기</option>
+          <option value="done"${ps==='done'?' selected':''}>✓ 지급완료</option>
+          <option value="error"${ps==='error'?' selected':''}>✗ 반송</option>
+        </select>
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+        <input type="date" value="${r.payDate||''}" oninput="ROWS.find(x=>x.id===${r.id}).payDate=this.value"
+          style="padding:4px 7px;border:1px solid var(--bd);border-radius:6px;font-size:12px;width:120px">
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+        <select onchange="ROWS.find(x=>x.id===${r.id}).cert=this.value==='1';this.style.background=this.value==='1'?'var(--glt)':'var(--bg)';this.style.color=this.value==='1'?'var(--g)':'var(--tx2)'"
+          style="padding:4px 7px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-family:inherit;background:${certBg};color:${certColor}">
+          <option value="0"${!r.cert?' selected':''}>미발급</option>
+          <option value="1"${r.cert?' selected':''}>✓ 발급</option>
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // 예산 집행 현황
+  const totalAmt=rows.reduce((s,r)=>{let a=0;ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{if(cat.name===r.cat)a=cat.amt;}));return s+a;},0);
+  const doneAmt=rows.filter(r=>r.payState==='done').reduce((s,r)=>{let a=0;ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{if(cat.name===r.cat)a=cat.amt;}));return s+a;},0);
+  const waitAmt=totalAmt-doneAmt;
+  const pct=totalAmt?Math.round(doneAmt/totalAmt*100):0;
+  const tEl=document.getElementById('budget-total');
+  if(tEl)tEl.textContent=totalAmt.toLocaleString()+'원';
+  const dEl=document.getElementById('budget-done');
+  if(dEl)dEl.textContent=doneAmt.toLocaleString()+'원';
+  const wEl=document.getElementById('budget-wait');
+  if(wEl)wEl.textContent=waitAmt.toLocaleString()+'원';
+  const bar=document.getElementById('budget-bar');
+  if(bar)bar.style.width=pct+'%';
+  const pEl=document.getElementById('budget-pct');
+  if(pEl)pEl.textContent=`집행률 ${pct}% — ${doneAmt.toLocaleString()}원 / ${totalAmt.toLocaleString()}원`;
+
+  // 거주지 요건
+  const aw=rows.filter(r=>!r.addr||!r.addr.includes('의왕')).length;
+  const am=rows.filter(r=>!r.addr).length;
+  const aok=rows.length-aw;
+  const aoEl=document.getElementById('addr-ok-cnt');
+  if(aoEl)aoEl.textContent=aok;
+  const anEl=document.getElementById('addr-ng-cnt');
+  if(anEl)anEl.textContent=aw-am;
+  const amEl=document.getElementById('addr-miss-cnt');
+  if(amEl)amEl.textContent=am;
+}
+
+// ── 구분금액관리 렌더링 (ROUNDS 기반) ──
+function renderCatMgr(){
+  const tbody=document.getElementById('cat-tbody');
+  if(!tbody) return;
+  const cats=ROUNDS[0].cats;
+  tbody.innerHTML=cats.map(cat=>{
+    const total=(cat.target||0)*(cat.amt||0);
+    return `<tr>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;font-weight:700;min-width:120px;word-break:keep-all;line-height:1.4">${cat.name}</td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="date" value="2026-03-01" style="padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px"></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="date" value="2026-04-30" style="padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px"></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="number" value="${cat.target||0}" min="0" oninput="calcCatTotal(this.closest('tr'))" style="width:60px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:13px;text-align:center"></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${(cat.amt||0).toLocaleString()}" oninput="fmtAmt(this)" onblur="fmtAmt(this)" style="width:90px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
+      <td class="cat-total" style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:right;font-weight:700;color:var(--g);white-space:nowrap">${total.toLocaleString()}원</td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 9px" onclick="calcCatTotal(this.closest('tr'));alert('저장되었습니다')">저장</button></td>
+    </tr>`;
+  }).join('');
+  updateCatGrandTotal();
+}
+
+// ── 구분금액관리 총예산 자동계산 ──
+function calcCatTotal(row){
+  const numEl=row.querySelector('input[type=number]');
+  const amtEl=row.querySelectorAll('input[type=text]')[0];
+  if(!numEl||!amtEl) return;
+  const n=parseInt(numEl.value)||0;
+  const a=parseInt((amtEl.value||'').replace(/,/g,''))||0;
+  const total=n*a;
+  const totalEl=row.querySelector('.cat-total');
+  if(totalEl) totalEl.textContent=total.toLocaleString()+'원';
+  // ROUNDS 데이터 업데이트
+  const nmEl=row.querySelector('td:first-child');
+  if(nmEl){
+    const nm=nmEl.textContent.trim();
+    ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{
+      if(cat.name===nm){cat.target=n;cat.amt=a;}
+    }));
+  }
+  updateCatGrandTotal();
+}
+function updateCatGrandTotal(){
+  let total=0, cnt=0;
+  document.querySelectorAll('#cat-tbody tr').forEach(row=>{
+    const n=parseInt(row.querySelector('input[type=number]')?.value)||0;
+    const a=parseInt((row.querySelectorAll('input[type=text]')[0]?.value||'').replace(/,/g,''))||0;
+    total+=n*a; cnt+=n;
+  });
+  const el=document.getElementById('cat-grand-total');
+  if(el) el.textContent=total.toLocaleString()+'원';
+  const ce=document.getElementById('cat-grand-cnt');
+  if(ce) ce.textContent=cnt+'명';
+}
+function fmtAmt(el){
+  const v=el.value.replace(/,/g,'');
+  if(!isNaN(v)&&v) el.value=parseInt(v).toLocaleString();
+  const row=el.closest('tr');
+  if(row) calcCatTotal(row);
+}
+
+function payStateChange(el){
+  const v=el.value;
+  el.style.background=v==='done'?'var(--glt)':v==='error'?'var(--rlt)':'var(--bg)';
+  el.style.color=v==='done'?'var(--g)':v==='error'?'var(--r)':'var(--tx2)';
+}
+function editInfo(){ editMode=true; renderDetail(curDetail); }
+function saveInfo(){
+  const r=curDetail; if(!r) return;
+  const v=id=>document.getElementById(id)?.value.trim();
+  r.name=v('ei-name')||r.name;
+  r.birth=v('ei-birth');
+  r.phone=v('ei-phone');
+  r.parentPhone=v('ei-pphone');
+  r.school=v('ei-school');
+  r.univ=v('ei-univ');
+  r.major=v('ei-major');
+  r.bank=v('ei-bank');
+  r.acct=v('ei-acct');
+  r.acctHolder=v('ei-holder');
+  r.attend=document.getElementById('ei-attend')?.value||'';
+  r.addr=v('ei-addr');
+  editMode=false;
+  document.getElementById('det-title').textContent=r.name+' · 서류검토 및 피드백';
+  renderDetail(r);
+  renderDup();        // 연락처 변경 시 중복 재검사
+  alert('기본정보가 저장되었습니다.');
+}
+function docOk(btn){ var ds=btn.closest('.ds'); if(ds){ds.className='ds ok'; ds.querySelector('.dot').className='dot ok';} }
+function docNg(btn){ var ds=btn.closest('.ds'); if(ds){ds.className='ds ng'; ds.querySelector('.dot').className='dot ng';} }
+
+function switchReport(n){
+  [1,2,3].forEach(function(i){
+    var r=document.getElementById('rpt'+i);
+    var t=document.getElementById('rt'+i);
+    if(r) r.style.display=i===n?'block':'none';
+    if(t) t.classList.toggle('on',i===n);
+  });
+}
+
+function renderReport(){
+  const rows=ROWS.filter(r=>r.round===0);
+  const cats=ROUNDS[0].cats;
+  const total=rows.length;
+  const selRows=rows.filter(r=>r.sel==='선발');
+  const selCnt=selRows.length;
+  // 지급 총액: 선발자 구분별 1인지급액 합산
+  const totalAmt=selRows.reduce((s,r)=>{let a=0;cats.forEach(c=>{if(c.name===r.cat)a=c.amt||0;});return s+a;},0);
+
+  const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  setT('rpt-total', total+'명');
+  setT('rpt-sel', selCnt+'명');
+  setT('rpt-amt', totalAmt.toLocaleString()+'원');
+
+  // 구분별 표
+  const tb=document.getElementById('rpt-cat-tbody');
+  if(tb){
+    let rowsHtml='';
+    cats.forEach((c,i)=>{
+      const catRows=rows.filter(r=>r.cat===c.name);
+      const app=catRows.length;
+      const sel=catRows.filter(r=>r.sel==='선발').length;
+      const rate=app?Math.round(sel/app*100)+'%':'−';
+      const amt=sel?(sel*(c.amt||0)).toLocaleString()+'원':'미정';
+      rowsHtml+=`<tr${i%2?' style="background:var(--bg)"':''}>
+        <td style="padding:8px 10px;border:1px solid var(--bd)">${c.name}</td>
+        <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center">${c.target}</td>
+        <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center">${app}</td>
+        <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">${sel}</td>
+        <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center">${rate}</td>
+        <td style="padding:8px 10px;border:1px solid var(--bd);text-align:right">${amt}</td>
+      </tr>`;
+    });
+    const totTarget=cats.reduce((s,c)=>s+c.target,0);
+    rowsHtml+=`<tr style="background:#e8f5e9">
+      <td style="padding:8px 10px;border:1px solid var(--bd);font-weight:700">합계</td>
+      <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">${totTarget}</td>
+      <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">${total}</td>
+      <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700;color:var(--g)">${selCnt}</td>
+      <td style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">${total?Math.round(selCnt/total*100)+'%':'−'}</td>
+      <td style="padding:8px 10px;border:1px solid var(--bd);text-align:right;font-weight:700">${totalAmt?totalAmt.toLocaleString()+'원':'미정'}</td>
+    </tr>`;
+    tb.innerHTML=rowsHtml;
+  }
+
+  // 연간 수혜 현황 (2026년 실데이터)
+  const tb3=document.getElementById('rpt3-tbody');
+  if(tb3){
+    const rate=total?Math.round(selCnt/total*100)+'%':'−';
+    tb3.innerHTML=`<tr><td style="padding:8px 10px;border:1px solid var(--bd);font-weight:700">2026년</td><td style="padding:8px 10px;border:1px solid var(--bd);text-align:center">${total}</td><td style="padding:8px 10px;border:1px solid var(--bd);text-align:center;color:var(--g);font-weight:700">${selCnt}</td><td style="padding:8px 10px;border:1px solid var(--bd);text-align:right">${totalAmt?totalAmt.toLocaleString()+'원':'미정'}</td><td style="padding:8px 10px;border:1px solid var(--bd);text-align:center">${rate}</td></tr>`;
+  }
+}
+
+
+const APPEALS=[];
+
+function renderAppeal() {
+  const tbody = document.getElementById('appeal-tbody');
+  if(!tbody) return;
+  const stats = {검토중:0, 인용:0, 처리완료:0, 기각:0};
+  APPEALS.forEach(a=> { if(stats[a.status]!==undefined) stats[a.status]++; });
+  // 요약 카드 업데이트
+  const cards = document.querySelectorAll('#appeal-stat-cards > div > div:first-child');
+  if(cards.length>=4){
+    cards[0].textContent = APPEALS.length;
+    cards[1].textContent = stats['검토중'];
+    cards[2].textContent = stats['인용'] + stats['처리완료'];
+    cards[3].textContent = stats['기각'];
+  }
+  if(!APPEALS.length){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--tx3)">접수된 이의신청이 없습니다</td></tr>'; return; }
+  tbody.innerHTML = APPEALS.map(a => {
+    const stCls = a.status==='검토중'?'pt':a.status==='인용'||a.status==='처리완료'?'ok':'ng';
+    const isPending = a.status==='검토중';
+    return `<tr style="${isPending?'background:#fffde7':''}">
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed">
+        <strong>${a.name}</strong><br>
+        <span style="font-size:11px;color:var(--tx3)">${a.phone}</span>
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${a.cat}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">
+        <div style="font-weight:700;margin-bottom:2px">${a.type}</div>
+        <div style="color:var(--tx3);font-size:11px">${a.reason}</div>
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center;font-size:12px">${a.date}</td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+        <span class="bdg ${stCls}">${a.status}</span>
+        ${a.result?`<div style="font-size:10px;color:var(--tx3);margin-top:2px">${a.result}</div>`:''}
+      </td>
+      <td style="padding:9px 10px;border-bottom:.5px solid #edf2ed;text-align:center">
+        ${isPending
+          ? `<div style="display:flex;gap:4px;justify-content:center">
+              <button class="btn" style="font-size:11px;padding:4px 9px;background:var(--glt);color:var(--g);border-color:var(--g)" onclick="resolveAppeal(${a.id},'인용')">인용</button>
+              <button class="btn" style="font-size:11px;padding:4px 9px;background:var(--rlt);color:var(--r);border-color:#ffcdd2" onclick="resolveAppeal(${a.id},'기각')">기각</button>
+            </div>`
+          : `<button class="btn" style="font-size:11px;padding:4px 9px" onclick="viewAppealDetail(${a.id})">이력 보기</button>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function resolveAppeal(id, decision){
+  const a = APPEALS.find(x=>x.id===id);
+  if(!a) return;
+  const reason = prompt(
+    decision==='인용'
+      ? '인용 처리합니다. 조치 내용을 입력하세요:'
+      : '기각 처리합니다. 기각 사유를 입력하세요:',
+    decision==='인용' ? '서류 보완 기회 부여' : '선발 기준 미충족'
+  );
+  if(reason===null) return; // 취소
+  a.status = decision==='인용' ? '인용' : '기각';
+  a.result = reason;
+  a.handler = '담당자';
+  // ROWS 연동 - 인용 시 해당 접수자 이의신청 상태 업데이트
+  const r = ROWS.find(x=>x.id===a.appId);
+  if(r) r.appeal = decision==='인용' ? '인용' : '기각';
+  renderAppeal();
+  renderList(curFilter);
+  alert(`${a.name} 지원자 이의신청이 ${a.status} 처리되었습니다.`);
+}
+
+function viewAppealDetail(id){
+  const a = APPEALS.find(x=>x.id===id);
+  if(!a) return;
+  alert(`[이의신청 이력]\n신청자: ${a.name}\n유형: ${a.type}\n사유: ${a.reason}\n결과: ${a.status} — ${a.result}\n처리자: ${a.handler}`);
+}
+
+// ── 엑셀 가져오기 ──
+function cellStr(v){ return v==null ? '' : String(v).trim(); }
+function birth8(v){
+  const s = String(v==null?'':v).replace(/[.\-/ ]/g,'');
+  return s.length>=8 ? s.slice(0,8) : s;
+}
+function normAttend(v){
+  const s = cellStr(v);
+  if(!s) return '';
+  if(/불참|미참|결석|불참석/.test(s)) return '불참석';
+  if(/참석|참|출석/.test(s)) return '참석';
+  return s;
+}
+
+// 시트별 컬럼 매핑 정의 (인덱스 0부터) — 기초자료 헤더 전체 반영
+const IMPORT_MAP = {
+  '성적우수': {cat:'성적우수',
+    map:r=>({birth:birth8(r[3]),name:cellStr(r[2]),phone:cellStr(r[6]),parentPhone:cellStr(r[7]),
+      school:cellStr(r[1]),univ:cellStr(r[4]),major:cellStr(r[5]),
+      bank:cellStr(r[8]),acct:cellStr(r[9]),acctHolder:cellStr(r[10]),attend:normAttend(r[11]),extra:''})},
+  '성적우수(저소득층)': {cat:'성적우수(저소득층)',
+    map:r=>({birth:birth8(r[3]),name:cellStr(r[2]),phone:cellStr(r[6]),parentPhone:cellStr(r[7]),
+      school:cellStr(r[1]),univ:cellStr(r[4]),major:cellStr(r[5]),
+      bank:cellStr(r[8]),acct:cellStr(r[9]),acctHolder:cellStr(r[10]),attend:normAttend(r[11]),extra:''})},
+  '기숙사 장학생': {cat:'기숙사 장학생',
+    map:r=>({birth:birth8(r[3]),name:cellStr(r[2]),phone:cellStr(r[5]),parentPhone:cellStr(r[6]),
+      school:cellStr(r[1]),univ:'',major:'',
+      bank:cellStr(r[7]),acct:cellStr(r[8]),acctHolder:cellStr(r[9]),attend:normAttend(r[10]),
+      extra:cellStr(r[4])?('입소일: '+cellStr(r[4])):''})},
+  '체육특기': {cat:'체육특기',
+    map:r=>({birth:birth8(r[2]),name:cellStr(r[1]),phone:cellStr(r[4]),parentPhone:cellStr(r[5]),
+      school:cellStr(r[3]),univ:'',major:cellStr(r[3]),
+      bank:cellStr(r[7]),acct:cellStr(r[8]),acctHolder:cellStr(r[9]),attend:normAttend(r[10]),
+      extra:cellStr(r[6])?('비고: '+cellStr(r[6])):''})},
 };
 
-// 고등부/초등부 여부 판단 (생년월일 선택사항)
-function isJunior(catName){return /고등|초등|중등|특기/.test(catName);}
-
-function getDefaultSettings(){
-  return{rounds:[{
-    id:'r-2026-spring',label:'2026년 상반기',
-    categories:[
-      {id:'c-uni-hope',name:'대학부 희망드림',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[
-        {id:'d1',name:'장학금 신청서',req:true,desc:'재단 양식 사용'},
-        {id:'d2',name:'개인정보 수집·이용 동의서',req:true,desc:'재단 양식 사용'},
-        {id:'d3',name:'주민등록등본',req:true,desc:'정부24 발급 (3개월 이내)'},
-        {id:'d4',name:'가족관계증명서',req:true,desc:'정부24 발급 (3개월 이내)'},
-        {id:'d5',name:'재학증명서',req:true,desc:'학교 교무처 발급'},
-        {id:'d6',name:'성적증명서',req:true,desc:'최근 2개 학기'},
-        {id:'d7',name:'건강보험료 납부확인서',req:true,desc:'국민건강보험공단'},
-        {id:'d8',name:'자기소개서',req:true,desc:'재단 양식 사용'},
-        {id:'d9',name:'계좌사본',req:true,desc:'본인 명의 통장'},
-      ]},
-      {id:'c-high-grade',name:'고등부 성적우수',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[
-        {id:'d1',name:'장학금 신청서',req:true,desc:'재단 양식 사용'},
-        {id:'d2',name:'개인정보 수집·이용 동의서',req:true,desc:'재단 양식 사용'},
-        {id:'d3',name:'주민등록등본',req:true,desc:'정부24 발급 (3개월 이내)'},
-        {id:'d4',name:'가족관계증명서',req:true,desc:'정부24 발급 (3개월 이내)'},
-        {id:'d5',name:'재학증명서',req:true,desc:'학교 교무처 발급'},
-        {id:'d6',name:'성적증명서',req:true,desc:'최근 2개 학기'},
-        {id:'d7',name:'건강보험료 납부확인서',req:true,desc:'국민건강보험공단'},
-        {id:'d8',name:'자기소개서',req:true,desc:'재단 양식 사용'},
-        {id:'d9',name:'계좌사본',req:true,desc:'본인 명의 통장'},
-      ]},
-      {id:'c-high-welfare',name:'고등부 복지',startDate:'2026-05-02',endDate:'2026-05-20',endTime:'18:00',docs:[
-        {id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},
-        {id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},
-        {id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},
-        {id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'수급자(차상위) 확인서',req:true,desc:'해당 기관 발급'},
-        {id:'d9',name:'자기소개서',req:true},{id:'d10',name:'계좌사본',req:true},
-      ]},
-      {id:'c-high-virtue',name:'고등부 효행·선행',startDate:'2026-06-01',endDate:'2026-06-15',endTime:'18:00',docs:[
-        {id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},
-        {id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},
-        {id:'d5',name:'재학증명서',req:true},{id:'d6',name:'추천서',req:true,desc:'담임교사 또는 기관장'},
-        {id:'d7',name:'효행·선행 증빙서류',req:true,desc:'관련 기관 확인서 등'},
-        {id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true},
-      ]},
-      {id:'c-sp-elem',name:'특기 (초등)',startDate:'2026-06-01',endDate:'2026-06-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'재학증명서',req:true},{id:'d5',name:'특기 수상 또는 활동 증빙',req:true},{id:'d6',name:'계좌사본',req:true,desc:'보호자 명의 가능'}]},
-      {id:'c-sp-mid',name:'특기 (중등)',startDate:'2026-06-01',endDate:'2026-06-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'재학증명서',req:true},{id:'d5',name:'특기 수상 또는 활동 증빙',req:true},{id:'d6',name:'계좌사본',req:true}]},
-      {id:'c-sp-high',name:'특기 (고등)',startDate:'2026-06-01',endDate:'2026-06-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'재학증명서',req:true},{id:'d5',name:'특기 수상 또는 활동 증빙',req:true},{id:'d6',name:'계좌사본',req:true}]},
-      {id:'c-sp-uni',name:'특기 (대학)',startDate:'2026-06-01',endDate:'2026-06-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'재학증명서',req:true},{id:'d5',name:'특기 수상 또는 활동 증빙',req:true},{id:'d6',name:'계좌사본',req:true}]},
-    ]
-  },{
-    id:'r-2026-fall',label:'2026년 하반기',
-    categories:[
-      {id:'c-uni-fall',name:'대학부 희망드림',startDate:'2026-08-01',endDate:'2026-08-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
-      {id:'c-high-fall',name:'고등부 성적우수',startDate:'2026-08-01',endDate:'2026-08-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'건강보험료 납부확인서',req:true},{id:'d8',name:'자기소개서',req:true},{id:'d9',name:'계좌사본',req:true}]},
-    ]
-  },{
-    id:'r-2026-soho',label:'2026년 소상공인',
-    categories:[
-      {id:'c-soho',name:'소상공인 자녀',startDate:'2026-11-01',endDate:'2026-11-15',endTime:'18:00',docs:[{id:'d1',name:'장학금 신청서',req:true},{id:'d2',name:'개인정보 수집·이용 동의서',req:true},{id:'d3',name:'주민등록등본',req:true},{id:'d4',name:'가족관계증명서',req:true},{id:'d5',name:'재학증명서',req:true},{id:'d6',name:'성적증명서',req:true},{id:'d7',name:'사업자등록증',req:true,desc:'부모 사업자등록증 사본'},{id:'d8',name:'건강보험료 납부확인서',req:true},{id:'d9',name:'자기소개서',req:true},{id:'d10',name:'계좌사본',req:true}]},
-    ]
-  }]};
-}
-function getSettings(){return DB.getSettings()||getDefaultSettings();}
-function parseEnd(d,t){return new Date(`${d}T${t||'23:59'}:00`);}
-function parseStart(d){return new Date(`${d}T00:00:00`);}
-function catStatus(c){const n=new Date();if(n<parseStart(c.startDate))return'soon';if(n>parseEnd(c.endDate,c.endTime))return'closed';return'open';}
-function statusLabel(s){return{open:'접수 중',soon:'접수 예정',closed:'접수 종료'}[s];}
-function fmtDate(d){return`${parseInt(d.slice(5,7))}/${parseInt(d.slice(8,10))}`;}
-function genId(){const n=new Date();return`${String(n.getFullYear()).slice(2)}${String(n.getMonth()+1).padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;}
-
-let curTab='new',selCat=null,upFiles={},supplApp=null,supplFiles={};
-
-function switchTab(t){
-  curTab=t;
-  document.getElementById('tab-new').className='tab'+(t==='new'?' on':'');
-  document.getElementById('tab-supp').className='tab'+(t==='supp'?' on':'');
-  document.getElementById('pane-new').style.display=t==='new'?'':'none';
-  document.getElementById('pane-supp').style.display=t==='supp'?'':'none';
-  if(t==='supp')renderSuppl();
-}
-
-/* 신규 접수 */
-function renderNew(){
-  const pane=document.getElementById('pane-new');
-  if(selCat){renderForm(pane);}else{renderCatList(pane);}
-}
-function renderCatList(pane){
-  const settings=getSettings();
-  const allCats=settings.rounds.flatMap(r=>r.categories.map(c=>({...c,roundLabel:r.label,roundId:r.id})));
-  if(!allCats.length){pane.innerHTML=`<div class="no-open"><div class="ic">📋</div><h3>현재 접수 중인 분야가 없습니다</h3><p>재단 공고를 확인해 주세요.</p></div>`;return;}
-  pane.innerHTML=`<div class="notice"><strong>접수 안내</strong><br>서류는 <strong>PDF 파일</strong>로 항목별 개별 업로드해 주세요.<br>접수 후 발급되는 접수번호를 반드시 저장하세요.</div>
-  ${allCats.map(cat=>{
-    const st=catStatus(cat),ok=st==='open';
-    return`<div class="cat-card${ok?'':' disabled'}" ${ok?`onclick="selectCat('${cat.roundId}','${cat.id}')"`:''}><div><div class="cat-nm">${cat.name}</div><div class="cat-period">${cat.roundLabel} · ${fmtDate(cat.startDate)} ~ ${fmtDate(cat.endDate)} ${cat.endTime||''}까지</div></div><span class="cat-badge ${st}">${statusLabel(st)}</span></div>`;
-  }).join('')}`;
-}
-function selectCat(roundId,catId){
-  const s=getSettings(),r=s.rounds.find(r=>r.id===roundId);
-  selCat={...r.categories.find(c=>c.id===catId),roundId,roundLabel:r.label};
-  upFiles={};renderNew();
-}
-
-function renderForm(pane){
-  const cat=selCat,junior=isJunior(cat.name),req=cat.docs.filter(d=>d.req);
-  const done=req.filter(d=>upFiles[d.id]).length,pct=req.length?Math.round(done/req.length*100):0;
-  pane.innerHTML=`
-  <button class="back-btn" onclick="selCat=null;upFiles={};renderNew()">← 분야 선택</button>
-  <div class="card">
-    <div class="stl">기본 정보</div>
-    <div style="background:var(--glt);border-radius:var(--r8);padding:10px 13px;font-size:13px;font-weight:700;color:var(--g);margin-bottom:12px">${cat.name} · ${cat.roundLabel}</div>
-    <label>이름 <span class="req">*</span></label><input type="text" id="f-name" placeholder="홍길동" maxlength="10">
-    <div class="row2">
-      <div>
-        <label>생년월일${junior?'<span class="opt">(선택)</span>':'<span class="req"> *</span>'}</label>
-        <input type="text" id="f-birth" placeholder="${junior?'990101 (선택입력)':'990101 (6자리)'}" maxlength="8">
-      </div>
-      <div><label>성별 <span class="req">*</span></label><select id="f-gender"><option value="">선택</option><option value="남">남</option><option value="여">여</option></select></div>
-    </div>
-    <label>연락처 <span class="req">*</span></label><input type="tel" id="f-phone" placeholder="010-0000-0000" maxlength="13">
-    <label>이메일</label><input type="email" id="f-email" placeholder="example@email.com">
-    <label>학교명 <span class="req">*</span></label><input type="text" id="f-school" placeholder="○○대학교 / ○○고등학교">
-    <label>학과/학년 <span class="req">*</span></label><input type="text" id="f-dept" placeholder="경영학과 2학년 / 2학년 3반">
-    <label>주소 <span class="req">*</span></label>
-    <div class="addr-row"><input type="text" id="f-addr" placeholder="도로명주소 검색" readonly><button class="addr-btn" onclick="searchAddr()">검색</button></div>
-    <input type="text" id="f-addr-detail" placeholder="상세주소 (동·호수 등)">
-  </div>
-  <div class="card">
-    <div class="stl">보호자 정보</div>
-    <div class="row2">
-      <div><label>보호자 이름 <span class="req">*</span></label><input type="text" id="f-guardian" placeholder="홍판서"></div>
-      <div><label>관계</label><select id="f-relation"><option value="부">부</option><option value="모">모</option><option value="조부">조부</option><option value="조모">조모</option><option value="기타">기타</option></select></div>
-    </div>
-    <label>보호자 연락처</label><input type="tel" id="f-gphone" placeholder="010-0000-0000" maxlength="13">
-  </div>
-  <div class="card">
-    <div class="stl">서류 제출 (PDF 전용)</div>
-    <div class="prog-bar"><div class="prog-fill" id="prog" style="width:${pct}%"></div></div>
-    <div class="prog-txt">필수 서류 ${done} / ${req.length}</div>
-    <div id="doc-list">${cat.docs.map(d=>docHtml(d)).join('')}</div>
-    <div class="pdf-note">⚠ PDF 파일만 첨부 가능합니다 (파일당 최대 10MB)</div>
-  </div>
-  <div class="warn" id="miss-warn"><strong>⚠ 아래 필수 서류가 누락되었습니다</strong><ul id="miss-list"></ul></div>
-  <button class="sbtn" onclick="submitNew()">접수하기</button>
-  <div style="height:30px"></div>`;
-  phone('f-phone');phone('f-gphone');
-}
-
-function docHtml(doc){
-  const ok=upFiles[doc.id];
-  return`<div class="doc-item${ok?' ok':''}" id="di-${doc.id}">
-    <div class="doc-hdr"><div class="doc-nm">${doc.name}${!doc.req?'<span style="font-size:11px;color:var(--tx3);font-weight:400;margin-left:4px">(선택)</span>':''}</div><div class="doc-st${ok?' ok':''}" id="dst-${doc.id}">${ok?'✓ 제출됨':doc.req?'미제출':'-'}</div></div>
-    ${doc.desc?`<div class="doc-desc">${doc.desc}</div>`:''}
-    <label class="up-label" for="fi-${doc.id}">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span id="fbt-${doc.id}">${ok?ok.name:'PDF 파일 선택'}</span>
-    </label>
-    <input type="file" id="fi-${doc.id}" accept=".pdf" onchange="onFile('${doc.id}',this)">
-  </div>`;
-}
-
-function onFile(id,inp){
-  if(!inp.files.length)return;
-  const f=inp.files[0];
-  if(!f.name.toLowerCase().endsWith('.pdf')){alert('PDF 파일만 업로드 가능합니다');inp.value='';return;}
-  if(f.size>10*1024*1024){alert('10MB 이하 파일만 가능합니다');return;}
-  upFiles[id]={name:f.name,file:f};
-  const item=document.getElementById('di-'+id);if(item)item.className='doc-item ok';
-  const dst=document.getElementById('dst-'+id);if(dst){dst.className='doc-st ok';dst.textContent='✓ 제출됨';}
-  const fbt=document.getElementById('fbt-'+id);if(fbt)fbt.textContent=f.name;
-  const req=selCat.docs.filter(d=>d.req),done=req.filter(d=>upFiles[d.id]).length;
-  const p=document.getElementById('prog');if(p)p.style.width=Math.round(done/req.length*100)+'%';
-  const pt=document.querySelector('.prog-txt');if(pt)pt.textContent=`필수 서류 ${done} / ${req.length}`;
-}
-
-function cleanDaum(){
-  setTimeout(function(){
-    document.querySelectorAll('div[id^="__daum__"],iframe[id^="__daum__"]').forEach(function(el){el.remove();});
-    document.body.style.overflow='';
-    document.body.style.paddingRight='';
-  },100);
-}
-function searchAddr(){
-  new daum.Postcode({
-    oncomplete:function(d){
-      cleanDaum();
-      document.getElementById('f-addr').value=d.roadAddress||d.jibunAddress;
-      setTimeout(function(){document.getElementById('f-addr-detail').focus();},150);
+function handleImportFile(file){
+  if(!file) return;
+  const res = document.getElementById('import-result');
+  res.innerHTML = '<span style="color:var(--tx3)">읽는 중...</span>';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      // 기존 데이터 삭제 옵션
+      if(document.getElementById('import-replace')?.checked){
+        ROWS.length = 0;
+      }
+      const existing = new Set(ROWS.map(r=>r.name+'|'+r.birth));
+      let added = 0, skipped = 0;
+      const summary = [];
+      wb.SheetNames.forEach(sn => {
+        const conf = IMPORT_MAP[sn];
+        if(!conf) return;
+        const ws = wb.Sheets[sn];
+        const data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        let hi = data.findIndex(r => String(r[0]).trim()==='연번');
+        if(hi<0) hi = 0;
+        let cnt = 0;
+        for(let i=hi+1;i<data.length;i++){
+          const r = data[i];
+          if(!r || !String(r[0]).trim().match(/^\d+$/)) continue;
+          const m = conf.map(r);
+          if(!m.name) continue;
+          const key = m.name+'|'+m.birth;
+          if(existing.has(key)){ skipped++; continue; }
+          existing.add(key);
+          ROWS.push({
+            id: ROWS.reduce((mx,x)=>Math.max(mx,x.id),0)+1,
+            birth:m.birth, name:m.name, phone:m.phone, parentPhone:m.parentPhone,
+            school:m.school, univ:m.univ, major:m.major,
+            cat:conf.cat, src:'',
+            s1:'0/9', s2:'대기', fb:'미발송', sel:'미정',
+            round:0, tag:'miss nofb',
+            bank:m.bank, acct:m.acct, acctHolder:m.acctHolder, attend:m.attend,
+            extra:m.extra||'', addr:'',
+            payState:'', cert:false, appeal:null,
+          });
+          cnt++; added++;
+        }
+        if(cnt>0) summary.push(`${sn}: ${cnt}명`);
+      });
+      if(added===0 && skipped===0){
+        res.innerHTML = '<span style="color:var(--r)">인식된 시트가 없습니다. (성적우수 / 성적우수(저소득층) / 기숙사 장학생 / 체육특기)</span>';
+        return;
+      }
+      // 구분 필터 select 갱신
+      const catSel=document.getElementById('list-cat-filter');
+      if(catSel){ while(catSel.options.length>1) catSel.remove(1);
+        [...new Set(ROWS.filter(r=>r.round===curRound).map(r=>r.cat))].forEach(c=>{
+          const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);}); }
+      res.innerHTML = `<span style="color:var(--g)">✓ ${added}명 등록${skipped?` (중복 ${skipped}명 제외)`:''} — ${summary.join(', ')}</span>`;
+      renderList('all');
+    } catch(err){
+      res.innerHTML = '<span style="color:var(--r)">파일 읽기 오류: '+err.message+'</span>';
     }
-  }).open();
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-function submitNew(){
-  const v=id=>document.getElementById(id)?.value.trim();
-  const name=v('f-name'),birth=v('f-birth'),phone_=v('f-phone'),school=v('f-school'),
-    dept=v('f-dept'),addr=v('f-addr'),guardian=v('f-guardian'),gender=v('f-gender');
-  const junior=isJunior(selCat.name);
-  if(!name||(!junior&&!birth)||!phone_||!school||!dept||!guardian||!gender){alert('필수 항목을 모두 입력해 주세요');return;}
-  if(!addr){alert('주소를 검색하여 입력해 주세요');return;}
-  const req=selCat.docs.filter(d=>d.req),missing=req.filter(d=>!upFiles[d.id]);
-  if(missing.length && !window._warnedMiss){
-    window._warnedMiss=true;
-    const w=document.getElementById('miss-warn');
-    document.getElementById('miss-list').innerHTML=missing.map(d=>`<li>${d.name}</li>`).join('');
-    w.style.display='block';w.scrollIntoView({behavior:'smooth'});
-    return;
-  }
-  if(missing.length && !confirm(`미제출 서류(${missing.map(d=>d.name).join(', ')})가 있습니다.\n그래도 접수하시겠습니까?\n\n※ 나중에 보완 서류 제출 탭에서 추가 가능합니다.`)){
-    return;
-  }
-  window._warnedMiss=false;
-  document.getElementById('miss-warn').style.display='none';
-  const id=genId(),apps=DB.getApps();
-  apps.push({
-    id,roundId:selCat.roundId,categoryId:selCat.id,categoryName:selCat.name,
-    name,birth,gender,phone:phone_,email:v('f-email')||'',school,dept,
-    addr,addrDetail:v('f-addr-detail')||'',
-    guardianName:guardian,guardianRelation:v('f-relation')||'부',guardianPhone:v('f-gphone')||'',
-    submittedAt:new Date().toISOString(),source:'online',
-    docs:Object.fromEntries(selCat.docs.map(d=>[d.id,!!upFiles[d.id]])),
-    fileUrls:{},notes:[],feedbackSent:false,feedbackSentAt:null,supplements:[],selected:null
-  });
-  DB.saveApps(apps);
-  document.getElementById('pane-new').innerHTML=`<div class="succ">
-    <div class="succ-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-    <h2>접수 완료!</h2>
-    <p>서류 검토 후 접수 완료 또는<br>보완 요청 안내를 드립니다.</p>
-    <div class="succ-num"><div class="lbl">접수번호 (꼭 저장해 두세요)</div><div class="num">${id}</div></div>
-    <div class="succ-note">보완 서류 제출 시 위 번호가 필요합니다</div>
-  </div>`;
-  selCat=null;upFiles={};
-}
+// 드래그앤드롭
+(function(){
+  const drop = document.getElementById('import-drop');
+  if(!drop) return;
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='var(--g)';drop.style.background='var(--glt)';}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='';drop.style.background='';}));
+  drop.addEventListener('drop',e=>{ if(e.dataTransfer.files[0]) handleImportFile(e.dataTransfer.files[0]); });
+})();
 
-/* 보완 제출 */
-function renderSuppl(){
-  const pane=document.getElementById('pane-supp');
-  if(supplApp){renderSupplForm(pane);}else{
-    pane.innerHTML=`<div class="card"><div class="stl">보완 서류 제출</div>
-      <p style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.7">누락 서류 안내를 받으셨나요?<br>접수번호를 입력하면 미제출 서류만 표시됩니다.</p>
-      <label>접수번호 <span class="req">*</span></label>
-      <div class="id-row"><input type="text" id="s-id" placeholder="예: 2605-1234"><button onclick="findApp()">조회</button></div>
-      <div id="s-err" style="color:var(--o);font-size:13px;margin-top:8px;display:none">접수번호를 찾을 수 없습니다.</div>
-    </div>`;
-  }
+// ── 사이드바 토글 (모바일) ──
+function toggleSidebar(force){
+  const sb=document.getElementById('sb');
+  const bd=document.getElementById('sb-backdrop');
+  const open = force!==undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  bd.classList.toggle('on', open);
 }
-function findApp(){
-  const id=document.getElementById('s-id')?.value.trim();
-  const app=DB.getApps().find(a=>a.id===id);
-  if(!app){document.getElementById('s-err').style.display='block';return;}
-  supplApp=app;supplFiles={};renderSupplForm(document.getElementById('pane-supp'));
-}
-function renderSupplForm(pane){
-  const app=supplApp,s=getSettings();
-  const cat=s.rounds.find(r=>r.id===app.roundId)?.categories.find(c=>c.id===app.categoryId);
-  if(!cat){pane.innerHTML='<div class="card">오류: 접수 정보를 찾을 수 없습니다</div>';return;}
-  const miss=cat.docs.filter(d=>d.req&&!app.docs[d.id]);
-  if(!miss.length){pane.innerHTML=`<div class="card" style="text-align:center;padding:32px"><div style="font-size:36px;margin-bottom:12px">✅</div><div style="font-weight:800;color:var(--g);font-size:16px">모든 서류가 완비되었습니다</div></div>`;return;}
-  pane.innerHTML=`
-    <button class="back-btn" onclick="supplApp=null;renderSuppl()">← 접수번호 조회</button>
-    <div class="info-chip">${app.name}님 · ${app.categoryName} · 접수번호 ${app.id}</div>
-    <div class="card"><div class="stl">누락 서류 제출 (PDF 전용)</div>
-      ${miss.map(d=>`<div class="doc-item${supplFiles[d.id]?' ok':''}" id="sdi-${d.id}">
-        <div class="doc-hdr"><div class="doc-nm">${d.name}</div><div class="doc-st${supplFiles[d.id]?' ok':''}" id="sdst-${d.id}">${supplFiles[d.id]?'✓ 선택됨':'미제출'}</div></div>
-        <label class="up-label" for="sfi-${d.id}"><span id="sfbt-${d.id}">${supplFiles[d.id]?supplFiles[d.id].name:'PDF 파일 선택'}</span></label>
-        <input type="file" id="sfi-${d.id}" accept=".pdf" onchange="onSupplFile('${d.id}',this)">
-      </div>`).join('')}
-      <div class="pdf-note">⚠ PDF 파일만 첨부 가능합니다</div>
-    </div>
-    <button class="sbtn" onclick="submitSuppl()">보완 서류 제출</button><div style="height:30px"></div>`;
-}
-function onSupplFile(id,inp){
-  if(!inp.files.length)return;
-  if(!inp.files[0].name.toLowerCase().endsWith('.pdf')){alert('PDF 파일만 가능합니다');return;}
-  supplFiles[id]={name:inp.files[0].name,file:inp.files[0]};
-  const i=document.getElementById('sdi-'+id);if(i)i.className='doc-item ok';
-  const d=document.getElementById('sdst-'+id);if(d){d.className='doc-st ok';d.textContent='✓ 선택됨';}
-  const b=document.getElementById('sfbt-'+id);if(b)b.textContent=inp.files[0].name;
-}
-function submitSuppl(){
-  if(!Object.keys(supplFiles).length){alert('제출할 파일을 선택해 주세요');return;}
-  const apps=DB.getApps(),idx=apps.findIndex(a=>a.id===supplApp.id);
-  if(idx<0)return;
-  Object.keys(supplFiles).forEach(id=>{apps[idx].docs[id]=true;});
-  apps[idx].supplements=apps[idx].supplements||[];
-  apps[idx].supplements.push({submittedAt:new Date().toISOString(),docs:Object.fromEntries(Object.keys(supplFiles).map(k=>[k,true]))});
-  DB.saveApps(apps);
-  document.getElementById('pane-supp').innerHTML=`<div class="succ"><div class="succ-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h2>제출 완료!</h2><p>추가 검토 후 안내드리겠습니다.</p></div>`;
-  supplApp=null;supplFiles={};
-}
-function phone(id){const el=document.getElementById(id);if(!el)return;el.addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{1,4})?(\d{1,4})?/,(_,a,b,c)=>[a,b,c].filter(Boolean).join('-'));});}
-renderNew();
+// 모든 topbar 맨 앞 요소(제목/제목영역)를 햄버거와 한 줄로 묶기
+document.querySelectorAll('.topbar').forEach(tb=>{
+  const btn=document.createElement('button');
+  btn.className='sb-toggle';
+  btn.innerHTML='<i class="ti ti-menu-2"></i>';
+  btn.onclick=()=>toggleSidebar(true);
+  // 제목 줄 wrapper 생성: [햄버거][제목영역]
+  const titleRow=document.createElement('div');
+  titleRow.className='tb-titlerow';
+  const first=tb.firstElementChild; // 제목(span.tb-title) 또는 제목 div
+  tb.insertBefore(titleRow, first);
+  titleRow.appendChild(btn);
+  if(first) titleRow.appendChild(first);
+});
+// 메뉴 클릭 시 모바일에서 사이드바 닫기
+document.querySelectorAll('.si').forEach(si=>{
+  si.addEventListener('click',()=>{ if(window.innerWidth<=900) toggleSidebar(false); });
+});
+
+// 초기 렌더링
+renderDup();        // dup 플래그 먼저 세팅
+renderList('all');  // 그 다음 목록·통계 (중복의심 카운트 반영)
 </script>
-<div style="background:#1a1a1a;color:rgba(255,255,255,.6);text-align:center;padding:18px 20px;font-size:11px;line-height:1.9;margin-top:20px">
-  <strong style="color:rgba(255,255,255,.9)">의왕시인재육성재단</strong> ㅣ 사업자등록번호: 138-82-06305(16051) ㅣ 경기도 의왕시 오전로 122, 평생학습관 2층<br>
-  대표: 김 성 제 ㅣ 대표전화: 031-345-2590 ㅣ 팩스: 031-427-2590
-</div>
 </body>
 </html>
