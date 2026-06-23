@@ -173,7 +173,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 @media(max-width:680px){
   /* topbar: 폰트/버튼만 축소 (레이아웃은 900 세로스택 규칙 사용) */
   .tb-title{font-size:13px}
-  .tb-r .btn{font-size:11px;padding:6px 10px}
+  .tb-r .btn{font-size:11px;padding:6px 10px;white-space:nowrap}
   .content{padding:10px 8px}
   .card{padding:11px 12px}
   /* 통계 카드 모두 2열 */
@@ -239,11 +239,42 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .toast.out{animation:toastOut .25s ease forwards}
 @keyframes toastOut{to{opacity:0;transform:translateY(12px)}}
+/* ── 인쇄: 지정 영역만, 페이지 넘어가도 전체 출력 ── */
+@media print{
+  /* 사이드바·탑바·토스트·배너 등 전부 숨김 */
+  .sb, .sb-backdrop, .topbar, #toast-wrap, #restore-banner, #autosave-status,
+  .mjtab, .sb-toggle, .filter-tabs, .tb-r, .ftab{ display:none !important; }
+  /* 인쇄 대상만 보이게 */
+  body *{ visibility:hidden; }
+  .print-area, .print-area *{ visibility:visible; }
+  .print-area{ position:absolute; left:0; top:0; width:100%; padding:0; margin:0; }
+  /* 레이아웃 강제 해제 (스크롤·높이 제한 풀기) */
+  .layout, .main, .screen, .screen.on, .content{
+    display:block !important; height:auto !important; overflow:visible !important; position:static !important;
+  }
+  /* 가로 스크롤 표 전체 펼치기 */
+  .scroll-x{ overflow:visible !important; }
+  .scroll-x table, .print-area table{ min-width:0 !important; width:100% !important; white-space:normal !important; font-size:11px !important; }
+  /* 표가 페이지 경계에서 행 단위로 잘리게 */
+  table{ page-break-inside:auto; }
+  tr{ page-break-inside:avoid; page-break-after:auto; }
+  thead{ display:table-header-group; }  /* 페이지마다 헤더 반복 */
+  .card{ box-shadow:none !important; border:none !important; overflow:visible !important; }
+  @page{ margin:14mm; }
+}
 </style>
 </head>
 <body>
 <div class="layout">
 <div id="toast-wrap"></div>
+<!-- 자동저장 복구 배너 -->
+<div id="restore-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#1565c0;color:#fff;padding:12px 18px;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.2);align-items:center;gap:12px;justify-content:center;flex-wrap:wrap">
+  <span id="restore-msg"></span>
+  <button onclick="doRestore()" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">복구하기</button>
+  <button onclick="dismissRestore()" style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">새로 시작</button>
+</div>
+<!-- 자동저장 상태 표시 (우하단) -->
+<div id="autosave-status" style="position:fixed;bottom:14px;right:14px;z-index:9990;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:5px 11px;border-radius:14px;opacity:0;transition:opacity .3s;pointer-events:none">자동저장됨</div>
 <div class="sb-backdrop" id="sb-backdrop" onclick="toggleSidebar(false)"></div>
 <div class="sb" id="sb">
   <div class="sb-logo"><div class="sb-ic">재단<br>법인</div><div><div class="sb-nm">의왕시인재육성재단</div><div class="sb-sub">장학생 관리 v2</div></div></div>
@@ -266,6 +297,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
   <div class="si" onclick="go('appeal')"><i class="ti ti-mail-question"></i> 이의신청</div>
   <div class="si" onclick="go('report')"><i class="ti ti-report"></i> 보고서</div>
   <div class="si" onclick="go('guide')"><i class="ti ti-book"></i> 사용 방법</div>
+  <div style="padding:8px 13px"><button onclick="saveNow()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:#e8f2fc;color:#1565c0;border:1px solid #1565c0;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit"><i class="ti ti-device-floppy"></i> 지금 저장</button><div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:5px">30분마다 자동저장 · 7일 보관</div></div>
   <div class="sb-foot"><strong style="color:var(--g)">의왕시인재육성재단</strong><br>031-345-2590</div>
 </div>
 
@@ -708,8 +740,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 
 <!-- ══ 보고서 ══ -->
 <div id="s-report" class="screen">
-  <div class="topbar"><span class="tb-title">📋 보고서</span><div class="tb-r"><button class="btn"><i class="ti ti-printer"></i> 인쇄</button><button class="btn solid"><i class="ti ti-download"></i> PDF 저장</button></div></div>
-  <div class="content">
+  <div class="topbar"><span class="tb-title">📋 보고서</span><div class="tb-r"><button class="btn" onclick="printArea('report-print-area')"><i class="ti ti-printer"></i> 인쇄</button><button class="btn solid" onclick="printArea('report-print-area')"><i class="ti ti-download"></i> PDF 저장</button></div></div>
+  <div class="content" id="report-print-area">
     <div style="display:flex;gap:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden;margin-bottom:14px">
       <div id="rt1" class="ftab on" onclick="switchReport(1)">회차별 결과 보고</div>
       <div id="rt2" class="ftab" onclick="switchReport(2)">예산 집행 현황</div>
@@ -737,14 +769,24 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
     <span class="tb-title">🎁 문주장학금</span>
     <div class="tb-r">
       <select id="moonju-year" onchange="renderMoonju()" style="appearance:none;-webkit-appearance:none;padding:7px 30px 7px 11px;border:1.5px solid #6a1b9a;border-radius:var(--r8);font-size:13px;font-weight:700;color:#6a1b9a;background:#f3e5f5;cursor:pointer"></select>
-      <button class="btn" onclick="addMoonjuYear()" style="border-color:#6a1b9a;color:#6a1b9a"><i class="ti ti-plus"></i> 연도 추가</button>
-      <button class="btn solid" style="background:#6a1b9a;border-color:#6a1b9a" onclick="openMoonjuAdd()"><i class="ti ti-user-plus"></i> 명단 등록</button>
+      <button class="btn" onclick="addMoonjuYear()" style="border-color:#6a1b9a;color:#6a1b9a;white-space:nowrap"><i class="ti ti-plus"></i> 연도 추가</button>
+      <button class="btn solid" style="background:#6a1b9a;border-color:#6a1b9a;white-space:nowrap" onclick="openMoonjuAdd()"><i class="ti ti-user-plus"></i> 명단 등록</button>
     </div>
   </div>
   <div class="content">
     <div style="background:#f3e5f5;border:1px solid #ce93d8;border-radius:var(--r8);padding:12px 16px;margin-bottom:14px;font-size:13px;color:#6a1b9a;line-height:1.7">
       <strong>문주장학금</strong> · 문주재단 기부금(2억) 기반 · 심사·서류검토 없이 <strong>추천받은 대상에게 정액 지급</strong> · 연도별 누적 관리 + 과거 수혜 중복 자동 확인
     </div>
+
+    <!-- 탭 -->
+    <div style="display:flex;gap:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden;margin-bottom:14px">
+      <div class="mjtab on" data-mt="list" onclick="switchMoonjuTab('list')" style="flex:1;text-align:center;padding:10px;font-size:13px;font-weight:700;cursor:pointer">📋 명단·지급</div>
+      <div class="mjtab" data-mt="dash" onclick="switchMoonjuTab('dash')" style="flex:1;text-align:center;padding:10px;font-size:13px;font-weight:700;cursor:pointer;color:var(--tx3)">📊 대시보드</div>
+      <div class="mjtab" data-mt="report" onclick="switchMoonjuTab('report')" style="flex:1;text-align:center;padding:10px;font-size:13px;font-weight:700;cursor:pointer;color:var(--tx3)">📄 보고서</div>
+    </div>
+
+    <!-- 탭1: 명단·지급 -->
+    <div id="mjtab-list">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
       <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:#6a1b9a" id="mj-total">0</div><div style="font-size:11px;color:var(--tx3)">올해 대상</div></div>
       <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--g)" id="mj-paid">0</div><div style="font-size:11px;color:var(--tx3)">지급 완료</div></div>
@@ -753,11 +795,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
     </div>
     <div class="card" style="padding:0;overflow:hidden">
       <div class="scroll-x">
-      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:820px;white-space:nowrap">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1180px;white-space:nowrap">
         <thead><tr style="background:var(--bg)">
           <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">#</th>
           <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">이름</th>
           <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">생년월일</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">구분</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">출신교/추천</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">입학대학</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">학과/분야</th>
           <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">연락처</th>
           <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">은행/계좌</th>
           <th style="padding:9px 10px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급액</th>
@@ -768,6 +814,39 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
         <tbody id="moonju-tbody"></tbody>
       </table>
       </div>
+    </div>
+    </div>
+
+    <!-- 탭2: 대시보드 -->
+    <div id="mjtab-dash" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct"><div class="ct-l">연도별 집계 (전 기간 누적)</div></div>
+        <div class="scroll-x">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:560px">
+          <thead><tr style="background:var(--bg)">
+            <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">연도</th>
+            <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">대상 인원</th>
+            <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급 완료</th>
+            <th style="padding:8px 10px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급 총액</th>
+            <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">중복 수혜</th>
+          </tr></thead>
+          <tbody id="mj-dash-tbody"></tbody>
+        </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct"><div class="ct-l">예산 현황 (문주재단 기부금 2억)</div></div>
+        <div id="mj-budget"></div>
+      </div>
+    </div>
+
+    <!-- 탭3: 보고서 -->
+    <div id="mjtab-report" style="display:none">
+      <div class="topbar" style="background:transparent;border:none;padding:0;margin-bottom:12px;height:auto">
+        <span style="font-size:14px;font-weight:700;color:var(--tx2)">선택 연도 보고서</span>
+        <div class="tb-r"><button class="btn" onclick="printArea('mj-report-body')" style="white-space:nowrap"><i class="ti ti-printer"></i> 인쇄</button></div>
+      </div>
+      <div class="card" id="mj-report-body"></div>
     </div>
   </div>
 </div>
@@ -784,6 +863,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
       <div class="row2" style="margin-bottom:10px">
         <div><span class="flabel">이름 *</span><input type="text" id="mj-name" oninput="checkMoonjuDup()"></div>
         <div><span class="flabel">생년월일 *</span><input type="text" id="mj-birth" placeholder="20070515" oninput="checkMoonjuDup()"></div>
+      </div>
+      <div class="row2" style="margin-bottom:10px">
+        <div><span class="flabel">구분</span><input type="text" id="mj-cat" placeholder="성적우수/체육특기 등"></div>
+        <div><span class="flabel">출신교/추천</span><input type="text" id="mj-school" placeholder="우성고 등"></div>
+      </div>
+      <div class="row2" style="margin-bottom:10px">
+        <div><span class="flabel">입학대학</span><input type="text" id="mj-univ" placeholder="동국대 등"></div>
+        <div><span class="flabel">학과/분야</span><input type="text" id="mj-major" placeholder="사회복지학과 등"></div>
       </div>
       <div class="row2" style="margin-bottom:10px">
         <div><span class="flabel">연락처</span><input type="text" id="mj-phone" placeholder="010-0000-0000"></div>
@@ -1611,8 +1698,8 @@ function buildSheets(){
   sheets.pay={name:'지급현황', cols:['연번','이름','구분','은행','계좌번호','예금주','지급상태','지급일','장학증서'],
     data:rows.filter(r=>r.sel==='선발').map((r,i)=>[i+1,r.name,r.cat,r.bank,r.acct,r.acctHolder,payState[r.payState||'']||'미정',r.payDate||'',r.cert?'발급':'미발급'])};
   // 문주장학금 (전 연도 누적)
-  sheets.moonju={name:'문주장학금', cols:['연도','이름','생년월일','연락처','은행','계좌번호','예금주','지급액','지급여부','과거수혜연도'],
-    data:MOONJU.slice().sort((a,b)=>a.year-b.year||a.id-b.id).map(m=>[m.year,m.name,m.birth,m.phone,m.bank,m.acct,m.holder,m.amount,m.paid?'지급완료':'미지급',moonjuPastYears(m.name,m.birth,m.year).join(',')])};
+  sheets.moonju={name:'문주장학금', cols:['연도','이름','생년월일','구분','출신교/추천','입학대학','학과/분야','연락처','은행','계좌번호','예금주','지급액','지급여부','과거수혜연도'],
+    data:MOONJU.slice().sort((a,b)=>a.year-b.year||a.id-b.id).map(m=>[m.year,m.name,m.birth,m.cat||'',m.school||'',m.univ||'',m.major||'',m.phone||'',m.bank||'',m.acct||'',m.holder||'',m.amount,m.paid?'지급완료':'미지급',moonjuPastYears(m.name,m.birth,m.year).join(',')])};
   return sheets;
 }
 
@@ -2227,7 +2314,7 @@ function moonjuPastYears(name, birth, exceptYear){
 }
 
 function openMoonjuAdd(){
-  ['mj-name','mj-birth','mj-phone','mj-bank','mj-acct','mj-holder'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['mj-name','mj-birth','mj-cat','mj-school','mj-univ','mj-major','mj-phone','mj-bank','mj-acct','mj-holder'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('mj-amount').value='2,000,000';
   document.getElementById('moonju-dupwarn').style.display='none';
   document.getElementById('moonju-modal').classList.add('on');
@@ -2254,14 +2341,22 @@ function registerMoonju(){
   if(!name){ toast('이름을 입력해주세요','err'); return; }
   if(!birth){ toast('생년월일을 입력해주세요','err'); return; }
   const amount=parseInt((document.getElementById('mj-amount').value||'').replace(/,/g,''))||0;
+  const gv=id=>document.getElementById(id)?.value.trim()||'';
   MOONJU.push({
     id: mjSeq++,
     year: mjCurYear,
     name, birth,
-    phone: document.getElementById('mj-phone').value.trim(),
-    bank: document.getElementById('mj-bank').value.trim(),
-    acct: document.getElementById('mj-acct').value.trim(),
-    holder: document.getElementById('mj-holder').value.trim(),
+    cat: gv('mj-cat'),
+    school: gv('mj-school'),
+    univ: gv('mj-univ'),
+    major: gv('mj-major'),
+    phone: gv('mj-phone'),
+    parentPhone: '',
+    bank: gv('mj-bank'),
+    acct: gv('mj-acct'),
+    holder: gv('mj-holder'),
+    attend: '',
+    extra: '',
     amount,
     paid: false,
   });
@@ -2323,7 +2418,11 @@ function renderMoonju(){
     return `<tr${m.paid?' style="background:#f1f8f2"':''}>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;color:var(--tx3)">${i+1}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed"><strong>${m.name}</strong></td>
-      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.birth}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.birth||'−'}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.cat?`<span class="bdg bl" style="font-size:10px">${m.cat}</span>`:'−'}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.school||'−'}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.univ||'−'}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.major||'−'}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.phone||'−'}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.bank||'−'} ${m.acct||''}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${m.amount.toLocaleString()}" onblur="this.value=parseInt(this.value.replace(/,/g,'')||0).toLocaleString()" oninput="mjEditAmt(${m.id},this.value)" style="width:90px;padding:3px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
@@ -2334,10 +2433,243 @@ function renderMoonju(){
   }).join('');
 }
 
+// ── 기존 100명을 문주장학금 2026년 명단으로 이관 ──
+(function migrateToMoonju(){
+  if(!ROWS.length) return;
+  ROWS.forEach(r=>{
+    MOONJU.push({
+      id: mjSeq++,
+      year: 2026,
+      name: r.name,
+      birth: r.birth||'',
+      phone: r.phone||'',
+      parentPhone: r.parentPhone||'',
+      cat: r.cat||'',          // 구분 (성적우수/저소득층/기숙사/체육특기)
+      school: r.school||'',    // 출신교/추천동
+      univ: r.univ||'',        // 입학대학
+      major: r.major||'',      // 학과/분야
+      bank: r.bank||'',
+      acct: r.acct||'',
+      holder: r.acctHolder||r.name,
+      attend: r.attend||'',
+      extra: r.extra||'',
+      amount: 2000000,
+      paid: false,
+    });
+  });
+  ROWS.length = 0;   // 일반 장학금 목록은 비움 (전부 문주로 이관)
+})();
+
+// ── 문주 탭 전환 ──
+function switchMoonjuTab(t){
+  document.querySelectorAll('.mjtab').forEach(el=>{
+    const on=el.dataset.mt===t;
+    el.classList.toggle('on',on);
+    el.style.color=on?'#6a1b9a':'var(--tx3)';
+    el.style.background=on?'#f3e5f5':'transparent';
+  });
+  document.getElementById('mjtab-list').style.display=t==='list'?'':'none';
+  document.getElementById('mjtab-dash').style.display=t==='dash'?'':'none';
+  document.getElementById('mjtab-report').style.display=t==='report'?'':'none';
+  if(t==='dash') renderMoonjuDash();
+  if(t==='report') renderMoonjuReport();
+}
+
+// ── 문주 대시보드 (전 연도 누적 집계) ──
+function renderMoonjuDash(){
+  const tb=document.getElementById('mj-dash-tbody');
+  if(!tb) return;
+  const years=MOONJU_YEARS.slice().sort((a,b)=>a-b);
+  let grandAmt=0, grandN=0;
+  tb.innerHTML=years.map(y=>{
+    const rows=MOONJU.filter(m=>m.year===y);
+    const paid=rows.filter(m=>m.paid).length;
+    const amt=rows.reduce((s,m)=>s+m.amount,0);
+    const dup=rows.filter(m=>moonjuPastYears(m.name,m.birth,m.year).length).length;
+    grandAmt+=amt; grandN+=rows.length;
+    return `<tr>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-weight:700">${y}년</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center">${rows.length}명</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center;color:var(--g);font-weight:700">${paid}명</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:right">${amt.toLocaleString()}원</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center">${dup?`<span class="bdg warn" style="font-size:10px">${dup}명</span>`:'−'}</td>
+    </tr>`;
+  }).join('') + `<tr style="background:#f3e5f5"><td style="padding:8px 10px;font-weight:700">누적 합계</td><td style="padding:8px 10px;text-align:center;font-weight:700">${grandN}명</td><td style="padding:8px 10px;text-align:center;font-weight:700">−</td><td style="padding:8px 10px;text-align:right;font-weight:700;color:#6a1b9a">${grandAmt.toLocaleString()}원</td><td style="padding:8px 10px;text-align:center">−</td></tr>`;
+
+  // 예산 현황 (2억 대비, 현재 연도 기준)
+  const budget=200000000;
+  const curRows=MOONJU.filter(m=>m.year===mjCurYear);
+  const used=curRows.reduce((s,m)=>s+m.amount,0);
+  const rate=Math.min(100,Math.round(used/budget*100));
+  const bd=document.getElementById('mj-budget');
+  if(bd) bd.innerHTML=`
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>${mjCurYear}년 집행</span><strong style="color:#6a1b9a">${used.toLocaleString()}원 / ${budget.toLocaleString()}원</strong></div>
+    <div style="height:10px;background:var(--bd);border-radius:5px;overflow:hidden"><div style="width:${rate}%;height:10px;background:#6a1b9a;border-radius:5px"></div></div>
+    <div style="font-size:12px;color:var(--tx3);margin-top:6px">집행률 ${rate}% · 잔여 ${(budget-used).toLocaleString()}원</div>`;
+}
+
+// ── 문주 보고서 ──
+function renderMoonjuReport(){
+  const body=document.getElementById('mj-report-body');
+  if(!body) return;
+  const rows=MOONJU.filter(m=>m.year===mjCurYear);
+  const paid=rows.filter(m=>m.paid).length;
+  const amt=rows.reduce((s,m)=>s+m.amount,0);
+  const today=new Date().toLocaleDateString('ko-KR');
+  body.innerHTML=`
+    <div style="text-align:center;padding:10px 0 16px">
+      <div style="font-size:12px;color:var(--tx3)">의왕시인재육성재단</div>
+      <div style="font-size:18px;font-weight:800;margin-top:4px">${mjCurYear}년도 문주장학금 지급 결과 보고</div>
+      <div style="font-size:12px;color:var(--tx3);margin-top:4px">${today} · 담당: 지원팀</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px">
+      <tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);text-align:left;width:40%">사업명</th><td style="padding:8px 12px;border:1px solid var(--bd)">${mjCurYear}년 문주장학금 (문주재단 기부금)</td></tr>
+      <tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);text-align:left">지급 방식</th><td style="padding:8px 12px;border:1px solid var(--bd)">추천 대상 정액 지급 (심사·선발 없음)</td></tr>
+      <tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);text-align:left">대상 인원</th><td style="padding:8px 12px;border:1px solid var(--bd)"><strong>${rows.length}명</strong></td></tr>
+      <tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);text-align:left">지급 완료</th><td style="padding:8px 12px;border:1px solid var(--bd)"><strong style="color:var(--g)">${paid}명</strong> / ${rows.length}명</td></tr>
+      <tr><th style="padding:8px 12px;border:1px solid var(--bd);background:var(--bg);text-align:left">지급 총액</th><td style="padding:8px 12px;border:1px solid var(--bd)"><strong>${amt.toLocaleString()}원</strong></td></tr>
+    </table>
+    <div style="font-weight:700;margin-bottom:8px;font-size:14px">■ 지급 명단</div>
+    <div class="scroll-x"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:720px">
+      <thead><tr style="background:#6a1b9a;color:#fff"><th style="padding:7px 9px;border:1px solid #5a1786">연번</th><th style="padding:7px 9px;border:1px solid #5a1786">이름</th><th style="padding:7px 9px;border:1px solid #5a1786">생년월일</th><th style="padding:7px 9px;border:1px solid #5a1786">구분</th><th style="padding:7px 9px;border:1px solid #5a1786">출신교/대학</th><th style="padding:7px 9px;border:1px solid #5a1786">지급액</th><th style="padding:7px 9px;border:1px solid #5a1786">지급여부</th><th style="padding:7px 9px;border:1px solid #5a1786">과거수혜</th></tr></thead>
+      <tbody>${rows.map((m,i)=>{const past=moonjuPastYears(m.name,m.birth,m.year);const sch=[m.school,m.univ].filter(Boolean).join(' / ')||'−';return `<tr${i%2?' style="background:var(--bg)"':''}><td style="padding:6px 9px;border:1px solid var(--bd);text-align:center">${i+1}</td><td style="padding:6px 9px;border:1px solid var(--bd)">${m.name}</td><td style="padding:6px 9px;border:1px solid var(--bd)">${m.birth||'−'}</td><td style="padding:6px 9px;border:1px solid var(--bd)">${m.cat||'−'}</td><td style="padding:6px 9px;border:1px solid var(--bd)">${sch}</td><td style="padding:6px 9px;border:1px solid var(--bd);text-align:right">${m.amount.toLocaleString()}원</td><td style="padding:6px 9px;border:1px solid var(--bd);text-align:center">${m.paid?'완료':'대기'}</td><td style="padding:6px 9px;border:1px solid var(--bd);text-align:center">${past.length?past.join(',')+'년':'−'}</td></tr>`;}).join('')||'<tr><td colspan="8" style="padding:14px;text-align:center;color:var(--tx3)">명단 없음</td></tr>'}</tbody>
+    </table></div>`;
+}
+
 // 초기 렌더링
 renderDup();        // dup 플래그 먼저 세팅
 renderList('all');  // 그 다음 목록·통계 (중복의심 카운트 반영)
 fillMoonjuYears();
+renderMoonju();
+
+// ══════════ 자동 임시저장 (브라우저 IndexedDB) ══════════
+// 30분마다 전체 상태 저장 · 7일 경과 백업 자동 삭제 · 시작 시 복구 안내
+const AUTOSAVE = (function(){
+  const DB_NAME='janghak_autosave', STORE='backups';
+  const KEEP_MS=7*24*60*60*1000;      // 7일 보관
+  const INTERVAL_MS=30*60*1000;       // 30분 간격
+  let db=null;
+
+  function open(){
+    return new Promise((res,rej)=>{
+      const req=indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded=e=>{ e.target.result.createObjectStore(STORE,{keyPath:'ts'}); };
+      req.onsuccess=e=>{ db=e.target.result; res(db); };
+      req.onerror=e=>rej(e.target.error);
+    });
+  }
+  function snapshot(){
+    return {
+      ts: Date.now(),
+      ROWS: JSON.parse(JSON.stringify(ROWS)),
+      ROUNDS: JSON.parse(JSON.stringify(ROUNDS)),
+      DS: JSON.parse(JSON.stringify(DS)),
+      MOONJU: JSON.parse(JSON.stringify(MOONJU)),
+      MOONJU_YEARS: JSON.parse(JSON.stringify(MOONJU_YEARS)),
+      mjSeq, mjCurYear,
+      APPEALS: (typeof APPEALS!=='undefined')?JSON.parse(JSON.stringify(APPEALS)):[],
+    };
+  }
+  async function save(silent){
+    try{
+      if(!db) await open();
+      const snap=snapshot();
+      await new Promise((res,rej)=>{
+        const tx=db.transaction(STORE,'readwrite');
+        tx.objectStore(STORE).put(snap);
+        tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+      });
+      // 오래된 백업 정리
+      await cleanup();
+      if(!silent){
+        const s=document.getElementById('autosave-status');
+        if(s){ s.textContent='자동저장됨 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}); s.style.opacity='1'; setTimeout(()=>s.style.opacity='0',2000); }
+      }
+      return true;
+    }catch(e){ console.error('자동저장 실패:',e); toast('자동저장 실패','err'); return false; }
+  }
+  async function cleanup(){
+    if(!db) return;
+    const cutoff=Date.now()-KEEP_MS;
+    return new Promise(res=>{
+      const tx=db.transaction(STORE,'readwrite');
+      const st=tx.objectStore(STORE);
+      st.openCursor().onsuccess=e=>{
+        const c=e.target.result;
+        if(c){ if(c.key<cutoff) c.delete(); c.continue(); }
+      };
+      tx.oncomplete=res;
+    });
+  }
+  async function latest(){
+    if(!db) await open();
+    return new Promise(res=>{
+      const tx=db.transaction(STORE,'readonly');
+      const st=tx.objectStore(STORE);
+      let last=null;
+      st.openCursor(null,'prev').onsuccess=e=>{
+        const c=e.target.result;
+        if(c){ last=c.value; } res(last);
+      };
+    });
+  }
+  function apply(snap){
+    // const 배열은 내용만 교체
+    ROWS.length=0; snap.ROWS.forEach(r=>ROWS.push(r));
+    ROUNDS.length=0; snap.ROUNDS.forEach(r=>ROUNDS.push(r));
+    Object.keys(DS).forEach(k=>delete DS[k]); Object.assign(DS, snap.DS||{});
+    MOONJU.length=0; snap.MOONJU.forEach(m=>MOONJU.push(m));
+    MOONJU_YEARS.length=0; snap.MOONJU_YEARS.forEach(y=>MOONJU_YEARS.push(y));
+    mjSeq=snap.mjSeq; mjCurYear=snap.mjCurYear;
+    if(typeof APPEALS!=='undefined' && snap.APPEALS){ APPEALS.length=0; snap.APPEALS.forEach(a=>APPEALS.push(a)); }
+    // 전체 다시 그리기
+    renderDup(); renderList('all'); fillMoonjuYears(); renderMoonju();
+  }
+  return { open, save, latest, apply, INTERVAL_MS };
+})();
+
+let pendingRestore=null;
+async function initAutosave(){
+  try{
+    await AUTOSAVE.open();
+    const last=await AUTOSAVE.latest();
+    if(last){
+      pendingRestore=last;
+      const when=new Date(last.ts).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      const cnt=(last.ROWS?.length||0)+(last.MOONJU?.length||0);
+      document.getElementById('restore-msg').textContent=`💾 ${when}에 자동저장된 작업이 있습니다 (데이터 ${cnt}건). 복구하시겠어요?`;
+      document.getElementById('restore-banner').style.display='flex';
+    }
+    // 30분 주기 자동저장 시작
+    setInterval(()=>AUTOSAVE.save(false), AUTOSAVE.INTERVAL_MS);
+    // 창 닫기 전 마지막 저장
+    window.addEventListener('beforeunload',()=>{ AUTOSAVE.save(true); });
+  }catch(e){ console.error('자동저장 초기화 실패:',e); }
+}
+function doRestore(){
+  if(pendingRestore){ AUTOSAVE.apply(pendingRestore); toast('자동저장 데이터를 복구했습니다','ok'); }
+  document.getElementById('restore-banner').style.display='none';
+}
+function dismissRestore(){
+  document.getElementById('restore-banner').style.display='none';
+  pendingRestore=null;
+}
+// 수동 저장 (지금 저장)
+function saveNow(){ AUTOSAVE.save(false).then(ok=>{ if(ok) toast('지금 저장 완료','ok'); }); }
+
+// ── 지정 영역만 인쇄 (페이지 넘어가도 전체 출력) ──
+function printArea(elId){
+  const el=document.getElementById(elId);
+  if(!el){ toast('인쇄할 내용을 찾을 수 없습니다','err'); return; }
+  el.classList.add('print-area');
+  const after=()=>{ el.classList.remove('print-area'); window.removeEventListener('afterprint',after); };
+  window.addEventListener('afterprint',after);
+  window.print();
+  // 일부 브라우저는 afterprint 미발동 → 안전장치
+  setTimeout(()=>el.classList.remove('print-area'), 1500);
+}
+
+initAutosave();
 </script>
 </body>
 </html>
