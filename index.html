@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>장학생 관리 v2c 목업</title>
+<title>장학생 관리 V3.0</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -75,6 +75,9 @@ body{background:var(--bg);color:var(--tx);font-size:14px;line-height:1.6}
 /* 테이블 */
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
 .tbl th{background:var(--bg);padding:8px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);white-space:nowrap;font-size:12px;position:sticky;top:0;z-index:5;box-shadow:0 1px 0 var(--bd)}
+.col-resizer{position:absolute;top:0;right:0;width:7px;height:100%;cursor:col-resize;user-select:none;z-index:6}
+.col-resizer:hover,.col-resizer.active{background:var(--g);opacity:.4}
+#moonju-table th{position:relative}
 .tbl td{padding:9px 10px;border-bottom:.5px solid #edf2ed;vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr.clk:hover td{background:#f5faf5;cursor:pointer}
@@ -306,8 +309,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 <!-- ══ 접수 목록 ══ -->
 <div id="s-list" class="screen on">
   <div class="topbar">
-    <span class="tb-title">📋 접수 목록 · 2026년</span>
-    <div class="tb-r">
+    <span class="tb-title">📋 접수 목록</span>
+    <div class="tb-r" style="gap:6px">
+      <input type="text" placeholder="회차 검색" oninput="fillRoundSelects(this.value)" style="width:90px;padding:7px 9px;border:1px solid var(--bd);border-radius:var(--r8);font-size:12px">
+      <select class="round-select" onchange="changeRound(this.value)" style="padding:7px 10px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer;max-width:150px"></select>
+      <button class="btn" onclick="addRound()" style="white-space:nowrap"><i class="ti ti-plus"></i> 회차</button>
       <button onclick="openModal()" style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:var(--g);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap" onmouseover="this.style.background='var(--g2)'" onmouseout="this.style.background='var(--g)'">
         <span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-plus" style="font-size:13px"></i></span>
         새 접수 등록
@@ -511,9 +517,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
   <div class="topbar"><span class="tb-title">🏆 선발 관리</span>
     <div class="tb-r">
       <div style="position:relative;display:inline-block">
-        <select id="sel-round" onchange="renderSel()" style="appearance:none;-webkit-appearance:none;padding:8px 34px 8px 12px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer;min-width:160px">
-        <option value="0">2026년</option>
-        </select>
+        <select class="round-select" onchange="changeRound(this.value)" style="appearance:none;-webkit-appearance:none;padding:8px 34px 8px 12px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer;min-width:160px"></select>
         <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--g);pointer-events:none;font-size:12px">▾</span>
       </div>
       <button class="btn" onclick="go('excel')"><i class="ti ti-download"></i> 선발 명단 엑셀</button>
@@ -534,10 +538,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 <div id="s-pay" class="screen">
   <div class="topbar"><span class="tb-title">💳 지급 관리</span>
     <div class="tb-r">
-      <select id="pay-round" onchange="renderPay()" style="appearance:none;-webkit-appearance:none;padding:7px 30px 7px 11px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer">
-        <option value="all">전체</option>
-        <option value="0">2026년</option>
-      </select>
+      <select class="round-select" onchange="changeRound(this.value)" style="appearance:none;-webkit-appearance:none;padding:7px 30px 7px 11px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer"></select>
       <button class="btn solid" onclick="toast('전체 저장 완료','ok')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
       <button class="btn" onclick="go('excel')"><i class="ti ti-download"></i> 지급현황 엑셀</button>
     </div>
@@ -641,31 +642,30 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
     <div class="modal-panel" style="max-width:400px">
       <div class="mp-hdr"><h3>새 구분 추가</h3><button class="mp-close" onclick="document.getElementById('cat-add-modal').classList.remove('on')">✕</button></div>
       <div class="mp-body">
-        <span class="flabel">회차 (직접 입력)</span>
-        <input type="text" placeholder="예: 2027년 상반기" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
-        <span class="flabel">구분명</span>
-        <input type="text" placeholder="예: 고등부 성적우수" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+        <span class="flabel">구분명 *</span>
+        <input type="text" id="newcat-name" placeholder="예: 고등부 성적우수" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
         <div class="row2">
-          <div><span class="flabel">모집 시작</span><input type="date" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
-          <div><span class="flabel">모집 마감</span><input type="date" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+          <div><span class="flabel">모집 시작</span><input type="date" id="newcat-start" value="2026-03-01" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+          <div><span class="flabel">모집 마감</span><input type="date" id="newcat-end" value="2026-04-30" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
         </div>
         <div class="row2">
-          <div><span class="flabel">목표 인원</span><input type="number" min="1" placeholder="5" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
-          <div><span class="flabel">1인 지급액 (원)</span><input type="text" placeholder="1,500,000" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+          <div><span class="flabel">목표 인원</span><input type="number" id="newcat-target" min="0" placeholder="5" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
+          <div><span class="flabel">1인 지급액 (원)</span><input type="text" id="newcat-amt" placeholder="1,500,000" oninput="fmtCommaInput(this)" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px"></div>
         </div>
-        <span class="flabel">비고</span>
-        <textarea rows="2" placeholder="특이사항 (선택)" style="width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px;font-family:inherit;resize:none"></textarea>
       </div>
       <div class="mp-footer">
         <button class="btn" style="flex:1" onclick="document.getElementById('cat-add-modal').classList.remove('on')">취소</button>
-        <button class="btn solid" style="flex:2" onclick="toast('구분이 추가되었습니다','ok');document.getElementById('cat-add-modal').classList.remove('on')"><i class="ti ti-check"></i> 추가 완료</button>
+        <button class="btn solid" style="flex:2" onclick="addNewCat()"><i class="ti ti-check"></i> 추가 완료</button>
       </div>
     </div>
   </div>
   <div class="content">
-    <!-- 회차 탭 -->
-    <div style="display:flex;gap:0;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);overflow:hidden;margin-bottom:14px">
-      <div class="ftab on">2026년</div>
+    <!-- 회차 선택 -->
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <input type="text" placeholder="회차 검색" oninput="fillRoundSelects(this.value)" style="width:100px;padding:7px 9px;border:1px solid var(--bd);border-radius:var(--r8);font-size:12px">
+      <select class="round-select" onchange="changeRound(this.value)" style="padding:7px 11px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer;min-width:140px"></select>
+      <button class="btn" onclick="addRound()" style="white-space:nowrap;border-color:var(--g);color:var(--g)"><i class="ti ti-plus"></i> 회차 추가</button>
+      <button class="btn" onclick="delRound()" style="white-space:nowrap;color:var(--r)"><i class="ti ti-trash"></i> 회차 삭제</button>
     </div>
 
     <!-- 상반기 구분별 설정 -->
@@ -793,24 +793,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
       <div style="background:var(--warnlt);border:1px solid var(--warn);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--warn)" id="mj-dup">0</div><div style="font-size:11px;color:var(--warn);font-weight:700">과거 수혜자</div></div>
       <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:18px;font-weight:700;color:#6a1b9a" id="mj-amt">0원</div><div style="font-size:11px;color:var(--tx3)">지급 총액</div></div>
     </div>
+    <div style="margin-bottom:10px">
+      <input type="text" id="mj-search" placeholder="이름 · 학교 · 대학 · 구분 검색" oninput="renderMoonju()" style="width:100%;padding:8px 12px;border:1px solid var(--bd);border-radius:var(--r8);font-size:13px">
+    </div>
     <div class="card" style="padding:0;overflow:hidden">
       <div class="scroll-x">
-      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1180px;white-space:nowrap">
-        <thead><tr style="background:var(--bg)">
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">#</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">이름</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">생년월일</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">구분</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">출신교/추천</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">입학대학</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">학과/분야</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">연락처</th>
-          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">은행/계좌</th>
-          <th style="padding:9px 10px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급액</th>
-          <th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">과거 수혜</th>
-          <th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급</th>
-          <th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">삭제</th>
-        </tr></thead>
+      <table id="moonju-table" class="tbl" style="table-layout:auto;width:100%;border-collapse:collapse;font-size:13px;min-width:1180px;white-space:nowrap">
+        <thead><tr id="moonju-thead"></tr></thead>
         <tbody id="moonju-tbody"></tbody>
       </table>
       </div>
@@ -855,7 +844,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 <div id="moonju-modal" class="modal-bg">
   <div class="modal-box" style="background:var(--wh);border-radius:var(--r12);width:440px;max-width:94%;max-height:88vh;overflow-y:auto;padding:0">
     <div style="padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center">
-      <strong style="font-size:15px;color:#6a1b9a">🎁 문주장학금 명단 등록</strong>
+      <strong id="moonju-modal-title" style="font-size:15px;color:#6a1b9a">🎁 문주장학금 명단 등록</strong>
       <button class="mp-close" onclick="document.getElementById('moonju-modal').classList.remove('on')">✕</button>
     </div>
     <div style="padding:18px 20px">
@@ -874,7 +863,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
       </div>
       <div class="row2" style="margin-bottom:10px">
         <div><span class="flabel">연락처</span><input type="text" id="mj-phone" placeholder="010-0000-0000"></div>
-        <div><span class="flabel">지급액</span><input type="text" id="mj-amount" value="2,000,000" oninput="fmtMoonjuAmt(this)"></div>
+        <div><span class="flabel">지급액</span><input type="text" id="mj-amount" value="2,000,000" oninput="fmtCommaInput(this)"></div>
       </div>
       <div class="row2" style="margin-bottom:10px">
         <div><span class="flabel">은행</span><input type="text" id="mj-bank" placeholder="국민/토스 등"></div>
@@ -882,8 +871,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
       </div>
       <div style="margin-bottom:14px"><span class="flabel">예금주</span><input type="text" id="mj-holder"></div>
       <div style="display:flex;gap:8px">
-        <button class="btn" style="flex:1" onclick="document.getElementById('moonju-modal').classList.remove('on')">취소</button>
-        <button class="btn solid" style="flex:2;background:#6a1b9a;border-color:#6a1b9a" onclick="registerMoonju()"><i class="ti ti-check"></i> 등록</button>
+        <button class="btn" style="flex:1" onclick="resetMoonjuModalToAdd();document.getElementById('moonju-modal').classList.remove('on')">취소</button>
+        <button class="btn solid" id="moonju-submit-btn" style="flex:2;background:#6a1b9a;border-color:#6a1b9a" onclick="registerMoonju()"><i class="ti ti-check"></i> 등록</button>
       </div>
     </div>
   </div>
@@ -938,13 +927,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 <script>
 // ── 데이터 ──
 const ROUNDS = [
-  { label:'2026년', budget:0, cats:[
-    {name:'성적우수', target:59, tag:'성적우수', amt:1000000},
-    {name:'성적우수(저소득층)', target:18, tag:'저소득층', amt:1500000},
-    {name:'기숙사 장학생', target:20, tag:'기숙사', amt:500000},
-    {name:'체육특기', target:3, tag:'체육특기', amt:1000000},
+  { id:0, label:'2026 상반기', cats:[
+    {name:'성적우수', target:59, tag:'성적우수', amt:1000000, start:'2026-03-01', end:'2026-04-30'},
+    {name:'성적우수(저소득층)', target:18, tag:'저소득층', amt:1500000, start:'2026-03-01', end:'2026-04-30'},
+    {name:'기숙사 장학생', target:20, tag:'기숙사', amt:500000, start:'2026-03-01', end:'2026-04-30'},
+    {name:'체육특기', target:3, tag:'체육특기', amt:1000000, start:'2026-03-01', end:'2026-04-30'},
   ]},
 ];
+let roundSeq = 1;
 
 const ROWS=[
   {id:1,birth:"20070515",name:"김기연",phone:"010-9122-9530",parentPhone:"010-9122-3898",school:"우성고",univ:"동국대",major:"사회복지학과",cat:"성적우수",src:"",s1:"0/9",s2:"대기",fb:"미발송",sel:"미정",round:0,tag:"miss nofb",bank:"토스",acct:"1002-1222-0855",acctHolder:"김기연",attend:"불참석",extra:"",payState:"",cert:false,addr:"",appeal:null},
@@ -1050,6 +1040,75 @@ const ROWS=[
 ];
 
 let curRound=0, curFilter='all', curDetail=null, editMode=false;
+let listSort={key:null, dir:1};   // 접수목록 정렬
+let mjSort={key:null, dir:1};     // 문주 정렬
+
+// 공통 정렬 헬퍼: 배열을 key 기준 정렬 (숫자/문자 자동)
+function sortRows(arr, key, dir){
+  if(!key) return arr;
+  return arr.slice().sort((a,b)=>{
+    let x=a[key], y=b[key];
+    // 숫자형 비교
+    const nx=parseFloat(String(x).replace(/[^0-9.-]/g,'')), ny=parseFloat(String(y).replace(/[^0-9.-]/g,''));
+    const bothNum = !isNaN(nx)&&!isNaN(ny)&&String(x).replace(/[^0-9.-]/g,'')!==''&&String(y).replace(/[^0-9.-]/g,'')!=='';
+    if(bothNum){ return (nx-ny)*dir; }
+    x=(x==null?'':String(x)); y=(y==null?'':String(y));
+    return x.localeCompare(y,'ko')*dir;
+  });
+}
+// 정렬 토글: 같은 키 누르면 방향 전환
+function toggleSort(state, key){
+  if(state.key===key){ state.dir*=-1; } else { state.key=key; state.dir=1; }
+}
+// 헤더에 정렬 화살표 표시
+function sortArrow(state, key){
+  if(state.key!==key) return '<span style="color:var(--bd);font-size:9px"> ⇅</span>';
+  return state.dir>0?'<span style="color:var(--g);font-size:9px"> ▲</span>':'<span style="color:var(--g);font-size:9px"> ▼</span>';
+}
+
+// ── 회차 관리 ──
+function curRoundObj(){ return ROUNDS.find(r=>r.id===curRound) || ROUNDS[0]; }
+function fillRoundSelects(filter){
+  const f=(filter||'').trim().toLowerCase();
+  const list = f ? ROUNDS.filter(r=>r.label.toLowerCase().includes(f)) : ROUNDS;
+  document.querySelectorAll('.round-select').forEach(sel=>{
+    sel.innerHTML = list.map(r=>`<option value="${r.id}"${r.id===curRound?' selected':''}>${r.label}</option>`).join('');
+  });
+}
+function changeRound(id){
+  curRound = parseInt(id);
+  document.querySelectorAll('.round-select').forEach(sel=>{ if(sel.value!=String(curRound)) sel.value=curRound; });
+  renderDup(); renderList('all');
+  if(document.getElementById('s-catmgr')?.classList.contains('on')) renderCatMgr();
+  if(document.getElementById('s-sel')?.classList.contains('on')) renderSel();
+  if(document.getElementById('s-pay')?.classList.contains('on')) renderPay();
+  toast(`'${curRoundObj().label}' 회차로 전환`,'info');
+}
+function addRound(){
+  const label=prompt('새 회차명을 입력하세요 (예: 2026 하반기, 2027 상반기, 특별모집)');
+  if(!label||!label.trim()) return;
+  const name=label.trim();
+  if(ROUNDS.some(r=>r.label===name)){ toast('이미 있는 회차입니다','warn'); return; }
+  const newId=roundSeq++;
+  ROUNDS.push({ id:newId, label:name, cats:[] });
+  curRound=newId;
+  fillRoundSelects();
+  renderDup(); renderList('all'); renderCatMgr();
+  toast(`'${name}' 회차 생성 (구분을 추가하세요)`,'ok');
+}
+function delRound(){
+  if(ROUNDS.length<=1){ toast('마지막 회차는 삭제할 수 없습니다','warn'); return; }
+  const cur=curRoundObj();
+  const using=ROWS.filter(r=>r.round===cur.id).length;
+  if(!confirm(`'${cur.label}' 회차를 삭제할까요?${using?`\n(이 회차에 ${using}명이 등록되어 있습니다. 함께 삭제됩니다.)`:''}`)) return;
+  for(let i=ROWS.length-1;i>=0;i--){ if(ROWS[i].round===cur.id) ROWS.splice(i,1); }
+  const idx=ROUNDS.findIndex(r=>r.id===cur.id);
+  ROUNDS.splice(idx,1);
+  curRound=ROUNDS[0].id;
+  fillRoundSelects();
+  renderDup(); renderList('all'); renderCatMgr();
+  toast(`'${cur.label}' 회차 삭제`,'info');
+}
 
 // ── 토스트: 작업 성공/실패를 명확히 표시 ──
 function toast(msg, type){
@@ -1116,12 +1175,18 @@ function renderList(f){
     (r.name||'').toLowerCase().includes(q) ||
     (r.phone||'').includes(q) ||
     (r.school||'').toLowerCase().includes(q) ||
-    (r.univ||'').toLowerCase().includes(q)
+    (r.univ||'').toLowerCase().includes(q) ||
+    (r.major||'').toLowerCase().includes(q) ||
+    (r.cat||'').toLowerCase().includes(q)
   );
+
+  // 정렬
+  rows = sortRows(rows, listSort.key, listSort.dir);
 
   const wrap=document.getElementById('list-wrap');
   if(!rows.length){wrap.innerHTML='<div style="text-align:center;padding:28px;color:var(--tx3)">해당 항목 없음</div>';return;}
-  wrap.innerHTML=`<table class="tbl" style="table-layout:auto;width:100%;white-space:nowrap"><thead><tr><th style="width:36px">#</th><th>이름</th><th>출신교/추천</th><th>입학대학</th><th>구분</th><th>1차수령</th><th>2차검토</th><th>피드백</th><th>선발</th><th>은행</th><th>계좌번호</th><th>예금주</th><th>참석여부</th></tr></thead><tbody>`
+  const hdr=(label,key)=>`<th onclick="listSortBy('${key}')" style="cursor:pointer;user-select:none">${label}${sortArrow(listSort,key)}</th>`;
+  wrap.innerHTML=`<table class="tbl" style="table-layout:auto;width:100%;white-space:nowrap"><thead><tr><th style="width:36px">#</th>${hdr('이름','name')}${hdr('출신교/추천','school')}${hdr('입학대학','univ')}${hdr('구분','cat')}${hdr('1차수령','s1')}${hdr('2차검토','s2')}${hdr('피드백','fb')}${hdr('선발','sel')}${hdr('은행','bank')}${hdr('계좌번호','acct')}${hdr('예금주','acctHolder')}${hdr('참석여부','attend')}</tr></thead><tbody>`
   +rows.map((r,idx)=>`<tr class="clk" data-id="${r.id}" onclick="goDetail(this)">
     <td style="color:var(--tx3)">${idx+1}</td>
     <td>
@@ -1141,6 +1206,13 @@ function renderList(f){
     <td style="font-size:11px;color:var(--tx2)">${r.acctHolder||''}</td>
     <td style="font-size:11px;color:var(--tx2)">${r.attend||''}</td>
   </tr>`).join('')+'</tbody></table>';
+  requestAnimationFrame(()=>initColResize(document.querySelector('#list-wrap .tbl')));
+}
+
+function listSortBy(key){
+  toggleSort(listSort, key);
+  renderList(curFilter);
+  requestAnimationFrame(()=>initColResize(document.querySelector('#list-wrap .tbl')));
 }
 
 function setTab(f){
@@ -1361,7 +1433,7 @@ function go(id){
 function renderDash(){
   const tbody=document.getElementById('dash-cat-tbody');
   if(!tbody)return;
-  const cats=ROUNDS[0].cats;
+  const cats=curRoundObj().cats;
   const rows=ROWS.filter(r=>r.round===0);
   tbody.innerHTML=cats.map((cat,i)=>{
     const catRows=rows.filter(r=>r.cat===cat.name);
@@ -1398,10 +1470,8 @@ function renderDash(){
 }
 
 function renderSel(){
-  const ri=parseInt(document.getElementById('sel-round').value)||0;
-  curRound=ri;
-  const rd=ROUNDS[ri];
-  const rRows=ROWS.filter(r=>r.round===ri);
+  const rd=curRoundObj();
+  const rRows=ROWS.filter(r=>r.round===curRound);
   document.getElementById('sel-total').textContent=rRows.length;
   document.getElementById('sel-cnt').textContent=rRows.filter(r=>r.sel==='선발').length;
   document.getElementById('sel-no').textContent=rRows.filter(r=>r.sel==='미선발').length;
@@ -1468,7 +1538,19 @@ function bulkSel(catName, state){
   renderSel();
 }
 
-function openModal(){document.getElementById('modal').classList.add('on');}
+function openModal(){
+  // 현재 회차의 구분으로 select 채우기
+  const catSel=document.getElementById('m-cat');
+  const cats=curRoundObj().cats;
+  if(catSel){
+    if(!cats.length){
+      catSel.innerHTML='<option value="">구분 없음 — 먼저 구분·금액 관리에서 추가</option>';
+    } else {
+      catSel.innerHTML=cats.map(c=>`<option>${c.name}</option>`).join('');
+    }
+  }
+  document.getElementById('modal').classList.add('on');
+}
 
 function registerNew(){
   // 모달에서 값 읽기
@@ -1796,9 +1878,11 @@ function initColResize(tableSelector){
     if(th.querySelector('.col-resizer')) return;
     const r = document.createElement('div');
     r.className = 'col-resizer';
+    r.addEventListener('click', e=>e.stopPropagation());
     th.appendChild(r);
     let startX, startW;
     r.addEventListener('mousedown', e=>{
+      e.stopPropagation();
       startX=e.clientX; startW=th.offsetWidth;
       r.classList.add('active');
       const onMove = e2=>{
@@ -1821,9 +1905,7 @@ function initColResize(tableSelector){
 
 // ── 지급관리 렌더링 ──
 function renderPay(){
-  const val=document.getElementById('pay-round').value;
-  const ri=val==='all'?null:parseInt(val);
-  const rows=ri===null?ROWS.filter(r=>r.sel==='선발'):ROWS.filter(r=>r.round===ri&&r.sel==='선발');
+  const rows=ROWS.filter(r=>r.round===curRound&&r.sel==='선발');
 
   // 요약 카드
   const stats=document.getElementById('pay-stats');
@@ -1844,7 +1926,7 @@ function renderPay(){
   tbody.innerHTML=rows.map(r=>{
     // 구분에서 지급액 찾기
     let amt=0;
-    ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{if(cat.name===r.cat)amt=cat.amt;}));
+    curRoundObj().cats.forEach(cat=>{if(cat.name===r.cat)amt=cat.amt;});
     const fmtAmt=amt?amt.toLocaleString()+'원':'−';
     const ps=r.payState||'wait';
     const stateColor=ps==='done'?'var(--g)':ps==='error'?'var(--r)':'var(--tx2)';
@@ -1887,8 +1969,8 @@ function renderPay(){
   }).join('');
 
   // 예산 집행 현황
-  const totalAmt=rows.reduce((s,r)=>{let a=0;ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{if(cat.name===r.cat)a=cat.amt;}));return s+a;},0);
-  const doneAmt=rows.filter(r=>r.payState==='done').reduce((s,r)=>{let a=0;ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{if(cat.name===r.cat)a=cat.amt;}));return s+a;},0);
+  const totalAmt=rows.reduce((s,r)=>{let a=0;curRoundObj().cats.forEach(cat=>{if(cat.name===r.cat)a=cat.amt;});return s+a;},0);
+  const doneAmt=rows.filter(r=>r.payState==='done').reduce((s,r)=>{let a=0;curRoundObj().cats.forEach(cat=>{if(cat.name===r.cat)a=cat.amt;});return s+a;},0);
   const waitAmt=totalAmt-doneAmt;
   const pct=totalAmt?Math.round(doneAmt/totalAmt*100):0;
   const tEl=document.getElementById('budget-total');
@@ -1918,20 +2000,71 @@ function renderPay(){
 function renderCatMgr(){
   const tbody=document.getElementById('cat-tbody');
   if(!tbody) return;
-  const cats=ROUNDS[0].cats;
-  tbody.innerHTML=cats.map(cat=>{
+  const cats=curRoundObj().cats;
+  if(!cats.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--tx3)">이 회차에 등록된 구분이 없습니다. 우측 상단 "구분 추가"로 추가하세요.</td></tr>';
+    updateCatGrandTotal();
+    return;
+  }
+  tbody.innerHTML=cats.map((cat,ci)=>{
     const total=(cat.target||0)*(cat.amt||0);
     return `<tr>
       <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;font-weight:700;min-width:120px;word-break:keep-all;line-height:1.4">${cat.name}</td>
-      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="date" value="2026-03-01" style="padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px"></td>
-      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="date" value="2026-04-30" style="padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px"></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="date" value="${cat.start||'2026-03-01'}" onchange="ROUNDS[0].cats[${ci}].start=this.value" style="padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px"></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="date" value="${cat.end||'2026-04-30'}" onchange="ROUNDS[0].cats[${ci}].end=this.value" style="padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px"></td>
       <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="number" value="${cat.target||0}" min="0" oninput="calcCatTotal(this.closest('tr'))" style="width:60px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:13px;text-align:center"></td>
       <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${(cat.amt||0).toLocaleString()}" oninput="fmtAmt(this)" onblur="fmtAmt(this)" style="width:90px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
       <td class="cat-total" style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:right;font-weight:700;color:var(--g);white-space:nowrap">${total.toLocaleString()}원</td>
-      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 9px" onclick="calcCatTotal(this.closest('tr'));toast('저장되었습니다','ok')">저장</button></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center;white-space:nowrap">
+        <button class="btn" style="font-size:11px;padding:4px 9px" onclick="calcCatTotal(this.closest('tr'));toast('저장되었습니다','ok')">저장</button>
+        <button class="btn" style="font-size:11px;padding:4px 8px;color:var(--r);margin-left:4px" onclick="delCat(${ci})"><i class="ti ti-trash"></i></button>
+      </td>
     </tr>`;
   }).join('');
   updateCatGrandTotal();
+}
+
+// ── 구분 추가 ──
+function addNewCat(){
+  const name=document.getElementById('newcat-name').value.trim();
+  if(!name){ toast('구분명을 입력해주세요','err'); return; }
+  if(curRoundObj().cats.some(c=>c.name===name)){ toast('이미 있는 구분입니다','warn'); return; }
+  const target=parseInt(document.getElementById('newcat-target').value)||0;
+  const amt=parseInt((document.getElementById('newcat-amt').value||'').replace(/,/g,''))||0;
+  curRoundObj().cats.push({
+    name, tag:name, target, amt,
+    start:document.getElementById('newcat-start').value||'2026-03-01',
+    end:document.getElementById('newcat-end').value||'2026-04-30',
+  });
+  // 입력 초기화
+  ['newcat-name','newcat-target','newcat-amt'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('cat-add-modal').classList.remove('on');
+  renderCatMgr();
+  // 구분 필터 select 갱신
+  const catSel=document.getElementById('list-cat-filter');
+  if(catSel){ const o=document.createElement('option');o.value=name;o.textContent=name;catSel.appendChild(o); }
+  toast(`'${name}' 구분 추가 완료`,'ok');
+}
+
+// ── 구분 삭제 ──
+function delCat(ci){
+  const cat=curRoundObj().cats[ci];
+  if(!cat) return;
+  const using=ROWS.filter(r=>r.cat===cat.name).length;
+  const msg = using>0
+    ? `'${cat.name}' 구분에 ${using}명이 등록되어 있습니다. 구분을 삭제해도 사람은 남습니다. 삭제할까요?`
+    : `'${cat.name}' 구분을 삭제할까요?`;
+  if(!confirm(msg)) return;
+  curRoundObj().cats.splice(ci,1);
+  renderCatMgr();
+  toast(`'${cat.name}' 구분 삭제`,'info');
+}
+
+// ── 숫자 입력 쉼표 자동 (공통) ──
+function fmtCommaInput(el){
+  const cur=el.value.replace(/[^0-9]/g,'');
+  if(cur==='') { el.value=''; return; }
+  el.value=parseInt(cur).toLocaleString();
 }
 
 // ── 구분금액관리 총예산 자동계산 ──
@@ -1948,9 +2081,9 @@ function calcCatTotal(row){
   const nmEl=row.querySelector('td:first-child');
   if(nmEl){
     const nm=nmEl.textContent.trim();
-    ROUNDS.forEach(rd=>rd.cats.forEach(cat=>{
+    curRoundObj().cats.forEach(cat=>{
       if(cat.name===nm){cat.target=n;cat.amt=a;}
-    }));
+    });
   }
   updateCatGrandTotal();
 }
@@ -2014,7 +2147,7 @@ function switchReport(n){
 
 function renderReport(){
   const rows=ROWS.filter(r=>r.round===0);
-  const cats=ROUNDS[0].cats;
+  const cats=curRoundObj().cats;
   const total=rows.length;
   const selRows=rows.filter(r=>r.sel==='선발');
   const selCnt=selRows.length;
@@ -2213,7 +2346,7 @@ function handleImportFile(file){
             school:m.school, univ:m.univ, major:m.major,
             cat:conf.cat, src:'',
             s1:'0/9', s2:'대기', fb:'미발송', sel:'미정',
-            round:0, tag:'miss nofb',
+            round:curRound, tag:'miss nofb',
             bank:m.bank, acct:m.acct, acctHolder:m.acctHolder, attend:m.attend,
             extra:m.extra||'', addr:'',
             payState:'', cert:false, appeal:null,
@@ -2314,6 +2447,7 @@ function moonjuPastYears(name, birth, exceptYear){
 }
 
 function openMoonjuAdd(){
+  resetMoonjuModalToAdd();
   ['mj-name','mj-birth','mj-cat','mj-school','mj-univ','mj-major','mj-phone','mj-bank','mj-acct','mj-holder'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('mj-amount').value='2,000,000';
   document.getElementById('moonju-dupwarn').style.display='none';
@@ -2389,28 +2523,91 @@ function mjEditAmt(id, val){
   if(m) m.amount=parseInt((val||'').replace(/,/g,''))||0;
 }
 
+// ── 문주 명단 정보 수정 (등록 모달 재활용) ──
+let mjEditId=null;
+function openMoonjuEdit(id){
+  const m=MOONJU.find(x=>x.id===id);
+  if(!m) return;
+  mjEditId=id;
+  const sv=(eid,v)=>{const e=document.getElementById(eid);if(e)e.value=v||'';};
+  sv('mj-name',m.name); sv('mj-birth',m.birth); sv('mj-cat',m.cat);
+  sv('mj-school',m.school); sv('mj-univ',m.univ); sv('mj-major',m.major);
+  sv('mj-phone',m.phone); sv('mj-amount',(m.amount||0).toLocaleString());
+  sv('mj-bank',m.bank); sv('mj-acct',m.acct); sv('mj-holder',m.holder);
+  document.getElementById('moonju-dupwarn').style.display='none';
+  // 모달 제목·버튼을 수정 모드로
+  const title=document.getElementById('moonju-modal-title');
+  if(title) title.textContent='🎁 문주장학금 정보 수정';
+  const btn=document.getElementById('moonju-submit-btn');
+  if(btn){ btn.innerHTML='<i class="ti ti-check"></i> 수정 저장'; btn.setAttribute('onclick','saveMoonjuEdit()'); }
+  document.getElementById('moonju-modal').classList.add('on');
+}
+function saveMoonjuEdit(){
+  const m=MOONJU.find(x=>x.id===mjEditId);
+  if(!m){ mjEditId=null; document.getElementById('moonju-modal').classList.remove('on'); return; }
+  const gv=id=>document.getElementById(id)?.value.trim()||'';
+  const name=gv('mj-name'), birth=gv('mj-birth');
+  if(!name){ toast('이름을 입력해주세요','err'); return; }
+  if(!birth){ toast('생년월일을 입력해주세요','err'); return; }
+  m.name=name; m.birth=birth;
+  m.cat=gv('mj-cat'); m.school=gv('mj-school'); m.univ=gv('mj-univ'); m.major=gv('mj-major');
+  m.phone=gv('mj-phone'); m.bank=gv('mj-bank'); m.acct=gv('mj-acct'); m.holder=gv('mj-holder');
+  m.amount=parseInt((gv('mj-amount')||'').replace(/,/g,''))||0;
+  mjEditId=null;
+  // 모달 원복
+  resetMoonjuModalToAdd();
+  document.getElementById('moonju-modal').classList.remove('on');
+  renderMoonju();
+  toast(`${m.name} 정보 수정 완료`,'ok');
+}
+function resetMoonjuModalToAdd(){
+  mjEditId=null;
+  const title=document.getElementById('moonju-modal-title');
+  if(title) title.textContent='🎁 문주장학금 명단 등록';
+  const btn=document.getElementById('moonju-submit-btn');
+  if(btn){ btn.innerHTML='<i class="ti ti-check"></i> 등록'; btn.setAttribute('onclick','registerMoonju()'); }
+}
+
 function renderMoonju(){
   mjCurYear = parseInt(document.getElementById('moonju-year')?.value)||mjCurYear;
-  const rows=MOONJU.filter(m=>m.year===mjCurYear);
+  let rows=MOONJU.filter(m=>m.year===mjCurYear);
   const tbody=document.getElementById('moonju-tbody');
   if(!tbody) return;
 
+  // 통계는 검색·정렬 전 전체 기준
   let dupCnt=0, paidCnt=0, totalAmt=0;
   rows.forEach(m=>{ if(moonjuPastYears(m.name,m.birth,m.year).length) dupCnt++; if(m.paid) paidCnt++; totalAmt+=m.amount; });
-
-  // 통계
   const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   setT('mj-total', rows.length);
   setT('mj-paid', paidCnt);
   setT('mj-dup', dupCnt);
   setT('mj-amt', totalAmt.toLocaleString()+'원');
-
-  // 사이드바 배지 (현재 연도 인원)
   const sb=document.getElementById('sidebar-moonju-badge');
   if(sb){ sb.textContent=rows.length; sb.style.display=rows.length?'':'none'; }
 
+  // 검색
+  const q=(document.getElementById('mj-search')?.value||'').trim().toLowerCase();
+  if(q) rows=rows.filter(m=>
+    (m.name||'').toLowerCase().includes(q) ||
+    (m.school||'').toLowerCase().includes(q) ||
+    (m.univ||'').toLowerCase().includes(q) ||
+    (m.major||'').toLowerCase().includes(q) ||
+    (m.cat||'').toLowerCase().includes(q) ||
+    (m.phone||'').includes(q)
+  );
+  // 정렬
+  rows=sortRows(rows, mjSort.key, mjSort.dir);
+
+  // 동적 헤더 (정렬 클릭)
+  const thead=document.getElementById('moonju-thead');
+  if(thead){
+    const th=(label,key,align)=>`<th onclick="mjSortBy('${key}')" style="padding:9px 10px;text-align:${align||'left'};font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd);cursor:pointer;user-select:none">${label}${sortArrow(mjSort,key)}</th>`;
+    thead.style.background='var(--bg)';
+    thead.innerHTML=`<th style="padding:9px 10px;border-bottom:1px solid var(--bd)">#</th>${th('이름','name')}${th('생년월일','birth')}${th('구분','cat')}${th('출신교/추천','school')}${th('입학대학','univ')}${th('학과/분야','major')}${th('연락처','phone')}${th('은행/계좌','bank')}${th('지급액','amount','right')}<th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">과거 수혜</th><th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급</th><th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">수정</th><th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">삭제</th>`;
+  }
+
   if(!rows.length){
-    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--tx3)">등록된 명단이 없습니다. "명단 등록"으로 추가하세요.</td></tr>';
+    tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--tx3)">'+(q?'검색 결과 없음':'등록된 명단이 없습니다. "명단 등록"으로 추가하세요.')+'</td></tr>';
     return;
   }
   tbody.innerHTML=rows.map((m,i)=>{
@@ -2425,12 +2622,19 @@ function renderMoonju(){
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.major||'−'}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.phone||'−'}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.bank||'−'} ${m.acct||''}</td>
-      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${m.amount.toLocaleString()}" onblur="this.value=parseInt(this.value.replace(/,/g,'')||0).toLocaleString()" oninput="mjEditAmt(${m.id},this.value)" style="width:90px;padding:3px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${m.amount.toLocaleString()}" oninput="fmtCommaInput(this);mjEditAmt(${m.id},this.value)" style="width:90px;padding:3px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center">${past.length?`<span class="bdg warn" style="font-size:10px">⚠ ${past.join(',')}년</span>`:'<span style="color:var(--tx3);font-size:12px">−</span>'}</td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn ${m.paid?'solid':''}" style="font-size:11px;padding:4px 10px${m.paid?';background:var(--g);border-color:var(--g)':''}" onclick="toggleMoonjuPaid(${m.id})">${m.paid?'✓ 완료':'지급'}</button></td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 8px;color:#6a1b9a" onclick="openMoonjuEdit(${m.id})"><i class="ti ti-edit"></i></button></td>
       <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 8px;color:var(--r)" onclick="delMoonju(${m.id})"><i class="ti ti-trash"></i></button></td>
     </tr>`;
   }).join('');
+  requestAnimationFrame(()=>initColResize(document.getElementById('moonju-table')));
+}
+
+function mjSortBy(key){
+  toggleSort(mjSort, key);
+  renderMoonju();
 }
 
 // ── 기존 100명을 문주장학금 2026년 명단으로 이관 ──
@@ -2537,6 +2741,7 @@ function renderMoonjuReport(){
 }
 
 // 초기 렌더링
+fillRoundSelects();  // 회차 드롭다운 채우기
 renderDup();        // dup 플래그 먼저 세팅
 renderList('all');  // 그 다음 목록·통계 (중복의심 카운트 반영)
 fillMoonjuYears();
@@ -2566,7 +2771,7 @@ const AUTOSAVE = (function(){
       DS: JSON.parse(JSON.stringify(DS)),
       MOONJU: JSON.parse(JSON.stringify(MOONJU)),
       MOONJU_YEARS: JSON.parse(JSON.stringify(MOONJU_YEARS)),
-      mjSeq, mjCurYear,
+      mjSeq, mjCurYear, roundSeq, curRound,
       APPEALS: (typeof APPEALS!=='undefined')?JSON.parse(JSON.stringify(APPEALS)):[],
     };
   }
@@ -2621,9 +2826,11 @@ const AUTOSAVE = (function(){
     MOONJU.length=0; snap.MOONJU.forEach(m=>MOONJU.push(m));
     MOONJU_YEARS.length=0; snap.MOONJU_YEARS.forEach(y=>MOONJU_YEARS.push(y));
     mjSeq=snap.mjSeq; mjCurYear=snap.mjCurYear;
+    if(snap.roundSeq!=null) roundSeq=snap.roundSeq;
+    if(snap.curRound!=null) curRound=snap.curRound;
     if(typeof APPEALS!=='undefined' && snap.APPEALS){ APPEALS.length=0; snap.APPEALS.forEach(a=>APPEALS.push(a)); }
     // 전체 다시 그리기
-    renderDup(); renderList('all'); fillMoonjuYears(); renderMoonju();
+    fillRoundSelects(); renderDup(); renderList('all'); fillMoonjuYears(); renderMoonju();
   }
   return { open, save, latest, apply, INTERVAL_MS };
 })();
