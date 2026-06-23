@@ -228,10 +228,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
   /* 카드 헤더: 제목/버튼 세로 정렬 (중복수혜·선발 등) */
   .ct{flex-wrap:wrap;gap:8px;align-items:flex-start}
 }
+/* ── 토스트 (작업 성공/실패 알림) ── */
+#toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:90vw}
+.toast{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;pointer-events:auto}
+.toast.ok{background:#2B7A3C}
+.toast.err{background:#c62828}
+.toast.warn{background:#E8673A}
+.toast.info{background:#1565c0}
+.toast .ti{font-size:18px}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.toast.out{animation:toastOut .25s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(12px)}}
 </style>
 </head>
 <body>
 <div class="layout">
+<div id="toast-wrap"></div>
 <div class="sb-backdrop" id="sb-backdrop" onclick="toggleSidebar(false)"></div>
 <div class="sb" id="sb">
   <div class="sb-logo"><div class="sb-ic">재단<br>법인</div><div><div class="sb-nm">의왕시인재육성재단</div><div class="sb-sub">장학생 관리 v2</div></div></div>
@@ -244,6 +256,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
   <div class="sb-sec">집계</div>
   <div class="si" onclick="go('dash')"><i class="ti ti-chart-bar"></i> 대시보드</div>
   <div class="si" onclick="go('sel')"><i class="ti ti-trophy"></i> 선발 관리</div>
+  <div class="sb-sep"></div>
+  <div class="sb-sec">별도 사업</div>
+  <div class="si" onclick="go('moonju')"><i class="ti ti-gift"></i> 문주장학금 <span class="dup-badge" id="sidebar-moonju-badge" style="background:#6a1b9a">0</span></div>
   <div class="sb-sep"></div>
   <div class="sb-sec">데이터</div>
   <div class="si" onclick="go('excel')"><i class="ti ti-file-spreadsheet"></i> 엑셀 관리</div>
@@ -491,7 +506,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
         <option value="all">전체</option>
         <option value="0">2026년</option>
       </select>
-      <button class="btn solid" onclick="alert('전체 저장 완료')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
+      <button class="btn solid" onclick="toast('전체 저장 완료','ok')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
       <button class="btn" onclick="go('excel')"><i class="ti ti-download"></i> 지급현황 엑셀</button>
     </div>
   </div>
@@ -556,6 +571,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
           <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="doc" checked> 서류 검토 결과</label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="sel" checked> 선발 명단</label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="pay"> 지급 현황</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" class="xl-sheet" value="moonju"> 🎁 문주장학금 (전 연도 누적)</label>
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn" onclick="showXl()"><i class="ti ti-eye"></i> 미리보기</button>
@@ -610,7 +626,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
       </div>
       <div class="mp-footer">
         <button class="btn" style="flex:1" onclick="document.getElementById('cat-add-modal').classList.remove('on')">취소</button>
-        <button class="btn solid" style="flex:2" onclick="alert('구분이 추가되었습니다');document.getElementById('cat-add-modal').classList.remove('on')"><i class="ti ti-check"></i> 추가 완료</button>
+        <button class="btn solid" style="flex:2" onclick="toast('구분이 추가되었습니다','ok');document.getElementById('cat-add-modal').classList.remove('on')"><i class="ti ti-check"></i> 추가 완료</button>
       </div>
     </div>
   </div>
@@ -639,7 +655,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 14px;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8)">
       <span style="font-size:13px;color:var(--tx2)">2026년 총 예산: <strong style="color:var(--g)" id="cat-grand-total">0원</strong> / 목표 인원: <strong id="cat-grand-cnt">0명</strong></span>
-      <button class="btn solid" onclick="alert('전체 저장 완료')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
+      <button class="btn solid" onclick="toast('전체 저장 완료','ok')"><i class="ti ti-device-floppy"></i> 전체 저장</button>
     </div>
   </div>
 </div>
@@ -669,7 +685,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
         <span class="flabel">첨부 증빙</span>
         <div style="border:2px dashed var(--bd);border-radius:var(--r8);padding:16px;text-align:center;color:var(--tx3);font-size:13px;cursor:pointer">📎 파일 첨부 (선택)</div>
       </div>
-      <div class="mp-footer"><button class="btn" style="flex:1" onclick="document.getElementById('appeal-modal').classList.remove('on')">취소</button><button class="btn solid" style="flex:2" onclick="alert('이의신청이 접수되었습니다');document.getElementById('appeal-modal').classList.remove('on')"><i class="ti ti-check"></i> 접수 완료</button></div>
+      <div class="mp-footer"><button class="btn" style="flex:1" onclick="document.getElementById('appeal-modal').classList.remove('on')">취소</button><button class="btn solid" style="flex:2" onclick="toast('이의신청이 접수되었습니다','ok');document.getElementById('appeal-modal').classList.remove('on')"><i class="ti ti-check"></i> 접수 완료</button></div>
     </div>
   </div>
   <div class="content">
@@ -712,6 +728,77 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
     </div>
     <div id="rpt2" style="display:none"><div class="card"><div class="ct"><div class="ct-l">예산 집행 현황</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px"><div style="background:var(--bg);border-radius:var(--r8);padding:13px"><div style="font-size:11px;color:var(--tx3)">배정 예산</div><div style="font-size:20px;font-weight:700;margin-top:4px">48,000,000원</div></div><div style="background:var(--glt);border-radius:var(--r8);padding:13px"><div style="font-size:11px;color:var(--tx3)">집행 완료</div><div style="font-size:20px;font-weight:700;color:var(--g);margin-top:4px">32,000,000원</div><div style="font-size:11px;color:var(--g)">집행률 66.7%</div></div><div style="background:var(--olt);border-radius:var(--r8);padding:13px"><div style="font-size:11px;color:var(--tx3)">잔액 (하반기 이월)</div><div style="font-size:20px;font-weight:700;color:var(--o);margin-top:4px">16,000,000원</div></div></div><div style="height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:8px;background:var(--g);border-radius:4px;width:66.7%"></div></div><div style="font-size:12px;color:var(--tx3);text-align:right">집행률 66.7% — 48,000,000원 중 32,000,000원 집행</div></div></div>
     <div id="rpt3" style="display:none"><div class="card"><div class="ct"><div class="ct-l">연간 수혜 현황</div></div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--bg)"><th style="padding:8px 10px;border:1px solid var(--bd);font-weight:700;text-align:left">연도</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">접수</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">선발</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:right;font-weight:700">지급 총액</th><th style="padding:8px 10px;border:1px solid var(--bd);text-align:center;font-weight:700">선발률</th></tr></thead><tbody id="rpt3-tbody"></tbody></table><div style="font-size:11px;color:var(--tx3);margin-top:8px">※ 이전 연도 데이터는 누적 운영 시 자동 표시됩니다.</div></div></div>
+  </div>
+</div>
+
+<!-- ══ 문주장학금 (별도 사업) ══ -->
+<div id="s-moonju" class="screen">
+  <div class="topbar">
+    <span class="tb-title">🎁 문주장학금</span>
+    <div class="tb-r">
+      <select id="moonju-year" onchange="renderMoonju()" style="appearance:none;-webkit-appearance:none;padding:7px 30px 7px 11px;border:1.5px solid #6a1b9a;border-radius:var(--r8);font-size:13px;font-weight:700;color:#6a1b9a;background:#f3e5f5;cursor:pointer"></select>
+      <button class="btn" onclick="addMoonjuYear()" style="border-color:#6a1b9a;color:#6a1b9a"><i class="ti ti-plus"></i> 연도 추가</button>
+      <button class="btn solid" style="background:#6a1b9a;border-color:#6a1b9a" onclick="openMoonjuAdd()"><i class="ti ti-user-plus"></i> 명단 등록</button>
+    </div>
+  </div>
+  <div class="content">
+    <div style="background:#f3e5f5;border:1px solid #ce93d8;border-radius:var(--r8);padding:12px 16px;margin-bottom:14px;font-size:13px;color:#6a1b9a;line-height:1.7">
+      <strong>문주장학금</strong> · 문주재단 기부금(2억) 기반 · 심사·서류검토 없이 <strong>추천받은 대상에게 정액 지급</strong> · 연도별 누적 관리 + 과거 수혜 중복 자동 확인
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:#6a1b9a" id="mj-total">0</div><div style="font-size:11px;color:var(--tx3)">올해 대상</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--g)" id="mj-paid">0</div><div style="font-size:11px;color:var(--tx3)">지급 완료</div></div>
+      <div style="background:var(--warnlt);border:1px solid var(--warn);border-radius:var(--r8);padding:11px 14px"><div style="font-size:22px;font-weight:700;color:var(--warn)" id="mj-dup">0</div><div style="font-size:11px;color:var(--warn);font-weight:700">과거 수혜자</div></div>
+      <div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r8);padding:11px 14px"><div style="font-size:18px;font-weight:700;color:#6a1b9a" id="mj-amt">0원</div><div style="font-size:11px;color:var(--tx3)">지급 총액</div></div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="scroll-x">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:820px;white-space:nowrap">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">#</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">이름</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">생년월일</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">연락처</th>
+          <th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">은행/계좌</th>
+          <th style="padding:9px 10px;text-align:right;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급액</th>
+          <th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">과거 수혜</th>
+          <th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">지급</th>
+          <th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd)">삭제</th>
+        </tr></thead>
+        <tbody id="moonju-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 문주 명단 등록 모달 -->
+<div id="moonju-modal" class="modal-bg">
+  <div class="modal-box" style="background:var(--wh);border-radius:var(--r12);width:440px;max-width:94%;max-height:88vh;overflow-y:auto;padding:0">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center">
+      <strong style="font-size:15px;color:#6a1b9a">🎁 문주장학금 명단 등록</strong>
+      <button class="mp-close" onclick="document.getElementById('moonju-modal').classList.remove('on')">✕</button>
+    </div>
+    <div style="padding:18px 20px">
+      <div id="moonju-dupwarn" style="display:none;background:var(--warnlt);border:1px solid var(--warn);border-radius:var(--r8);padding:10px 13px;margin-bottom:12px;font-size:12px;color:var(--warn);font-weight:600"></div>
+      <div class="row2" style="margin-bottom:10px">
+        <div><span class="flabel">이름 *</span><input type="text" id="mj-name" oninput="checkMoonjuDup()"></div>
+        <div><span class="flabel">생년월일 *</span><input type="text" id="mj-birth" placeholder="20070515" oninput="checkMoonjuDup()"></div>
+      </div>
+      <div class="row2" style="margin-bottom:10px">
+        <div><span class="flabel">연락처</span><input type="text" id="mj-phone" placeholder="010-0000-0000"></div>
+        <div><span class="flabel">지급액</span><input type="text" id="mj-amount" value="2,000,000" oninput="fmtMoonjuAmt(this)"></div>
+      </div>
+      <div class="row2" style="margin-bottom:10px">
+        <div><span class="flabel">은행</span><input type="text" id="mj-bank" placeholder="국민/토스 등"></div>
+        <div><span class="flabel">계좌번호</span><input type="text" id="mj-acct"></div>
+      </div>
+      <div style="margin-bottom:14px"><span class="flabel">예금주</span><input type="text" id="mj-holder"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1" onclick="document.getElementById('moonju-modal').classList.remove('on')">취소</button>
+        <button class="btn solid" style="flex:2;background:#6a1b9a;border-color:#6a1b9a" onclick="registerMoonju()"><i class="ti ti-check"></i> 등록</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -876,6 +963,31 @@ const ROWS=[
 ];
 
 let curRound=0, curFilter='all', curDetail=null, editMode=false;
+
+// ── 토스트: 작업 성공/실패를 명확히 표시 ──
+function toast(msg, type){
+  type = type||'ok';
+  const wrap=document.getElementById('toast-wrap');
+  if(!wrap) return;
+  const icons={ok:'ti-circle-check',err:'ti-alert-circle',warn:'ti-alert-triangle',info:'ti-info-circle'};
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML=`<i class="ti ${icons[type]||icons.ok}"></i> ${msg}`;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),250); }, type==='err'?3500:2200);
+}
+// 작업 래퍼: try/catch로 감싸 실패를 절대 묻지 않음
+function safeRun(label, fn){
+  try{
+    const r = fn();
+    toast(label+' 완료', 'ok');
+    return r;
+  }catch(e){
+    console.error(label+' 실패:', e);
+    toast(label+' 실패: '+(e.message||'알 수 없는 오류'), 'err');
+    return null;
+  }
+}
 
 function pbar(pct){return `<div style="display:flex;align-items:center;gap:6px"><span>${pct}%</span><div style="flex:1;height:5px;background:var(--bd);border-radius:3px;min-width:40px"><div style="width:${pct}%;height:5px;background:var(--g);border-radius:3px"></div></div></div>`;}
 
@@ -1147,7 +1259,7 @@ function renderDetail(r){
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+id).classList.add('on');
-  const map={list:0,detail:1,dup:2,pay:3,dash:4,sel:5,excel:6,catmgr:7,appeal:8,report:9,guide:10};
+  const map={list:0,detail:1,dup:2,pay:3,dash:4,sel:5,moonju:6,excel:7,catmgr:8,appeal:9,report:10,guide:11};
   document.querySelectorAll('.si').forEach((el,i)=>el.classList.toggle('on',i===map[id]));
   if(id==='dash') renderDash();
   if(id==='sel') renderSel();
@@ -1156,6 +1268,7 @@ function go(id){
   if(id==='catmgr') renderCatMgr();
   if(id==='dup') renderDup();
   if(id==='report') renderReport();
+  if(id==='moonju') renderMoonju();
 }
 
 function renderDash(){
@@ -1283,8 +1396,8 @@ function registerNew(){
   const srcEl  = document.querySelector('#modal .sc.on');
   const src    = srcEl?(srcEl.textContent.trim().includes('이메일')?'이메일':'방문'):'이메일';
 
-  if(!name){alert('이름을 입력해주세요.');return;}
-  if(!phone){alert('연락처를 입력해주세요.');return;}
+  if(!name){toast('이름을 입력해주세요.','err');return;}
+  if(!phone){toast('연락처를 입력해주세요.','err');return;}
 
   // 서류 수령 체크 (체크된 개수)
   const checked = document.querySelectorAll('#doc-checks .dc.on').length;
@@ -1314,6 +1427,7 @@ function registerNew(){
   };
 
   ROWS.push(newRow);
+  toast(`${newRow.name} 접수 등록 완료`,'ok');
 
   // 목록 다시 그리기 (통계 포함 갱신)
   renderList(curFilter);
@@ -1444,7 +1558,7 @@ function renderDup(){
     </div>`).join('');
 }
 function resolveDup(gi,action){
-  alert(action==='해제'?'중복 의심을 해제했습니다.':'해당 그룹을 반려 처리했습니다.');
+  toast(action==='해제'?'중복 의심을 해제했습니다.':'해당 그룹을 반려 처리했습니다.','ok');
   renderDup(); renderList(curFilter);
 }
 
@@ -1496,6 +1610,9 @@ function buildSheets(){
   const payState={done:'지급완료',wait:'지급대기',error:'반송',''  :'미정'};
   sheets.pay={name:'지급현황', cols:['연번','이름','구분','은행','계좌번호','예금주','지급상태','지급일','장학증서'],
     data:rows.filter(r=>r.sel==='선발').map((r,i)=>[i+1,r.name,r.cat,r.bank,r.acct,r.acctHolder,payState[r.payState||'']||'미정',r.payDate||'',r.cert?'발급':'미발급'])};
+  // 문주장학금 (전 연도 누적)
+  sheets.moonju={name:'문주장학금', cols:['연도','이름','생년월일','연락처','은행','계좌번호','예금주','지급액','지급여부','과거수혜연도'],
+    data:MOONJU.slice().sort((a,b)=>a.year-b.year||a.id-b.id).map(m=>[m.year,m.name,m.birth,m.phone,m.bank,m.acct,m.holder,m.amount,m.paid?'지급완료':'미지급',moonjuPastYears(m.name,m.birth,m.year).join(',')])};
   return sheets;
 }
 
@@ -1532,19 +1649,27 @@ function previewSheet(key,el){
 }
 
 function doExport(){
-  if(typeof XLSX==='undefined'){alert('엑셀 모듈 로딩 중입니다. 잠시 후 다시 시도해주세요.');return;}
-  const sheets=buildSheets();
-  const sel=getSelectedSheets();
-  const wb=XLSX.utils.book_new();
-  sel.forEach(key=>{
-    const s=sheets[key];
-    const aoa=[s.cols, ...s.data];
-    const ws=XLSX.utils.aoa_to_sheet(aoa);
-    ws['!cols']=s.cols.map(()=>({wch:14}));
-    XLSX.utils.book_append_sheet(wb, ws, s.name);
-  });
-  const today=new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb, `의왕시인재육성재단_장학생_${today}.xlsx`);
+  if(typeof XLSX==='undefined'){toast('엑셀 모듈 로딩 중입니다. 잠시 후 다시 시도해주세요.','warn');return;}
+  try{
+    const sheets=buildSheets();
+    const sel=getSelectedSheets();
+    if(!sel.length){ toast('내보낼 시트를 선택해주세요','warn'); return; }
+    const wb=XLSX.utils.book_new();
+    sel.forEach(key=>{
+      const s=sheets[key];
+      if(!s) return;
+      const aoa=[s.cols, ...s.data];
+      const ws=XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols']=s.cols.map(()=>({wch:14}));
+      XLSX.utils.book_append_sheet(wb, ws, s.name);
+    });
+    const today=new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `의왕시인재육성재단_장학생_${today}.xlsx`);
+    toast('엑셀 내보내기 완료','ok');
+  }catch(e){
+    console.error('엑셀 내보내기 실패:',e);
+    toast('엑셀 내보내기 실패: '+(e.message||'오류'),'err');
+  }
 }
 
 
@@ -1716,7 +1841,7 @@ function renderCatMgr(){
       <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><input type="number" value="${cat.target||0}" min="0" oninput="calcCatTotal(this.closest('tr'))" style="width:60px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:13px;text-align:center"></td>
       <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${(cat.amt||0).toLocaleString()}" oninput="fmtAmt(this)" onblur="fmtAmt(this)" style="width:90px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
       <td class="cat-total" style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:right;font-weight:700;color:var(--g);white-space:nowrap">${total.toLocaleString()}원</td>
-      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 9px" onclick="calcCatTotal(this.closest('tr'));alert('저장되었습니다')">저장</button></td>
+      <td style="padding:9px 12px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 9px" onclick="calcCatTotal(this.closest('tr'));toast('저장되었습니다','ok')">저장</button></td>
     </tr>`;
   }).join('');
   updateCatGrandTotal();
@@ -1786,7 +1911,7 @@ function saveInfo(){
   document.getElementById('det-title').textContent=r.name+' · 서류검토 및 피드백';
   renderDetail(r);
   renderDup();        // 연락처 변경 시 중복 재검사
-  alert('기본정보가 저장되었습니다.');
+  toast('기본정보가 저장되었습니다.','ok');
 }
 function docOk(btn){ var ds=btn.closest('.ds'); if(ds){ds.className='ds ok'; ds.querySelector('.dot').className='dot ok';} }
 function docNg(btn){ var ds=btn.closest('.ds'); if(ds){ds.className='ds ng'; ds.querySelector('.dot').className='dot ng';} }
@@ -1919,7 +2044,7 @@ function resolveAppeal(id, decision){
   if(r) r.appeal = decision==='인용' ? '인용' : '기각';
   renderAppeal();
   renderList(curFilter);
-  alert(`${a.name} 지원자 이의신청이 ${a.status} 처리되었습니다.`);
+  toast(`${a.name} 이의신청 ${a.status} 처리 완료`,'ok');
 }
 
 function viewAppealDetail(id){
@@ -2012,6 +2137,7 @@ function handleImportFile(file){
       });
       if(added===0 && skipped===0){
         res.innerHTML = '<span style="color:var(--r)">인식된 시트가 없습니다. (성적우수 / 성적우수(저소득층) / 기숙사 장학생 / 체육특기)</span>';
+        toast('인식된 시트가 없습니다','err');
         return;
       }
       // 구분 필터 select 갱신
@@ -2020,9 +2146,11 @@ function handleImportFile(file){
         [...new Set(ROWS.filter(r=>r.round===curRound).map(r=>r.cat))].forEach(c=>{
           const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);}); }
       res.innerHTML = `<span style="color:var(--g)">✓ ${added}명 등록${skipped?` (중복 ${skipped}명 제외)`:''} — ${summary.join(', ')}</span>`;
+      toast(`${added}명 가져오기 완료${skipped?` (중복 ${skipped}명 제외)`:''}`,'ok');
       renderList('all');
     } catch(err){
       res.innerHTML = '<span style="color:var(--r)">파일 읽기 오류: '+err.message+'</span>';
+      toast('파일 읽기 오류: '+err.message,'err');
     }
   };
   reader.readAsArrayBuffer(file);
@@ -2064,9 +2192,152 @@ document.querySelectorAll('.si').forEach(si=>{
   si.addEventListener('click',()=>{ if(window.innerWidth<=900) toggleSidebar(false); });
 });
 
+// ══════════ 문주장학금 모듈 ══════════
+// 데이터: 연도별 수혜자 명단 (누적). round 대신 year로 구분.
+let MOONJU = [];          // {id, year, name, birth, phone, bank, acct, holder, amount, paid}
+let MOONJU_YEARS = [2026]; // 운영 연도 목록 (누적)
+let mjCurYear = 2026;
+let mjSeq = 1;
+
+function fmtMoonjuAmt(el){
+  const v=el.value.replace(/,/g,'');
+  if(!isNaN(v)&&v) el.value=parseInt(v).toLocaleString();
+}
+
+// 연도 select 채우기
+function fillMoonjuYears(){
+  const sel=document.getElementById('moonju-year');
+  if(!sel) return;
+  sel.innerHTML = MOONJU_YEARS.slice().sort((a,b)=>b-a).map(y=>`<option value="${y}"${y===mjCurYear?' selected':''}>${y}년 문주장학금</option>`).join('');
+}
+
+function addMoonjuYear(){
+  const next = Math.max(...MOONJU_YEARS)+1;
+  if(MOONJU_YEARS.includes(next)){ toast('이미 있는 연도입니다','warn'); return; }
+  MOONJU_YEARS.push(next);
+  mjCurYear = next;
+  fillMoonjuYears();
+  renderMoonju();
+  toast(`${next}년 문주장학금 개설`,'ok');
+}
+
+// 과거 연도 수혜 이력 확인 (이름+생년월일)
+function moonjuPastYears(name, birth, exceptYear){
+  return MOONJU.filter(m=>m.name===name && m.birth===birth && m.year<exceptYear).map(m=>m.year);
+}
+
+function openMoonjuAdd(){
+  ['mj-name','mj-birth','mj-phone','mj-bank','mj-acct','mj-holder'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('mj-amount').value='2,000,000';
+  document.getElementById('moonju-dupwarn').style.display='none';
+  document.getElementById('moonju-modal').classList.add('on');
+}
+
+// 등록 모달에서 실시간 중복 경고
+function checkMoonjuDup(){
+  const name=document.getElementById('mj-name').value.trim();
+  const birth=document.getElementById('mj-birth').value.trim();
+  const w=document.getElementById('moonju-dupwarn');
+  if(!name||!birth){ w.style.display='none'; return; }
+  const past=moonjuPastYears(name,birth,mjCurYear);
+  if(past.length){
+    w.style.display='block';
+    w.innerHTML=`⚠ <strong>${name}</strong>님은 과거 문주장학금 수혜 이력이 있습니다: <strong>${past.join(', ')}년</strong><br>(중복이어도 등록·지급은 가능합니다. 담당자 판단)`;
+  } else {
+    w.style.display='none';
+  }
+}
+
+function registerMoonju(){
+  const name=document.getElementById('mj-name').value.trim();
+  const birth=document.getElementById('mj-birth').value.trim();
+  if(!name){ toast('이름을 입력해주세요','err'); return; }
+  if(!birth){ toast('생년월일을 입력해주세요','err'); return; }
+  const amount=parseInt((document.getElementById('mj-amount').value||'').replace(/,/g,''))||0;
+  MOONJU.push({
+    id: mjSeq++,
+    year: mjCurYear,
+    name, birth,
+    phone: document.getElementById('mj-phone').value.trim(),
+    bank: document.getElementById('mj-bank').value.trim(),
+    acct: document.getElementById('mj-acct').value.trim(),
+    holder: document.getElementById('mj-holder').value.trim(),
+    amount,
+    paid: false,
+  });
+  const past=moonjuPastYears(name,birth,mjCurYear);
+  document.getElementById('moonju-modal').classList.remove('on');
+  renderMoonju();
+  if(past.length) toast(`${name} 등록 (⚠ 과거 ${past.join(',')}년 수혜)`,'warn');
+  else toast(`${name} 등록 완료`,'ok');
+}
+
+function toggleMoonjuPaid(id){
+  const m=MOONJU.find(x=>x.id===id);
+  if(!m) return;
+  m.paid=!m.paid;
+  renderMoonju();
+  toast(m.paid?`${m.name} 지급 완료 처리`:`${m.name} 지급 취소`, m.paid?'ok':'info');
+}
+
+function delMoonju(id){
+  const m=MOONJU.find(x=>x.id===id);
+  if(!m) return;
+  if(!confirm(`${m.name}님을 명단에서 삭제할까요?`)) return;
+  MOONJU=MOONJU.filter(x=>x.id!==id);
+  renderMoonju();
+  toast(`${m.name} 삭제`,'info');
+}
+
+function mjEditAmt(id, val){
+  const m=MOONJU.find(x=>x.id===id);
+  if(m) m.amount=parseInt((val||'').replace(/,/g,''))||0;
+}
+
+function renderMoonju(){
+  mjCurYear = parseInt(document.getElementById('moonju-year')?.value)||mjCurYear;
+  const rows=MOONJU.filter(m=>m.year===mjCurYear);
+  const tbody=document.getElementById('moonju-tbody');
+  if(!tbody) return;
+
+  let dupCnt=0, paidCnt=0, totalAmt=0;
+  rows.forEach(m=>{ if(moonjuPastYears(m.name,m.birth,m.year).length) dupCnt++; if(m.paid) paidCnt++; totalAmt+=m.amount; });
+
+  // 통계
+  const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  setT('mj-total', rows.length);
+  setT('mj-paid', paidCnt);
+  setT('mj-dup', dupCnt);
+  setT('mj-amt', totalAmt.toLocaleString()+'원');
+
+  // 사이드바 배지 (현재 연도 인원)
+  const sb=document.getElementById('sidebar-moonju-badge');
+  if(sb){ sb.textContent=rows.length; sb.style.display=rows.length?'':'none'; }
+
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--tx3)">등록된 명단이 없습니다. "명단 등록"으로 추가하세요.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map((m,i)=>{
+    const past=moonjuPastYears(m.name,m.birth,m.year);
+    return `<tr${m.paid?' style="background:#f1f8f2"':''}>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;color:var(--tx3)">${i+1}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed"><strong>${m.name}</strong></td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.birth}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.phone||'−'}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;font-size:12px">${m.bank||'−'} ${m.acct||''}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:right;white-space:nowrap"><input type="text" value="${m.amount.toLocaleString()}" onblur="this.value=parseInt(this.value.replace(/,/g,'')||0).toLocaleString()" oninput="mjEditAmt(${m.id},this.value)" style="width:90px;padding:3px 6px;border:1px solid var(--bd);border-radius:5px;font-size:12px;text-align:right">&nbsp;원</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center">${past.length?`<span class="bdg warn" style="font-size:10px">⚠ ${past.join(',')}년</span>`:'<span style="color:var(--tx3);font-size:12px">−</span>'}</td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn ${m.paid?'solid':''}" style="font-size:11px;padding:4px 10px${m.paid?';background:var(--g);border-color:var(--g)':''}" onclick="toggleMoonjuPaid(${m.id})">${m.paid?'✓ 완료':'지급'}</button></td>
+      <td style="padding:8px 10px;border-bottom:.5px solid #edf2ed;text-align:center"><button class="btn" style="font-size:11px;padding:4px 8px;color:var(--r)" onclick="delMoonju(${m.id})"><i class="ti ti-trash"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
 // 초기 렌더링
 renderDup();        // dup 플래그 먼저 세팅
 renderList('all');  // 그 다음 목록·통계 (중복의심 카운트 반영)
+fillMoonjuYears();
 </script>
 </body>
 </html>
