@@ -1,9 +1,30 @@
 <!DOCTYPE html>
+<!--
+═══════════════════════════════════════════════════════════
+  의왕시인재육성재단 · 장학생 관리 시스템
+  현재 버전: V3.01
+  최종 수정: 2026-06-23
+  담당: 지원팀
+
+  [변경 이력]
+  V3.01 (2026-06-23)
+    - 버전 관리 체계 도입, 타이틀 V3.01 변경
+    - 구분·금액 관리 회차 영역 레이아웃 정리 (회차 select 축소, 구분추가 우측 정렬)
+    - 문주장학금: 가로스크롤·헤더 폭조정·정보수정·검색·헤더정렬 추가
+    - 접수목록: 헤더정렬·검색(학과/구분) 추가, 헤더 폭조정 복구
+    - 회차(연도+반기) 시스템: 자유 회차명, 검색형 드롭다운, 회차 추가/삭제
+    - 구분 추가/삭제 실동작, 금액 입력 쉼표 통일
+    - 자동 임시저장(IndexedDB 30분/7일) + 복구
+    - 문주장학금 별도 모듈(명단/대시보드/보고서), 과거 수혜 중복 확인
+    - 전 화면 작업 성공/실패 토스트
+    - 인쇄: 보고서 영역만, 페이지 넘어가도 전체 출력
+═══════════════════════════════════════════════════════════
+-->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>장학생 관리 V3.0</title>
+<title>장학생 관리 V3.01</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -280,7 +301,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 <div id="autosave-status" style="position:fixed;bottom:14px;right:14px;z-index:9990;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:5px 11px;border-radius:14px;opacity:0;transition:opacity .3s;pointer-events:none">자동저장됨</div>
 <div class="sb-backdrop" id="sb-backdrop" onclick="toggleSidebar(false)"></div>
 <div class="sb" id="sb">
-  <div class="sb-logo"><div class="sb-ic">재단<br>법인</div><div><div class="sb-nm">의왕시인재육성재단</div><div class="sb-sub">장학생 관리 v2</div></div></div>
+  <div class="sb-logo"><div class="sb-ic">재단<br>법인</div><div><div class="sb-nm">의왕시인재육성재단</div><div class="sb-sub">장학생 관리 V3.01</div></div></div>
   <div class="sb-sec">접수 관리</div>
   <div class="si on" onclick="go('list')"><i class="ti ti-list"></i> 접수 목록</div>
   <div class="si" onclick="goDetail(this)"><i class="ti ti-file-check"></i> 서류검토·피드백</div>
@@ -635,9 +656,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 
 <!-- ══ 구분·금액 관리 ══ -->
 <div id="s-catmgr" class="screen">
-  <div class="topbar"><span class="tb-title">⚙ 구분·모집기간·금액 관리</span>
-    <div class="tb-r"><button class="btn solid" onclick="document.getElementById('cat-add-modal').classList.add('on')"><i class="ti ti-plus"></i> 구분 추가</button></div>
-  </div>
+  <div class="topbar"><span class="tb-title">⚙ 구분·모집기간·금액 관리</span></div>
   <div class="modal-bg" id="cat-add-modal">
     <div class="modal-panel" style="max-width:400px">
       <div class="mp-hdr"><h3>새 구분 추가</h3><button class="mp-close" onclick="document.getElementById('cat-add-modal').classList.remove('on')">✕</button></div>
@@ -660,12 +679,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
     </div>
   </div>
   <div class="content">
-    <!-- 회차 선택 -->
+    <!-- 회차 선택 + 구분 추가 (한 줄) -->
     <div style="display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-      <input type="text" placeholder="회차 검색" oninput="fillRoundSelects(this.value)" style="width:100px;padding:7px 9px;border:1px solid var(--bd);border-radius:var(--r8);font-size:12px">
-      <select class="round-select" onchange="changeRound(this.value)" style="padding:7px 11px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer;min-width:140px"></select>
-      <button class="btn" onclick="addRound()" style="white-space:nowrap;border-color:var(--g);color:var(--g)"><i class="ti ti-plus"></i> 회차 추가</button>
-      <button class="btn" onclick="delRound()" style="white-space:nowrap;color:var(--r)"><i class="ti ti-trash"></i> 회차 삭제</button>
+      <input type="text" placeholder="회차 검색" oninput="fillRoundSelects(this.value)" style="width:84px;padding:7px 9px;border:1px solid var(--bd);border-radius:var(--r8);font-size:12px">
+      <select class="round-select" onchange="changeRound(this.value)" style="width:130px;padding:7px 10px;border:1.5px solid var(--g);border-radius:var(--r8);font-size:13px;font-weight:700;color:var(--g);background:var(--glt);cursor:pointer"></select>
+      <button class="btn" onclick="addRound()" style="white-space:nowrap;border-color:var(--g);color:var(--g);padding:7px 11px"><i class="ti ti-plus"></i> 회차</button>
+      <button class="btn" onclick="delRound()" style="white-space:nowrap;color:var(--r);padding:7px 11px"><i class="ti ti-trash"></i> 회차삭제</button>
+      <button class="btn solid" onclick="document.getElementById('cat-add-modal').classList.add('on')" style="margin-left:auto;white-space:nowrap"><i class="ti ti-plus"></i> 구분 추가</button>
     </div>
 
     <!-- 상반기 구분별 설정 -->
@@ -925,6 +945,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--g)}
 </div>
 
 <script>
+// ── 버전 ──
+const APP_VERSION = 'V3.01';
 // ── 데이터 ──
 const ROUNDS = [
   { id:0, label:'2026 상반기', cats:[
